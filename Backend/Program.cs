@@ -1,14 +1,19 @@
+using Microsoft.Extensions.FileProviders;
 using NLog;
 using NLog.Web;
-
 bool useSwaggerAPIEndpoint = true;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    WebRootPath = "../static",
+    Args = args
+});
 
 // setup logging
 LogManager.Setup().LoadConfigurationFromAppSettings();
 
-if (useSwaggerAPIEndpoint) {
+if (useSwaggerAPIEndpoint)
+{
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 }
@@ -19,12 +24,16 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+Console.WriteLine($"ContentRoot Path: {builder.Environment.ContentRootPath}");
+Console.WriteLine($"WebRootPath: {builder.Environment.WebRootPath}");
+
 /* Not neccesary basic things */
 
 
-if (useSwaggerAPIEndpoint && app.Environment.IsDevelopment()) {
-        app.UseSwagger();
-        app.UseSwaggerUI();
+if (useSwaggerAPIEndpoint && app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 // If Redirection is required
@@ -40,7 +49,13 @@ app.UseWebSockets();
 app.UseDefaultFiles();
 
 // Make it so it serves static files
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "../static")),
+    RequestPath = ""
+});
+
 
 app.MapControllers();
 

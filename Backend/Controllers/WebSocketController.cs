@@ -141,10 +141,9 @@ public class WebSocketController : ControllerBase
             _logger.Info("----------- Closed Websocket connection from user ---");
         }
 
-        if (webSocket.State == WebSocketState.Closed)
-        {
-            _logger.Warn("Attempted to close already closed websocket connection!");
-        }
-
+        // if (webSocket.State == WebSocketState.Closed)
+        // {
+        //     _logger.Warn("Attempted to close already closed websocket connection!");
+        // }
     }
 }
