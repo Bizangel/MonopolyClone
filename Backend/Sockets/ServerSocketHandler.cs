@@ -1,22 +1,36 @@
-using System.Buffers;
-using System.Text;
-using System.Text.Json;
-
-
 namespace MonopolyClone.Sockets;
 
 public class ServerSocketHandler
 {
-    private List<UserSocket> _sockets;
-
+    private Dictionary<string, UserSocket> _sockets;
     public ServerSocketHandler()
     {
-        _sockets = new List<UserSocket>();
+        _sockets = new Dictionary<string, UserSocket>();
     }
 
-    public void AddSocket(UserSocket socket)
+    public void RegisterSocket(UserSocket socket)
     {
-        _sockets.Add(socket);
+        _sockets.Add(socket.Username, socket);
     }
+
+    public void UnregisterSocket(UserSocket socket)
+    {
+        _sockets.Remove(socket.Username);
+    }
+
+    public List<string> GetConnectedUsers()
+    {
+        return _sockets.Keys.ToList();
+    }
+
+    // public async Task BroadcastMessage(string message)
+    // {
+    //     // foreach (var socket in _sockets)
+    //     // {
+    //     //     await socket.SendMessage(message);
+    //     // }
+    // }
+
+
 
 }

@@ -1,6 +1,6 @@
+using System.Buffers;
 using System.Text;
 using System.Text.Json;
-using System.Buffers;
 
 namespace MonopolyClone.Events;
 
@@ -11,11 +11,8 @@ public class SocketEventMessage
     private string _payload = "";
     private string _authHeader = "";
 
-    public string EventIdentifier { get => _eventIdentifier; set => _eventIdentifier = value ; }
-
-    
+    public string EventIdentifier { get => _eventIdentifier; set => _eventIdentifier = value; }
     public string Payload { get => _payload; set => _payload = value; }
-
     public string AuthHeader { get => _authHeader; set => _authHeader = value; }
 
     public override string ToString()
@@ -23,16 +20,22 @@ public class SocketEventMessage
         return string.Format("Identifier {0} payload: {1} AuthHeader : {2}", EventIdentifier, Payload, AuthHeader);
     }
 
-    public static SocketEventMessage Deserialize(IMemoryOwner<byte> membytes, int byteCount)
+    /// <summary>
+    /// Deserializes a SocketEventMessage from a json string as bytes.
+    /// </summary>
+    /// <param name="membytes">The bytes to deserialize</param>
+    /// <param name="byteCount">The bytecount</param>
+    /// <returns>The MessageSocketEvent should deserialization be successful, returns null otherwise</returns>
+    public static SocketEventMessage? Deserialize(IMemoryOwner<byte> membytes, int byteCount)
     {
         try
         {
             string msg = Encoding.UTF8.GetString(membytes.Memory.Slice(0, byteCount).Span);
-            return JsonSerializer.Deserialize<SocketEventMessage>(msg)!;
+            return JsonSerializer.Deserialize<SocketEventMessage>(msg);
         }
         catch (Exception)
         {
-            return new SocketEventMessage();
+            return null;
         }
     }
 }

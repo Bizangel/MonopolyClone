@@ -5,12 +5,12 @@ namespace MonopolyClone.Events;
 
 public static class SampleTestEvent
 {
-    private static int sampleAttribute = 3;
-
     [SocketEvent("sampleEvent")]
-    public static void Run(string user, string payload, ServerSocketHandler handler)
+    public static async Task Run(UserSocket user, string payload, ServerSocketHandler handler)
     {
-        Console.WriteLine("Called Event." + sampleAttribute);
+        Console.WriteLine($"Received Event from {user.Username} with payload {payload}");
+
+        await user.SendMessage("Replying!");
     }
 
 }

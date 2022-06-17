@@ -13,3 +13,11 @@ public class SocketEventAttribute : Attribute
 
     public virtual string EventID { get { return _eventid; } }
 }
+
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+public class OnSocketConnectionLostAttribute : Attribute
+{
+    public OnSocketConnectionLostAttribute()
+    {
+    }
+}

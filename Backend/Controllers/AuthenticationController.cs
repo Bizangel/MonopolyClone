@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MonopolyClone.Auth;
-using MonopolyClone.Database;
 using MonopolyClone.Auth.Validator;
+using MonopolyClone.Database;
 
 namespace MonopolyClone.Controllers;
 
@@ -25,7 +25,7 @@ public class AuthenticationController : ControllerBase
     public RegisterReply RegisterAccount(AuthSchema auth)
     {
         // Validate that they're not null
-        if (auth.Username == null || auth.Password == null )
+        if (auth.Username == null || auth.Password == null)
             return new RegisterReply()
             {
                 Success = false,
@@ -46,21 +46,25 @@ public class AuthenticationController : ControllerBase
             return new RegisterReply() { Success = false, Message = "Password is too short!" };
 
         // If passed all validations, then actually store
-        try {
+        try
+        {
             string Hash = BCrypt.Net.BCrypt.HashPassword(auth.Password);
             LocalDatabase.InsertUser(auth.Username, Hash);
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             return new RegisterReply() { Success = false, Message = "Cannot register with such password" };
         }
 
-        return new RegisterReply() { Success = true, Message = "Successfully registered!"};
+        return new RegisterReply() { Success = true, Message = "Successfully registered!" };
     }
 
     [HttpPost("RequestGameTicket")]
     public GamePlayTicket GetGamePlayTicket(AuthSchema auth)
     {
         // validate that they're not null
-        if (auth.Username == null || auth.Password == null) { 
+        if (auth.Username == null || auth.Password == null)
+        {
             return new GamePlayTicket()
             {
                 IsValidTicket = false,
@@ -74,9 +78,9 @@ public class AuthenticationController : ControllerBase
             };
 
         string hash = LocalDatabase.GetUserHash(auth.Username);
-        
+
         bool isValidHash = BCrypt.Net.BCrypt.Verify(auth.Password, hash);
-        
+
         if (!isValidHash)
             return new GamePlayTicket()
             {
@@ -85,7 +89,7 @@ public class AuthenticationController : ControllerBase
 
 
         string ticketSecret = Auth.SecretGenerator.SecretGenerator.GetUniqueSecret(20);
-        var newTicket = new GamePlayTicket() { IsValidTicket = true, TicketHolderUsername = auth.Username, TicketSecret = ticketSecret};
+        var newTicket = new GamePlayTicket() { IsValidTicket = true, TicketHolderUsername = auth.Username, TicketSecret = ticketSecret };
 
         // create new ticket, or simply replace old ticket.
         _userTickets.Add(auth.Username, newTicket);
@@ -106,7 +110,7 @@ public class AuthenticationController : ControllerBase
     {
         if (_instance != null)
             return _instance._tickets2user.ContainsKey(ticketSecret);
-                
+
 
         return false;
     }
