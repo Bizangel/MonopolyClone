@@ -1,9 +1,10 @@
+using System.Buffers;
 using System.Net.WebSockets;
 using Microsoft.AspNetCore.Mvc;
-using System.Buffers;
-using WebSocketsHandler.Controllers.Events;
+using MonopolyClone.Events;
+using NLog;
 
-namespace WebSocketsHandler.Controllers;
+namespace MonopolyClone.Controllers;
 
 
 // Idea is to create an event-based controller
@@ -15,12 +16,11 @@ namespace WebSocketsHandler.Controllers;
 
 public class WebSocketController : ControllerBase
 {
-    
-    private List<WebSocket> _socketInstances;
-    //private List<SocketEvent>
+    private readonly Logger _logger;
 
-    public WebSocketController(){
-        _socketInstances = new List<WebSocket>();
+    public WebSocketController()
+    {
+        _logger = LogManager.GetCurrentClassLogger();
     }
 
     [HttpGet("/ws")]
@@ -30,8 +30,10 @@ public class WebSocketController : ControllerBase
         {
             using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
-            Console.WriteLine("----------- accepted websocket --------");
-            await HandleSocketRequest(webSocket);
+            _logger.Info("----------- Accepted Websocket Connection from IP:" + HttpContext.Connection.RemoteIpAddress);
+            bool authenticated = await AuthenticateSocket(webSocket); // attempt authentication
+            if (authenticated)
+                await HandleSocketRequest(webSocket); // Then handle events information, etc
         }
         else
         {
@@ -39,7 +41,7 @@ public class WebSocketController : ControllerBase
         }
     }
 
-    private static async Task HandleSocketRequest(WebSocket webSocket)
+    private async Task<bool> AuthenticateSocket(WebSocket webSocket)
     {
         using IMemoryOwner<byte> memory = MemoryPool<byte>.Shared.Rent(1024 * 4);
 
@@ -51,10 +53,53 @@ public class WebSocketController : ControllerBase
                 switch (request.MessageType)
                 {
                     case WebSocketMessageType.Text:
-                        var x = SocketEventMessage.Deserialize(memory, request.Count);
-                        //x.ToString();
-                        Console.WriteLine(x.ToString());
+                        var eventmessage = SocketEventMessage.Deserialize(memory, request.Count);
 
+                        string? user = AuthenticationController.GetUsernameFromSecret(eventmessage.AuthHeader);
+
+                        if (user == null)
+                        {
+                            // close connection from unverified sockets
+                            await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Unauthorized", CancellationToken.None);
+                            _logger.Info("----------- Closed Websocket Connection due to unauthorized -----");
+                            return false;
+                        }
+
+                        // keep connection open, and authorize. Create UserSocket object.
+                        _logger.Info("----------- Websocket Connection Authenticated as  " + user + " ---------");
+                        return true;
+                    default: // close connection if doesn't send proper information.
+                        await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Unauthorized", CancellationToken.None);
+                        return false;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Catched Exception on socket bytes \n ${e.Message} ${e.StackTrace}");
+                await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Unauthorized", CancellationToken.None);
+                return false;
+            }
+        }
+
+        await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Unauthorized", CancellationToken.None);
+        return false;
+    }
+
+    private async Task HandleSocketRequest(WebSocket webSocket)
+    {
+        using IMemoryOwner<byte> memory = MemoryPool<byte>.Shared.Rent(1024 * 4);
+
+        while (webSocket.State == WebSocketState.Open)
+        {
+            try
+            {
+                ValueWebSocketReceiveResult request = await webSocket.ReceiveAsync(memory.Memory, CancellationToken.None);
+                switch (request.MessageType)
+                {
+                    case WebSocketMessageType.Text:
+                        var eventmessage = SocketEventMessage.Deserialize(memory, request.Count);
+
+                        //SocketsEventHandler.HandleEvent(eventmessage.EventIdentifier, user, eventmessage.Payload);
                         break;
                     default:
                         break;
@@ -62,35 +107,10 @@ public class WebSocketController : ControllerBase
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.Message}\r\n{e.StackTrace}");
+                _logger.Error($"Catched Exception on socket bytes \n ${e.Message} ${e.StackTrace}");
             }
         }
 
-        Console.WriteLine("Websocket closed! -------------");
+        _logger.Info("----------- Closed Websocket Connection ---- ");
     }
-
-    //private static async Task Echo(WebSocket webSocket)
-    //{
-    //    var buffer = new byte[1024 * 4];
-    //    var receiveResult = await webSocket.ReceiveAsync(
-    //        new ArraySegment<byte>(buffer), CancellationToken.None);
-
-    //    while (!receiveResult.CloseStatus.HasValue)
-    //    {
-    //        await webSocket.SendAsync(
-    //            new ArraySegment<byte>(buffer, 0, receiveResult.Count),
-    //            receiveResult.MessageType,
-    //            receiveResult.EndOfMessage,
-    //            CancellationToken.None);
-
-    //        receiveResult = await webSocket.ReceiveAsync(
-    //            new ArraySegment<byte>(buffer), CancellationToken.None);
-    //    }
-
-    //    DebugLog("echoing but one");
-    //    await webSocket.CloseAsync(
-    //        receiveResult.CloseStatus.Value,
-    //        receiveResult.CloseStatusDescription,
-    //        CancellationToken.None);
-    //}
 }

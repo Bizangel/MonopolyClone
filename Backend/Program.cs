@@ -1,6 +1,18 @@
+using NLog;
+using NLog.Web;
 
+bool useSwaggerAPIEndpoint = true;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// setup logging
+LogManager.Setup().LoadConfigurationFromAppSettings();
+
+if (useSwaggerAPIEndpoint) {
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -8,6 +20,12 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 /* Not neccesary basic things */
+
+
+if (useSwaggerAPIEndpoint && app.Environment.IsDevelopment()) {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+}
 
 // If Redirection is required
 //app.UseHttpsRedirection();
@@ -26,4 +44,8 @@ app.UseStaticFiles();
 
 app.MapControllers();
 
+// Register SocketEvents
+MonopolyClone.Events.SocketsEventHandler.RegisterAllEvents();
+
 app.Run();
+

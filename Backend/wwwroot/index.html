@@ -126,7 +126,7 @@
 
             var data = sendMessage.value;
 
-            socket.send(JSON.stringify({ JsonData: data })); // Sending data uses UTF8 format
+            socket.send(JSON.stringify({ EventIdentifier: "sampleEvent", Payload: "sample payload", AuthHeader: data })); // Sending data uses UTF8 format
 
             //var thrashdata = new ArrayBuffer(8);
             //socket.send(thrashdata);
