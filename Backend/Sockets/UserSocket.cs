@@ -28,9 +28,16 @@ public class UserSocket
         Username = username;
     }
 
-    public async Task SendMessage(string message)
+    public async Task SendEvent(string eventID, string payload)
     {
-        var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(message));
+        var message = new SocketEventMessage
+        {
+            EventIdentifier = eventID,
+            Payload = payload,
+            AuthHeader = Username
+        };
+
+        var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(SocketEventMessage.Serialize(message)));
         await _socket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
     }
 

@@ -1,2 +1,0 @@
-
-export { RequestManager } from './Requests';

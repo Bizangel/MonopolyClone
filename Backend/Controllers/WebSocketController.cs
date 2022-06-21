@@ -77,6 +77,9 @@ public class WebSocketController : ControllerBase
                         // keep connection open, and authorize. Create UserSocket object.
                         UserSocket userSocket = new UserSocket(webSocket, user);
                         _socketHandler.RegisterSocket(userSocket);
+
+                        await userSocket.SendEvent("authEvent", "Success");
+
                         _logger.Info($"----------- Authenticated websocket as User: {user} -----");
                         return userSocket;
                     default: // close connection if doesn't send proper information.

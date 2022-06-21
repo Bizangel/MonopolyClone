@@ -87,7 +87,6 @@ public class AuthenticationController : ControllerBase
                 IsValidTicket = false,
             };
 
-
         string ticketSecret = Auth.SecretGenerator.SecretGenerator.GetUniqueSecret(20);
         var newTicket = new GamePlayTicket() { IsValidTicket = true, TicketHolderUsername = auth.Username, TicketSecret = ticketSecret };
 

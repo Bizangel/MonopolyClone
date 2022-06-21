@@ -10,7 +10,7 @@ public static class SampleTestEvent
     {
         Console.WriteLine($"Received Event from {user.Username} with payload {payload}");
 
-        await user.SendMessage("Replying!");
+        await user.SendEvent("testEvent", "Hello World from Server!");
     }
 
 }

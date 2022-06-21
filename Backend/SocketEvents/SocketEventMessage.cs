@@ -38,4 +38,10 @@ public class SocketEventMessage
             return null;
         }
     }
+
+    public static string Serialize(SocketEventMessage message)
+    {
+        return JsonSerializer.Serialize(message);
+    }
+
 }
