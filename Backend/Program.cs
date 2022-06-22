@@ -1,4 +1,5 @@
 using System.Web;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.FileProviders;
 using NLog;
 using NLog.Web;
@@ -22,14 +23,32 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: DevelopmentOrigin,
                       policy =>
                       {
-                          policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+                          //policy.SetIsOriginAllowed(origin => {
+                          //    var hostName = new Uri(origin).Host;
+                          //    if (hostName == "localhost") { return true; }
+                          //    if (hostName.StartsWith("192.168.1.")) { return true; }
+                          //    return false;
+                          //    })
+                          //  .AllowAnyHeader()
+                          //  .AllowAnyMethod();
+                          policy.WithOrigins("https://192.168.1.69:3000", "https://192.168.1.69")
                             .AllowAnyHeader()
-                            .AllowAnyMethod();
+                            .AllowAnyMethod()
+                            .AllowCredentials();
                       });
 });
 
+
+// add cookie-based authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+
+
+
 // setup logging
-LogManager.Setup().LoadConfigurationFromAppSettings();
+var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+
+if (useSwaggerAPIEndpoint) { logger.Info("Enabling Swagger API explorer!"); }
+
 
 if (useSwaggerAPIEndpoint)
 {
@@ -44,17 +63,20 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment()) { logger.Warn("Warning: Running on DEVELOPMENT environment!"); }
+if (app.Environment.IsProduction()) { logger.Info("Running production environment!");  }
+
 // Add cors on development
 if (app.Environment.IsDevelopment())
 {
     // allow cors for specific dev origin
     app.UseCors(DevelopmentOrigin);
-    Console.WriteLine("Enabling Development CORS for localhost origins");
+    logger.Warn("Enabling Development CORS for localhost origins");
 }
 
 
-Console.WriteLine($"ContentRoot Path: {builder.Environment.ContentRootPath}");
-Console.WriteLine($"WebRootPath: {builder.Environment.WebRootPath}");
+logger.Info($"ContentRoot Path: {builder.Environment.ContentRootPath}");
+logger.Info($"WebRootPath: {builder.Environment.WebRootPath}");
 
 /* Not neccesary basic things */
 
@@ -65,11 +87,15 @@ if (useSwaggerAPIEndpoint && app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+// Use authentication (for cookies!)
+app.UseAuthentication();
+
 // If Redirection is required
 //app.UseHttpsRedirection();
 
-// If Authorization is required
-// app.UseAuthorization();
+// If Authorization is required, authorization is done kind of manually and not using middlewares so not used ATM.
+//app.UseAuthorization();
 
 // Configure WebSockets
 app.UseWebSockets();

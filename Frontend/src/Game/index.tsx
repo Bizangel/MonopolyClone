@@ -1,0 +1,1 @@
+export { MonopolyGame } from "./MonopolyGame";

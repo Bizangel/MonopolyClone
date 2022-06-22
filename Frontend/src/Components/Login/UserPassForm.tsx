@@ -5,6 +5,7 @@ type UserPassFormProps = {
   onSubmit: (form: UserPassForm) => void,
   messageDisp: string,
   messageDispColor: string,
+  title: string,
 }
 
 export class UserPassForm extends React.Component<UserPassFormProps>{
@@ -43,10 +44,6 @@ export class UserPassForm extends React.Component<UserPassFormProps>{
         <p style={{ color: this.props.messageDispColor }}>
           {this.props.messageDisp}
         </p>
-
-        {/* <Button variant="primary" type="submit">
-          Submit
-        </Button> */}
 
         <Button variant="primary" onClick={() => this.props.onSubmit(this)}>
           Submit

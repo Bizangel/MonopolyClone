@@ -31,6 +31,12 @@ public class WebSocketController : ControllerBase
     {
         if (HttpContext.WebSockets.IsWebSocketRequest)
         {
+            _logger.Debug("Received request cookies in websocket request!:");
+            foreach (var x in Request.Cookies)
+            {
+                _logger.Debug(x.Key + "->" + x.Value);
+            }
+
             using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
             _logger.Info("----------- Accepted Websocket Connection from IP:" + HttpContext.Connection.RemoteIpAddress);

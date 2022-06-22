@@ -1,4 +1,6 @@
 ### Typescript/React Gitignore
+
+.env
 # dependencies
 /node_modules
 /.pnp

@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using MonopolyClone.Auth;
 using MonopolyClone.Auth.Validator;
 using MonopolyClone.Database;
+using NLog;
 
 namespace MonopolyClone.Controllers;
 
@@ -13,12 +17,16 @@ public class AuthenticationController : ControllerBase
 
     private Dictionary<string, GamePlayTicket> _userTickets;
     private Dictionary<string, string> _tickets2user;
+    private readonly Logger _logger;
+    private readonly IWebHostEnvironment _environment;
 
-    public AuthenticationController()
+    public AuthenticationController(IWebHostEnvironment environment)
     {
         _userTickets = new Dictionary<string, GamePlayTicket>();
         _tickets2user = new Dictionary<string, string>();
         _instance = this;
+        _logger = LogManager.GetCurrentClassLogger();
+        _environment = environment;
     }
 
     [HttpPost("RegisterAccount")]
@@ -56,12 +64,17 @@ public class AuthenticationController : ControllerBase
             return new RegisterReply() { Success = false, Message = "Cannot register with such password" };
         }
 
+        _logger.Info($"New User {auth.Username} registered!");
+
         return new RegisterReply() { Success = true, Message = "Successfully registered!" };
     }
 
     [HttpPost("RequestGameTicket")]
     public GamePlayTicket GetGamePlayTicket(AuthSchema auth)
     {
+
+
+
         // validate that they're not null
         if (auth.Username == null || auth.Password == null)
         {
@@ -90,12 +103,27 @@ public class AuthenticationController : ControllerBase
         string ticketSecret = Auth.SecretGenerator.SecretGenerator.GetUniqueSecret(20);
         var newTicket = new GamePlayTicket() { IsValidTicket = true, TicketHolderUsername = auth.Username, TicketSecret = ticketSecret };
 
+        var cookieOptions = new CookieOptions
+        {
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            HttpOnly = true,
+            Domain = null,
+            Expires = DateTime.UtcNow.AddDays(1),
+            IsEssential = true,
+        };
+
+
+        Response.Cookies.Append("Mycookie","value", cookieOptions);
+
+        _logger.Info($"User {auth.Username} logged in at {DateTime.Now}");
+
         // create new ticket, or simply replace old ticket.
         _userTickets.Add(auth.Username, newTicket);
         _tickets2user.Add(newTicket.TicketSecret, auth.Username);
         return newTicket;
     }
-
+        
     public static bool ValidateUserTicketSecret(string username, string ticketSecret)
     {
         if (_instance != null)

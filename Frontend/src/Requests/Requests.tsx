@@ -9,7 +9,7 @@ export namespace MonopolyRequests {
     POST = "POST",
   }
 
-  export async function requestSchema<T>(url: string, json_body: Object, method: RequestMethods, expected_response: ZodSchema<T>) {
+  export async function requestSchema<T>(url: string, json_body: Object, method: RequestMethods, expected_response: ZodSchema<T>, includeCredentials: boolean) {
     var response = null;
     try {
       response = await fetch(HTTPSHOST() + url, {
@@ -18,6 +18,7 @@ export namespace MonopolyRequests {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(json_body),
+        credentials: includeCredentials ? "include" : undefined
       })
     } catch (Exception) {
       response = null;

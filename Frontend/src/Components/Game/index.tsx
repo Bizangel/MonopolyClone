@@ -1,0 +1,2 @@
+export { Gamepage } from "./GamePage";
+
