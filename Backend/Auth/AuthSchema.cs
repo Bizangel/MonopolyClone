@@ -6,13 +6,14 @@ public class AuthSchema
     public string? Password { get; set; }
 }
 
-public class GamePlayTicket
+public class CookieHolder {
+    public string AuthenticatedUser { get; set; } = "";
+    public long ExpiryTimestamp { get; set; }
+}
+
+public class LoginReply
 {
-    public bool? IsValidTicket { get; set; }
-
-    public string? TicketHolderUsername { get; set; }
-
-    public string? TicketSecret { get; set; }
+    public bool Sucess { get; set; }
 }
 
 public class RegisterReply

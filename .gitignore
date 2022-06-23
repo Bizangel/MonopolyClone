@@ -1,4 +1,5 @@
 ### my gitignore
+.env
 
 monopolyclone.db
 monopolyclone-log.db

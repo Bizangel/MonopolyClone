@@ -9,15 +9,13 @@ public class SocketEventMessage
 {
     private string _eventIdentifier = "";
     private string _payload = "";
-    private string _authHeader = "";
 
     public string EventIdentifier { get => _eventIdentifier; set => _eventIdentifier = value; }
     public string Payload { get => _payload; set => _payload = value; }
-    public string AuthHeader { get => _authHeader; set => _authHeader = value; }
 
     public override string ToString()
     {
-        return string.Format("Identifier {0} payload: {1} AuthHeader : {2}", EventIdentifier, Payload, AuthHeader);
+        return string.Format("Identifier {0} payload: {1} AuthHeader : {2}", EventIdentifier, Payload);
     }
 
     /// <summary>

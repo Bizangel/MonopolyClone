@@ -1,29 +1,29 @@
 using System.Buffers;
 using System.Net.WebSockets;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using MonopolyClone.Auth.CryptTools;
 using MonopolyClone.Events;
+using MonopolyClone.Auth;
 using MonopolyClone.Sockets;
 using NLog;
+
 namespace MonopolyClone.Controllers;
 
-// Idea is to create an event-based controller
-// DONE: Allow for listening events on server, 
-// and registering events on client too.
-// Allow for broadcasting messages to clients
-// Define custom Keep-Alive pings  <-- Optional, but Timeouts are REALLY long. 
-// Connection can get aborted after 1-3 minutes, or just as early as we don't receive a reply by any in-game mechanic.
-// DONE: Give each one a secretly generated-key, so that other clients can not impersonate others, and additionally can tell them apart from each other.
 
+//TODO: Implement Keep-Alive pings for faster DC events.
 
 public class WebSocketController : ControllerBase
 {
     private readonly ServerSocketHandler _socketHandler;
     private readonly Logger _logger;
+    private readonly AesEncryptor _aesEncryptor;
 
     public WebSocketController()
     {
         _logger = LogManager.GetCurrentClassLogger();
         _socketHandler = new ServerSocketHandler();
+        _aesEncryptor = new AesEncryptor();
     }
 
     [HttpGet("/ws")]
@@ -31,18 +31,43 @@ public class WebSocketController : ControllerBase
     {
         if (HttpContext.WebSockets.IsWebSocketRequest)
         {
-            _logger.Debug("Received request cookies in websocket request!:");
-            foreach (var x in Request.Cookies)
-            {
-                _logger.Debug(x.Key + "->" + x.Value);
-            }
+            // Verify Cookie credentials, and that they're valid.
 
             using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+            _logger.Debug("Received");
+            string? authCookie = Request.Cookies["Auth"];
+            if (authCookie == null) {
+                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
+                return;
+            }
+
+            _logger.Debug("Received cookie: " +  authCookie);
+
+            CookieHolder? holder = null;
+            try
+            {
+                holder = JsonSerializer.Deserialize<CookieHolder>(_aesEncryptor.Decrypt(authCookie));
+            }
+            catch (Exception)
+            {
+                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
+                return;
+            }
+
+            if (holder == null) {
+                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
+                return;
+            }
+
+            if (!VerifyCookieTime(holder)) {
+                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
+                return;
+            }
 
             _logger.Info("----------- Accepted Websocket Connection from IP:" + HttpContext.Connection.RemoteIpAddress);
-            var userSocket = await AuthenticateSocket(webSocket); // attempt authentication
-            if (userSocket != null) // if authenticated
-                await HandleSocketRequest(userSocket); // Then handle events information, etc
+            var userSocket = new UserSocket(webSocket, holder.AuthenticatedUser);
+
+            await HandleSocketRequest(userSocket); // Then handle events information, etc
         }
         else
         {
@@ -50,59 +75,10 @@ public class WebSocketController : ControllerBase
         }
     }
 
-    private async Task<UserSocket?> AuthenticateSocket(WebSocket webSocket)
-    {
-        using IMemoryOwner<byte> memory = MemoryPool<byte>.Shared.Rent(1024 * 4);
 
-        while (webSocket.State == WebSocketState.Open)
-        {
-            try
-            {
-                ValueWebSocketReceiveResult request = await webSocket.ReceiveAsync(memory.Memory, CancellationToken.None);
-                switch (request.MessageType)
-                {
-                    case WebSocketMessageType.Text:
-                        var eventmessage = SocketEventMessage.Deserialize(memory, request.Count);
 
-                        if (eventmessage == null)
-                        {
-                            // close connection from unverified sockets
-                            await SecureCloseWebsocket(webSocket, "Invalid AuthProtocol", WebSocketCloseStatus.PolicyViolation);
-                            return null;
-                        }
-
-                        string? user = AuthenticationController.GetUsernameFromSecret(eventmessage.AuthHeader);
-
-                        if (user == null)
-                        {
-                            // close connection from unverified sockets
-                            await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.PolicyViolation);
-                            return null;
-                        }
-
-                        // keep connection open, and authorize. Create UserSocket object.
-                        UserSocket userSocket = new UserSocket(webSocket, user);
-                        _socketHandler.RegisterSocket(userSocket);
-
-                        await userSocket.SendEvent("authEvent", "Success");
-
-                        _logger.Info($"----------- Authenticated websocket as User: {user} -----");
-                        return userSocket;
-                    default: // close connection if doesn't send proper information.
-                        await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.PolicyViolation);
-                        return null;
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"Catched Exception on socket bytes \n ${e.Message} ${e.StackTrace}");
-                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.PolicyViolation);
-                return null;
-            }
-        }
-
-        await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.PolicyViolation);
-        return null;
+    private static bool VerifyCookieTime(CookieHolder holder) {
+        return holder.ExpiryTimestamp > ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
     }
 
     private async Task HandleSocketRequest(UserSocket socket)

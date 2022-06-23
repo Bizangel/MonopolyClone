@@ -1,3 +1,3 @@
 
-export { GameTicketSchema, SocketEventMessageSchema } from './Models';
-export type { GameTicket, SocketEventMessage } from './Models';
+export { LoginReplySchema, SocketEventMessageSchema } from './Models';
+export type { LoginReply, SocketEventMessage } from './Models';

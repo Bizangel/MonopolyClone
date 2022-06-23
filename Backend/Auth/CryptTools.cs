@@ -1,54 +1,65 @@
-
+using System;
 using System.Security.Cryptography;
 
 namespace MonopolyClone.Auth.CryptTools;
 
 
-static class AesExample
+public class AesEncryptor
 {
-    //public static void Main()
-    //{
-    //    string original = "Here is some data to encrypt!";
+    private readonly byte[] _key;
 
-    //    // Create a new instance of the Aes
-    //    // class.  This generates a new key and initialization
-    //    // vector (IV).
-  
-    //    using (Aes myAes = Aes.Create())
-    //    {
+    public byte[] StringToByteArray(string hex)
+    {
+        return Enumerable.Range(0, hex.Length)
+                         .Where(x => x % 2 == 0)
+                         .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                         .ToArray();
+    }
 
-    //        // Encrypt the string to an array of bytes.
-    //        byte[] encrypted = EncryptStringToBytes_Aes(original, myAes.Key, myAes.IV);
+    public AesEncryptor() {
+        // Key must be given in hex format, and when decoded have exactly 32 bytes.
+        var keystring = Environment.GetEnvironmentVariable("ENCRYPTIONKEY");
+        if (keystring == null)
+            throw new ArgumentNullException("No encryption key found in environment variables!, cannot proceed.");
 
-    //        // Decrypt the bytes to a string.
-    //        string roundtrip = DecryptStringFromBytes_Aes(encrypted, myAes.Key, myAes.IV);
+        byte[] key;
+        try {
+            key = StringToByteArray(keystring);
+        } catch (Exception e) {
+            throw new ArgumentException("Error why trying to parse key hex bytes!" + e);
+        }
 
-    //        //Display the original data and the decrypted data.
-    //        Console.WriteLine("Original:   {0}", original);
-    //        Console.WriteLine("Round Trip: {0}", roundtrip);
-    //    }
-    //}
+        if (key.Length != 32) {
+            throw new ArgumentException("Key length must be 32 bytes!");
+        }
 
-    static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
+        _key = key;
+    }   
+
+    public string Encrypt(string plainText)
     {
         // Check arguments.
         if (plainText == null || plainText.Length <= 0)
-            throw new ArgumentNullException("plainText");
-        if (Key == null || Key.Length <= 0)
-            throw new ArgumentNullException("Key");
-        if (IV == null || IV.Length <= 0)
-            throw new ArgumentNullException("IV");
+            throw new ArgumentNullException(nameof(plainText));
+
         byte[] encrypted;
 
-        // Create an Aes object
-        // with the specified key and IV.
+        byte[] IV;
         using (Aes aesAlg = Aes.Create())
         {
-            aesAlg.Key = Key;
-            aesAlg.IV = IV;
+            aesAlg.BlockSize = 128;
+            aesAlg.KeySize = 256;
+            aesAlg.Padding = PaddingMode.PKCS7;
+            aesAlg.Mode = CipherMode.CBC;
+
+            aesAlg.Key = _key;
+            aesAlg.GenerateIV();
+
+            IV = aesAlg.IV;
+            
 
             // Create an encryptor to perform the stream transform.
-            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, IV);
 
             // Create the streams used for encryption.
             using (MemoryStream msEncrypt = new MemoryStream())
@@ -65,29 +76,45 @@ static class AesExample
             }
         }
 
-        // Return the encrypted bytes from the memory stream.
-        return encrypted;
+        // Return the encrypted bytes as hexstring
+        var prebytes = IV.Concat(encrypted).ToArray(); // send IV at start
+        return Convert.ToBase64String(prebytes); 
     }
 
-    static string DecryptStringFromBytes_Aes(byte[] cipherText, byte[] Key, byte[] IV)
-    {
+    public string Decrypt(string hexcipher)
+    {   
         // Check arguments.
-        if (cipherText == null || cipherText.Length <= 0)
-            throw new ArgumentNullException("cipherText");
-        if (Key == null || Key.Length <= 0)
-            throw new ArgumentNullException("Key");
-        if (IV == null || IV.Length <= 0)
-            throw new ArgumentNullException("IV");
+        if (hexcipher == null || hexcipher.Length <= 0)
+            throw new ArgumentNullException(nameof(hexcipher));
+
+        byte[] hexbytes;
+        // get bytes
+        try
+        {
+            hexbytes = Convert.FromBase64String(hexcipher);
+        }
+        catch (Exception)
+        {
+            return "";
+        }
+
+        // take IV initially.
+        var IV = new ArraySegment<byte>(hexbytes, 0, 16).ToArray();
+
+        var cipherText = new ArraySegment<byte>(hexbytes, 16, hexbytes.Length - 16).ToArray();
 
         // Declare the string used to hold
         // the decrypted text.
-        string plaintext = null;
+        string? plaintext = null;
 
-        // Create an Aes object
-        // with the specified key and IV.
         using (Aes aesAlg = Aes.Create())
         {
-            aesAlg.Key = Key;
+            aesAlg.BlockSize = 128;
+            aesAlg.KeySize = 256;
+            aesAlg.Padding = PaddingMode.PKCS7;
+            aesAlg.Mode = CipherMode.CBC;
+
+            aesAlg.Key = _key;
             aesAlg.IV = IV;
 
             // Create a decryptor to perform the stream transform.

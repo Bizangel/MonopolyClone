@@ -1,14 +1,25 @@
 using System.Web;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.FileProviders;
+using MonopolyClone.DotEnv;
 using NLog;
 using NLog.Web;
+
 
 bool useSwaggerAPIEndpoint = true;
 var DevelopmentOrigin = "_DevelopmentOrigin";
 string hostingPath = "../Frontend/build";
 
 
+var root = Directory.GetCurrentDirectory();
+var dotenv = Path.Combine(root, ".env");
+DotEnv.Load(dotenv);
+
+/* Read and set Environment Variables */
+var config =
+    new ConfigurationBuilder()
+        .AddEnvironmentVariables()
+        .Build();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {

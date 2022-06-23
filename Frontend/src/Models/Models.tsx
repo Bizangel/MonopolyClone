@@ -1,17 +1,14 @@
 import { z } from "zod";
 
-export const GameTicketSchema = z.object({
-  isValidTicket: z.boolean(),
-  ticketHolderUsername: z.string(),
-  ticketSecret: z.string(),
+export const LoginReplySchema = z.object({
+  sucess: z.boolean(),
 });
 
-export type GameTicket = z.infer<typeof GameTicketSchema>;
+export type LoginReply = z.infer<typeof LoginReplySchema>;
 
 export const SocketEventMessageSchema = z.object({
   EventIdentifier: z.string(),
   Payload: z.string(),
-  AuthHeader: z.string(),
 });
 
 export type SocketEventMessage = z.infer<typeof SocketEventMessageSchema>;

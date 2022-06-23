@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using MonopolyClone.Auth;
 using MonopolyClone.Auth.Validator;
+using MonopolyClone.Auth.CryptTools;
 using MonopolyClone.Database;
+using System.Text.Json;
 using NLog;
 
 namespace MonopolyClone.Controllers;
@@ -13,20 +15,17 @@ namespace MonopolyClone.Controllers;
 [Route("/")]
 public class AuthenticationController : ControllerBase
 {
+    private const double cookie_expiry_days = 2;
     private static AuthenticationController? _instance;
-
-    private Dictionary<string, GamePlayTicket> _userTickets;
-    private Dictionary<string, string> _tickets2user;
     private readonly Logger _logger;
     private readonly IWebHostEnvironment _environment;
-
+    private readonly AesEncryptor _aesEncryptor;
     public AuthenticationController(IWebHostEnvironment environment)
     {
-        _userTickets = new Dictionary<string, GamePlayTicket>();
-        _tickets2user = new Dictionary<string, string>();
         _instance = this;
         _logger = LogManager.GetCurrentClassLogger();
         _environment = environment;
+        _aesEncryptor = new AesEncryptor();
     }
 
     [HttpPost("RegisterAccount")]
@@ -69,39 +68,24 @@ public class AuthenticationController : ControllerBase
         return new RegisterReply() { Success = true, Message = "Successfully registered!" };
     }
 
-    [HttpPost("RequestGameTicket")]
-    public GamePlayTicket GetGamePlayTicket(AuthSchema auth)
+    [HttpPost("Login")]
+    public LoginReply GetGamePlayTicket(AuthSchema auth)
     {
-
-
-
         // validate that they're not null
         if (auth.Username == null || auth.Password == null)
         {
-            return new GamePlayTicket()
-            {
-                IsValidTicket = false,
-            };
+            return new LoginReply() { Sucess = false };
         }
         // Handle Login
         if (!LocalDatabase.UserExists(auth.Username))
-            return new GamePlayTicket()
-            {
-                IsValidTicket = false,
-            };
+            return new LoginReply() { Sucess = false };
 
         string hash = LocalDatabase.GetUserHash(auth.Username);
 
         bool isValidHash = BCrypt.Net.BCrypt.Verify(auth.Password, hash);
 
         if (!isValidHash)
-            return new GamePlayTicket()
-            {
-                IsValidTicket = false,
-            };
-
-        string ticketSecret = Auth.SecretGenerator.SecretGenerator.GetUniqueSecret(20);
-        var newTicket = new GamePlayTicket() { IsValidTicket = true, TicketHolderUsername = auth.Username, TicketSecret = ticketSecret };
+            return new LoginReply() { Sucess = false };
 
         var cookieOptions = new CookieOptions
         {
@@ -109,45 +93,26 @@ public class AuthenticationController : ControllerBase
             SameSite = SameSiteMode.Strict,
             HttpOnly = true,
             Domain = null,
-            Expires = DateTime.UtcNow.AddDays(1),
+            Expires = DateTime.UtcNow.AddDays(cookie_expiry_days),
             IsEssential = true,
         };
 
 
-        Response.Cookies.Append("Mycookie","value", cookieOptions);
+        long unixTime = ((DateTimeOffset)DateTime.Now.AddDays(cookie_expiry_days)).ToUnixTimeSeconds();
+        string? cookiestring = null;
+        try
+        {
+            cookiestring = _aesEncryptor.Encrypt(JsonSerializer.Serialize(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
+        }
+        catch (Exception e) {
+            _logger.Error($"Error serializing and encrypting {auth.Username} {auth.Password}:" + e.Message);
+            return new LoginReply() { Sucess = false };
+        }
 
+        // Add cookie response and headers
+        Response.Cookies.Append("Auth", cookiestring, cookieOptions);
         _logger.Info($"User {auth.Username} logged in at {DateTime.Now}");
 
-        // create new ticket, or simply replace old ticket.
-        _userTickets.Add(auth.Username, newTicket);
-        _tickets2user.Add(newTicket.TicketSecret, auth.Username);
-        return newTicket;
-    }
-        
-    public static bool ValidateUserTicketSecret(string username, string ticketSecret)
-    {
-        if (_instance != null)
-            if (_instance._userTickets.ContainsKey(username))
-                return _instance._userTickets[username].TicketSecret == ticketSecret;
-
-        return false;
-    }
-
-    public static bool IsValidSecret(string ticketSecret)
-    {
-        if (_instance != null)
-            return _instance._tickets2user.ContainsKey(ticketSecret);
-
-
-        return false;
-    }
-
-    public static string? GetUsernameFromSecret(string username)
-    {
-        if (_instance != null)
-            if (_instance._tickets2user.ContainsKey(username))
-                return _instance._tickets2user[username];
-
-        return null;
+        return new LoginReply() { Sucess = true };
     }
 }

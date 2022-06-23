@@ -1,5 +1,5 @@
 import { WSSHOST } from "../common";
-import { GameTicket, SocketEventMessageSchema } from "../Models";
+import { SocketEventMessageSchema } from "../Models";
 
 export type SocketEventCallback = (payload: string) => void;
 export type SocketOpenCloseCallback = (suer: UserSocket) => void;
@@ -22,25 +22,24 @@ export enum SocketEventTypes {
 
 export class UserSocket {
   private reconnectionDelay = 10000;
-  private socket: WebSocket;
-  private authenticated = false;
-  private passTicket: GameTicket;
+  private socket?: WebSocket;
+  private authenticatedUser: string;
   private temporaryEvents: Map<string, InternalSocketEventCallback[]>;
   private RegisteredEvents: Map<string, InternalSocketEventCallback[]>;
   private onOpenEvents: InternalSocketOpenCloseCallback[];
   private onCloseEvents: InternalSocketOpenCloseCallback[];
-  private onDCCallback: () => void; //callback that will be called when socket is disconnected (only internal)
 
   public get Username() {
-    return this.passTicket.ticketHolderUsername;
+    return this.authenticatedUser;
   }
 
-  constructor(newTicket: GameTicket) {
+  constructor(username: string) {
+    this.authenticatedUser = username;
+
     this.temporaryEvents = new Map<string, InternalSocketEventCallback[]>();
     this.RegisteredEvents = new Map<string, InternalSocketEventCallback[]>();
     this.onOpenEvents = [];
     this.onCloseEvents = [];
-    this.onDCCallback = () => { };
 
     this.socket = new WebSocket(WSSHOST() + "/ws");
 
@@ -48,25 +47,10 @@ export class UserSocket {
     this.socket.onclose = this.handleOnClose;
     this.socket.onerror = this.handleOnError;
     this.socket.onopen = this.handleOnOpen;
-    this.passTicket = newTicket; // receive ticket
-  }
-
-  private Authenticate = async (): Promise<boolean> => {
-    var reply = this.getPromiseFromEvent("authEvent");
-    this.socket.send(JSON.stringify({ EventIdentifier: "authEvent", Payload: "", AuthHeader: this.passTicket.ticketSecret }));
-    var replyresponse = await reply;
-    if (replyresponse === "Success") {
-      this.authenticated = true;
-      this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.OpenEvent);
-      return true;
-    } else {
-      return false;
-    }
-
   }
 
   private handleOnOpen = async (event: Event) => {
-    console.log("Websocket connection opened!")
+    this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.OpenEvent);
   }
 
   private handleOnMessage = (event: MessageEvent) => {
@@ -96,10 +80,7 @@ export class UserSocket {
 
 
   private handleOnClose = (event: Event) => {
-    console.log("onclose called!")
-    this.authenticated = false;
     this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.CloseEvent);
-    this.onDCCallback();
   }
 
   private ResolveEventTypeToHandlers = (eventType: SocketEventTypes, event_id: string | null, createIfEmpty: boolean = false): InternalSocketEventCallback[] | undefined => {
@@ -255,12 +236,11 @@ export class UserSocket {
    * @param payload The payload of the event.
    */
   public emit = (event: string, payload: string) => {
-    if (this.authenticated) {
-      this.socket.send(JSON.stringify({ EventIdentifier: event, Payload: payload, AuthHeader: "" }));
+    if (this.socket !== undefined) {
+      this.socket.send(JSON.stringify({ EventIdentifier: event, Payload: payload }));
     } else {
-      throw new Error("Attempted to send event with unauthenticated socket");
+      throw new Error("Attempted to emit event without initialization")
     }
-
   }
 
   /**
@@ -270,60 +250,7 @@ export class UserSocket {
    * Additionally will try to keep a steady and automatically reconnect upon disconnect.
    */
   public Initialize = async () => {
-
-    while (true) {
-      // await until socket is connected (or gets aborted)
-      if (this.socket.readyState !== WebSocket.OPEN) {
-        await new Promise<void>((resolve) => {
-          this.socket.onopen = () => {
-            resolve();
-          }
-
-          this.socket.onclose = () => {
-            resolve();
-          }
-        });
-      }
-
-      this.socket.onopen = this.handleOnOpen;
-      this.socket.onclose = this.handleOnClose;
-
-      if (this.socket.readyState !== WebSocket.OPEN) {
-        // if not open, well then, just retry, after some delay tho
-        await new Promise(r => setTimeout(r, this.reconnectionDelay));
-        this.socket = new WebSocket(WSSHOST() + "/ws");
-        this.socket.onopen = this.handleOnOpen;
-        this.socket.onclose = this.handleOnClose;
-        continue;
-      }
-
-      // await until socket is authenticated
-      var auth = await this.Authenticate();
-
-      if (auth) {
-        console.log("Authenticated!")
-      } else {
-        console.log("Unauthenticated!")
-      }
-
-      // await until socket is disconnected
-      await new Promise<void>((resolve) => {
-        this.onDCCallback = () => {
-          resolve();
-        }
-      });
-
-
-      // Reconnect until successful
-      console.log("Lost connection!")
-
-      // if disconnected then create new socket and attempt reconnection.
-      this.socket = new WebSocket(WSSHOST() + "/ws");
-      console.log("Creating new websocket!")
-    }
-
+    this.socket = new WebSocket(WSSHOST() + "/ws");
   }
-
-
 }
 

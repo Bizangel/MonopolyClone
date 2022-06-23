@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
-import { GameTicketSchema, GameTicket } from '../../Models';
+import { LoginReply, LoginReplySchema } from '../../Models';
 import { MonopolyRequests } from '../../Requests';
 import { UserSocket } from '../../SocketEvents';
 import { PageCenteredGridContainer } from '../Helpers/PageCenteredGridContainer';
@@ -20,18 +20,17 @@ export class LoginFormPage extends React.Component<LoginFormProps>{
   socket: UserSocket | undefined;
 
   onSubmit = async (form: UserPassForm) => {
-    var gameticket = await MonopolyRequests.requestSchema<GameTicket>("/RequestGameTicket", form.state, MonopolyRequests.RequestMethods.POST, GameTicketSchema, true);
+    var gameticket = await MonopolyRequests.requestSchema<LoginReply>("/Login", form.state, MonopolyRequests.RequestMethods.POST, LoginReplySchema, true);
     if (gameticket != null) {
+
+      var mySocket = new UserSocket(form.state.username);
       this.setState({ messageDisp: "Successful login!", username: "", password: "", messageDispColor: "green" });
 
       // perform ticket and all login logic
-      var mySocket = new UserSocket(gameticket);
-
       mySocket.onReady(() => { console.log("I was called as an opening callback!") })
 
       mySocket.onClose(() => { console.log("I was called as a closing callback!") })
 
-      mySocket.on("testEvent2", (payload: string) => { console.log("I shouldn't be called!") })
       mySocket.on("testEvent", (payload: string) => { console.log("I was called as sampleEvent callback!" + payload) })
       mySocket.on("testEvent", (payload: string) => { console.log("I was called as yet another callback!" + payload) })
 

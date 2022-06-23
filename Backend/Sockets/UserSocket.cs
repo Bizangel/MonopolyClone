@@ -34,7 +34,6 @@ public class UserSocket
         {
             EventIdentifier = eventID,
             Payload = payload,
-            AuthHeader = Username
         };
 
         var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(SocketEventMessage.Serialize(message)));
