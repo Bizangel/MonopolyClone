@@ -28,10 +28,13 @@ export class UserSocket {
   private RegisteredEvents: Map<string, InternalSocketEventCallback[]>;
   private onOpenEvents: InternalSocketOpenCloseCallback[];
   private onCloseEvents: InternalSocketOpenCloseCallback[];
+  private unauthorizedCallback: () => void;
 
   public get Username() {
     return this.authenticatedUser;
   }
+
+
 
   constructor(username: string) {
     this.authenticatedUser = username;
@@ -41,12 +44,7 @@ export class UserSocket {
     this.onOpenEvents = [];
     this.onCloseEvents = [];
 
-    this.socket = new WebSocket(WSSHOST() + "/ws");
-
-    this.socket.onmessage = this.handleOnMessage;
-    this.socket.onclose = this.handleOnClose;
-    this.socket.onerror = this.handleOnError;
-    this.socket.onopen = this.handleOnOpen;
+    this.unauthorizedCallback = () => { };
   }
 
   private handleOnOpen = async (event: Event) => {
@@ -79,7 +77,9 @@ export class UserSocket {
   }
 
 
-  private handleOnClose = (event: Event) => {
+  private handleOnClose = (event: CloseEvent) => {
+    console.log("Connection closed, reason: " + event.reason)
+    if (event.reason === "Unauthorized") { this.unauthorizedCallback(); }
     this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.CloseEvent);
   }
 
@@ -217,6 +217,13 @@ export class UserSocket {
     this.addEventListener("", { openclosecallback: callback }, SocketEventTypes.CloseEvent);
   }
 
+  /**
+   * Registers a single function that will be called when the socket is closed, overrides any existing callback.
+   * @param callback The callback to be called when the socket is detected as unauthorized.
+   */
+  public onUnauthorized = (callback: () => void) => {
+    this.unauthorizedCallback = callback;
+  }
 
   /**
    * Returns an awaitable promise of an event.
@@ -243,6 +250,14 @@ export class UserSocket {
     }
   }
 
+
+  /**
+   * Closes the socket connection.
+   */
+  public Close = () => {
+    if (this.socket !== undefined)
+      this.socket.close();
+  }
   /**
    * Initializes the websocket. This will connect to the server and authenticate.
    * Allows then to send and receive events.
@@ -251,6 +266,11 @@ export class UserSocket {
    */
   public Initialize = async () => {
     this.socket = new WebSocket(WSSHOST() + "/ws");
+
+    this.socket.onmessage = this.handleOnMessage;
+    this.socket.onclose = this.handleOnClose;
+    this.socket.onerror = this.handleOnError;
+    this.socket.onopen = this.handleOnOpen;
   }
 }
 

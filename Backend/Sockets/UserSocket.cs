@@ -52,6 +52,8 @@ public class UserSocket
                     var eventmessage = SocketEventMessage.Deserialize(memory, request.Count);
 
                     return eventmessage;
+                case WebSocketMessageType.Close:
+                    return new SocketEventMessage() { EventIdentifier="CloseEvent", Payload = "Closing"};
                 default:
                     break;
             }

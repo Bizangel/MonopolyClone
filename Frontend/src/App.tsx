@@ -1,14 +1,18 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { AuthPage } from './Components/Login';
-// import logo from './logo.svg';
-// import './App.css';
+import { GameAuthHandler } from './Components/Game';
+import { GameContext, game } from './Game';
+
 
 function App() {
   return (
-    <div className="App">
-      <AuthPage />
-    </div>
+    <React.StrictMode>
+      <GameContext.Provider value={game}>
+        <div className="App">
+          <GameAuthHandler />
+        </div>
+      </GameContext.Provider>
+    </React.StrictMode>
   );
 }
 

@@ -1,1 +1,1 @@
-export { MonopolyGame } from "./MonopolyGame";
+export { GameContext, game, MonopolyGame } from "./MonopolyGame";

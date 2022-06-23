@@ -1,10 +1,19 @@
 import { z } from "zod";
 
 export const LoginReplySchema = z.object({
-  sucess: z.boolean(),
+  success: z.boolean(),
 });
 
 export type LoginReply = z.infer<typeof LoginReplySchema>;
+
+export const RegisterReplySchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+
+export type RegisterReply = z.infer<typeof RegisterReplySchema>;
+
+
 
 export const SocketEventMessageSchema = z.object({
   EventIdentifier: z.string(),

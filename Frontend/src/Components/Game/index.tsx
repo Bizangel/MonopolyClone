@@ -1,2 +1,2 @@
-export { Gamepage } from "./GamePage";
+export { GameAuthHandler } from "./GameAuthHandler";
 

@@ -16,13 +16,11 @@ namespace MonopolyClone.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private const double cookie_expiry_days = 2;
-    private static AuthenticationController? _instance;
     private readonly Logger _logger;
     private readonly IWebHostEnvironment _environment;
     private readonly AesEncryptor _aesEncryptor;
     public AuthenticationController(IWebHostEnvironment environment)
     {
-        _instance = this;
         _logger = LogManager.GetCurrentClassLogger();
         _environment = environment;
         _aesEncryptor = new AesEncryptor();
@@ -74,18 +72,18 @@ public class AuthenticationController : ControllerBase
         // validate that they're not null
         if (auth.Username == null || auth.Password == null)
         {
-            return new LoginReply() { Sucess = false };
+            return new LoginReply() { Success = false };
         }
         // Handle Login
         if (!LocalDatabase.UserExists(auth.Username))
-            return new LoginReply() { Sucess = false };
+            return new LoginReply() { Success = false };
 
         string hash = LocalDatabase.GetUserHash(auth.Username);
 
         bool isValidHash = BCrypt.Net.BCrypt.Verify(auth.Password, hash);
 
         if (!isValidHash)
-            return new LoginReply() { Sucess = false };
+            return new LoginReply() { Success = false };
 
         var cookieOptions = new CookieOptions
         {
@@ -97,6 +95,15 @@ public class AuthenticationController : ControllerBase
             IsEssential = true,
         };
 
+        var userCookieOptions = new CookieOptions
+        {
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            HttpOnly = false,
+            Domain = null,
+            Expires = DateTime.UtcNow.AddDays(cookie_expiry_days),
+            IsEssential = true,
+        };
 
         long unixTime = ((DateTimeOffset)DateTime.Now.AddDays(cookie_expiry_days)).ToUnixTimeSeconds();
         string? cookiestring = null;
@@ -106,13 +113,14 @@ public class AuthenticationController : ControllerBase
         }
         catch (Exception e) {
             _logger.Error($"Error serializing and encrypting {auth.Username} {auth.Password}:" + e.Message);
-            return new LoginReply() { Sucess = false };
+            return new LoginReply() { Success = false };
         }
 
         // Add cookie response and headers
         Response.Cookies.Append("Auth", cookiestring, cookieOptions);
+        Response.Cookies.Append("Auth-User", auth.Username, userCookieOptions);
         _logger.Info($"User {auth.Username} logged in at {DateTime.Now}");
 
-        return new LoginReply() { Sucess = true };
+        return new LoginReply() { Success = true };
     }
 }

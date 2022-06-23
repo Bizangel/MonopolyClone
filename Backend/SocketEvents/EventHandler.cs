@@ -48,6 +48,13 @@ public static class SocketsEventHandler
                 continue;
             }
 
+            // Check for reserved events
+            if (attr.EventID == "CloseEvent")
+            {
+                _logger.Warn("SocketEvent CloseEvent is internally reserved, please use another name! Omitting.");
+                continue;
+            }
+
             try
             {
                 SocketEvent newEvent = ((SocketEvent)

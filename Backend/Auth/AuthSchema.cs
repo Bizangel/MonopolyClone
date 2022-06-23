@@ -13,7 +13,7 @@ public class CookieHolder {
 
 public class LoginReply
 {
-    public bool Sucess { get; set; }
+    public bool Success { get; set; }
 }
 
 public class RegisterReply

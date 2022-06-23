@@ -1,2 +1,2 @@
 
-export { HOSTURL, WSSHOST, HTTPSHOST } from "./common";
+export { HOSTURL, WSSHOST, HTTPSHOST, readCookie } from "./common";

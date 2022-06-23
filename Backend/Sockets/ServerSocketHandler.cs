@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace MonopolyClone.Sockets;
 
 public class ServerSocketHandler
@@ -10,13 +12,18 @@ public class ServerSocketHandler
 
     public void RegisterSocket(UserSocket socket)
     {
-        _sockets.Add(socket.Username, socket);
+        _sockets.TryAdd(socket.Username, socket);
     }
 
     public void UnregisterSocket(UserSocket socket)
     {
+        //_sockets.TryRemove(socket.Username, out _);
         _sockets.Remove(socket.Username);
     }
+
+    public bool AlreadyConnected(string username) {
+        return _sockets.ContainsKey(username);
+    }  
 
     public List<string> GetConnectedUsers()
     {

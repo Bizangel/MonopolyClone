@@ -6,6 +6,7 @@ type UserPassFormProps = {
   messageDisp: string,
   messageDispColor: string,
   title: string,
+  passwordAutoComplete: string,
 }
 
 export class UserPassForm extends React.Component<UserPassFormProps>{
@@ -30,7 +31,8 @@ export class UserPassForm extends React.Component<UserPassFormProps>{
           <Form.Control type="username" placeholder="Enter Username"
             name="username"
             value={this.state.username}
-            onChange={this.onChange} />
+            onChange={this.onChange}
+            autoComplete="username" />
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -39,6 +41,7 @@ export class UserPassForm extends React.Component<UserPassFormProps>{
             name="password"
             value={this.state.password}
             onChange={this.onChange}
+            autoComplete="password"
           />
         </Form.Group>
         <p style={{ color: this.props.messageDispColor }}>
