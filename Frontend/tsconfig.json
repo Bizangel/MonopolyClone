@@ -23,7 +23,7 @@
   "rootDir": "./src",
   "outDir": "./build",
   "strict": true,
-  // "include": [
-  //   "src"
-  // ]
+  "include": [
+    "index.d.ts"
+  ]
 }
