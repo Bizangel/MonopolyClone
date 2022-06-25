@@ -17,7 +17,7 @@ function cookieCheckGoToGame(stateChanger: React.Dispatch<React.SetStateAction<D
   if (userCookie !== null) {
     // no need for auth, create usersocket right away
     stateChanger(DisplayState.Game);
-    game.initializeUserSocket(userCookie);
+    // game.initializeUserSocket(userCookie);
   }
 }
 

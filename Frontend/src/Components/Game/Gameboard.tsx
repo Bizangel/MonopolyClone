@@ -1,48 +1,46 @@
 import { BoxProps, useBox, useContactMaterial, PlaneProps, usePlane } from '@react-three/cannon';
 import { useLoader } from '@react-three/fiber';
 import { useRef } from 'react'
-import { Mesh, MeshBasicMaterial } from 'three';
+import { Mesh, MeshStandardMaterial } from 'three';
 import { TextureLoader } from 'three/src/loaders/TextureLoader'
 
 
-const logo = require("../../img/saul.jpg");
+const boardimg = require("../../img/board.jpg");
 
 type gameboardProps = {
   boxprops: BoxProps
   color: string,
+  onClickCallback?: () => void,
 }
 
 export function GameBoard(props: gameboardProps) {
   const [ref] = useBox(() => ({ mass: 1, velocity: [0, 0, 0], type: "Kinematic", material: "board", ...props.boxprops }), useRef<Mesh>(null))
-
 
   useContactMaterial("dice", "board", {
     restitution: 0.3,
     friction: 1,
   })
 
-  const [colorMap] = useLoader(TextureLoader, [logo]);
+  const [colorMap] = useLoader(TextureLoader, [boardimg]);
 
-  const cubeMaterials: MeshBasicMaterial[] = [];
+  // Basic material isn't affected by lightning, Standard is.
+  const cubeMaterials: MeshStandardMaterial[] = [];
 
   const cardboardColor = 0xbb8e51;
 
-  cubeMaterials.push(new MeshBasicMaterial({ color: cardboardColor }));
-  cubeMaterials.push(new MeshBasicMaterial({ color: cardboardColor }));
-  cubeMaterials.push(new MeshBasicMaterial({ map: colorMap }));
-  cubeMaterials.push(new MeshBasicMaterial({ color: cardboardColor }));
-  cubeMaterials.push(new MeshBasicMaterial({ color: cardboardColor }));
-  cubeMaterials.push(new MeshBasicMaterial({ color: cardboardColor }));
+  cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));
+  cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));
+  cubeMaterials.push(new MeshStandardMaterial({ map: colorMap }));
+  cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));
+  cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));
+  cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));
 
   return (
     <mesh ref={ref}
-      material={cubeMaterials}>
+      material={cubeMaterials}
+      onClick={props.onClickCallback}
+    >
       <boxBufferGeometry args={props.boxprops.args} />
-      {/* <meshStandardMaterial map={colorMap} />
-       */}
-
-
-      {/* <meshBasicMaterial map={colorMap} side={OneSide}></meshBasicMaterial> */}
     </mesh>
   )
 }

@@ -1,57 +1,75 @@
-import { BoxProps, useBox, useContactMaterial } from "@react-three/cannon";
-import { useCallback, useEffect, useRef } from "react";
-import { Mesh } from "three";
+import { BoxProps, PublicApi, Triplet, useBox } from "@react-three/cannon";
+import { useLoader } from "@react-three/fiber";
+import { useEffect, useRef, useState } from "react";
+import { Mesh, MeshStandardMaterial, TextureLoader } from "three";
 
+
+const dice1 = require("../../img/dice/dice1.jpeg");
+const dice2 = require("../../img/dice/dice2.jpeg");
+const dice3 = require("../../img/dice/dice3.jpeg");
+const dice4 = require("../../img/dice/dice4.jpeg");
+const dice5 = require("../../img/dice/dice5.jpeg");
+const dice6 = require("../../img/dice/dice6.jpeg");
 
 
 type gameDiceProps = {
   props: BoxProps,
   color: string,
+  resetCaller: boolean,
+  throwForce: Triplet,
+  throwOffset: Triplet
+  display: boolean,
+  onStopCallback: () => void,
+}
+
+
+
+function tripletLength(triplet: Triplet, squared = false) {
+  var sq = triplet[0] * triplet[0] + triplet[1] * triplet[1] + triplet[2] * triplet[2]
+  if (squared)
+    return sq
+  return Math.sqrt(sq);
+}
+
+function throwDice(position: Triplet, physicsApi: PublicApi, velocity: Triplet, offsetApply: Triplet) {
+  physicsApi.position.set(position[0], position[1], position[2]);
+  physicsApi.velocity.set(0, 0, 0);
+  physicsApi.applyImpulse(velocity, offsetApply)
 }
 
 
 export function GameDice(diceprops: gameDiceProps) {
 
-  const maxvelocity = 2;
-  const offsetForce = 0.1;
-
-
   const [ref, api] = useBox(() => ({ mass: 1, velocity: [0, 0, 0], ...diceprops.props }), useRef<Mesh>(null))
 
+  const [stopCalled, setOnStopCalled] = useState(false);
 
-  const throwDice = useCallback(() => {
-    if (diceprops.props.position !== undefined) {
-      api.position.set(diceprops.props.position[0], diceprops.props.position[1], diceprops.props.position[2]);
-      api.velocity.set(0, 0, 0);
+  useEffect(() => {
+    if (diceprops.props.position !== undefined)
+      throwDice(diceprops.props.position, api, diceprops.throwForce, diceprops.throwOffset)
+    setOnStopCalled(false);
+  }, [diceprops.resetCaller, api, diceprops.props.position, diceprops.throwForce, diceprops.throwOffset])
 
-      var velx = -(Math.random()) * maxvelocity - 1.5;
-      var vely = Math.random();
-      var velz = -(Math.random()) * maxvelocity - 1.5;
-      api.applyImpulse([velx, vely, velz], [Math.random() * offsetForce, Math.random() * offsetForce, Math.random() * offsetForce])
+  useEffect(() => {
+    if (!stopCalled && diceprops.display) {
+      const unsubscribe = api.velocity.subscribe((velocity) => {
+        if (tripletLength(velocity) < 0.1) { setOnStopCalled(val => true); diceprops.onStopCallback(); }
+      })
+      return unsubscribe
     }
-  }, [api, diceprops]);
-
-
-  // const mat3_ground = new CANNON.ContactMaterial(groundMaterial, mat3, { friction: 0.0, restitution: 0.9 })
-
-  useContactMaterial("dice", "board", {
-    restitution: 0.3,
-    friction: 1,
   })
 
-  useEffect(
-    () => {
-      throwDice();
-    }
-    , [throwDice]);
+  // whenever stop called changes
 
 
-
+  const materialsfaces = useLoader(TextureLoader, [dice1, dice2, dice3, dice4, dice5, dice6]);
+  const cubeMaterials = materialsfaces.map((face) => new MeshStandardMaterial({ map: face }))
 
   return (
-    <mesh ref={ref}>
+    < mesh ref={ref}
+      material={cubeMaterials}
+      visible={diceprops.display}>
       <boxBufferGeometry args={diceprops.props.args} />
-      <meshStandardMaterial color={diceprops.color} />
-    </mesh>
+    </mesh >
   )
 }
