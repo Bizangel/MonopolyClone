@@ -6,6 +6,7 @@ monopolyclone-log.db
 
 ### Typescript/React Gitignore
 # dependencies
+/imgs
 /node_modules
 /.pnp
 .pnp.js
