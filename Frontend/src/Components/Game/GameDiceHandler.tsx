@@ -1,6 +1,5 @@
 import React, { forwardRef, Ref, useCallback, useEffect, useImperativeHandle, useReducer, useState } from 'react';
-import { Triplet } from '@react-three/cannon'
-import { GameDice } from "./GameDice";
+import { GameDice, throwValues } from "./GameDice";
 
 
 const MaxDiceThrowVelocity = 2;
@@ -12,71 +11,39 @@ enum diceHandleAction {
 }
 
 type diceHandleState = {
-  diceARender: boolean,
-  diceBRender: boolean,
-  throwForceA: Triplet,
-  throwForceB: Triplet,
-  throwOffsetA: Triplet,
-  throwOffsetB: Triplet,
+  renderDices: boolean,
+  diceThrowParams: throwValues[],
 }
 
-type DiceResultState = [null | number, null | number];
+type DiceResultState = (null | number)[];
 
 
-function generateThrowValues(): { velocity: Triplet, offset: Triplet } {
+function generateThrowValues(): throwValues {
   var velx = -(Math.random()) * MaxDiceThrowVelocity - 1.5;
   var vely = Math.random();
   var velz = -(Math.random()) * MaxDiceThrowVelocity - 1.5;
   var offsetx = Math.random() * MaxDiceOffsetPos
   var offsety = Math.random() * MaxDiceOffsetPos
   var offsetz = Math.random() * MaxDiceOffsetPos
-
-  // var velx = -(0.5) * MaxDiceThrowVelocity - 1.5;
-  // var vely = 0.5;
-  // var velz = -(0.5) * MaxDiceThrowVelocity - 1.5;
-  // var offsetx = 0.5 * MaxDiceOffsetPos
-  // var offsety = 0.5 * MaxDiceOffsetPos
-  // var offsetz = 0.5 * MaxDiceOffsetPos
-
-
   return { velocity: [velx, vely, velz], offset: [offsetx, offsety, offsetz] }
-}
-
-// NEVER modify state directly. Simply return new state using {...state} for example
-function diceReducer(state: diceHandleState, action: diceHandleAction): diceHandleState {
-  switch (action) {
-    case diceHandleAction.throwDices:
-      const throwA = generateThrowValues();
-      const throwB = generateThrowValues();
-
-      return {
-        ...state,
-        throwForceA: throwA.velocity, throwForceB: throwB.velocity,
-        throwOffsetA: throwA.offset, throwOffsetB: throwB.offset,
-        diceARender: true, diceBRender: true,
-      }
-    default:
-      return state;
-  }
 }
 
 
 type GameDiceHandlerProps = {
-  throwDices?: { watchable: boolean, setter: React.Dispatch<React.SetStateAction<boolean>> },
+  nDices: number,
 }
-
 
 export interface HandlerRefObject {
   orderThrowDices: () => void
 }
 
+
+const dicePositions: [number, number, number][] = [[5, 3, 4.5], [4.5, 3, 5], [5, 3, 5], [5, 3, 3]]
+
 export const GameDiceHandler = forwardRef((props: GameDiceHandlerProps, ref: Ref<HandlerRefObject>) => {
   const [performThrow, setPerformThrow] = useState(false);
-  const [diceLanded, setDiceLanded] = useState<DiceResultState>([null, null]);
-  const [diceState, diceDispatcher] = useReducer(diceReducer, {
-    diceARender: false, diceBRender: false,
-    throwForceA: [0, 0, 0], throwForceB: [0, 0, 0], throwOffsetA: [0, 0, 0], throwOffsetB: [0, 0, 0]
-  });
+  const [diceLanded, setDiceLanded] = useState<DiceResultState>(Array(props.nDices).fill(null));
+  const [diceState, diceDispatcher] = useReducer(diceReducer, { renderDices: true, diceThrowParams: [] });
 
   // this is only necessary if you're doing functional components.
   useImperativeHandle(ref, () => ({
@@ -87,55 +54,59 @@ export const GameDiceHandler = forwardRef((props: GameDiceHandlerProps, ref: Ref
 
   const ThrowDices = useCallback(() => {
     diceDispatcher(diceHandleAction.throwDices);
-    setDiceLanded([null, null]);
-    setPerformThrow(val => true);
-  }, [])
+    setDiceLanded(Array(props.nDices).fill(null));
+    setPerformThrow(true);
+  }, [props.nDices])
 
   const onDiceLand = useCallback((landed: number) => {
-    if (diceLanded[0] == null) {
-      setDiceLanded(val => [landed, val[1]]);
-    } else if (diceLanded[1] == null) {
-      setDiceLanded(val => [val[0], landed]);
-    }
-  }, [diceLanded]);
-
-
-  // automatically throw dices when requested
-  // useEffect(() => {
-  //   if (props.throwDices?.watchable === true) {
-  //     ThrowDices();
-  //     props.throwDices.setter(false);
-  //   }
-
-  // }, [props.throwDices, ThrowDices])
+    setDiceLanded(oldstate => {
+      var idx = oldstate.findIndex((val) => val === null);
+      var newstate = [...oldstate];
+      newstate[idx] = landed;
+      return newstate;
+    })
+  }, []);
 
   // automatically call when both dice have landed
   useEffect(() => {
-    if (diceLanded[0] != null && diceLanded[1] != null) {
-      // var n1 = diceLanded[0];
-      // var n2 = diceLanded[1];
+    var idx = diceLanded.findIndex((val) => val === null);
 
-      console.log("both dice landed! " + diceLanded);
-
-      setDiceLanded([null, null])
+    if (idx === -1) {
+      console.log("All dice landed! " + diceLanded);
     }
-  }, [diceLanded, ThrowDices])
+
+  }, [ThrowDices, diceLanded])
 
 
+
+  // NEVER modify state directly. Simply return new state using {...state} for example
+  function diceReducer(state: diceHandleState, action: diceHandleAction): diceHandleState {
+    switch (action) {
+      case diceHandleAction.throwDices:
+
+        var throwParams = Array(props.nDices).fill(0).map((val) => { return generateThrowValues() })
+        return {
+          diceThrowParams: throwParams,
+          renderDices: true,
+        }
+      default:
+        return state;
+    }
+  }
+
+  var dices = diceState.diceThrowParams.map((throwParams, idx) =>
+    <GameDice props={{ material: "dice", args: [0.3, 0.3, 0.3], position: dicePositions[idx] }}
+      color="orange" throwParams={throwParams}
+      display={diceState.renderDices} onStopCallback={onDiceLand}
+      performThrow={performThrow} setPerformThrow={setPerformThrow} key={idx}
+    // onStopTransform={{ position: [-6, 0, 3] }}
+
+    />
+  )
 
   return (
     <React.Fragment>
-      <GameDice props={{ material: "dice", args: [0.3, 0.3, 0.3], position: [5, 3, 4.5] }}
-        color="orange" throwForce={diceState.throwForceA} throwOffset={diceState.throwOffsetA}
-        display={diceState.diceARender} onStopCallback={onDiceLand}
-        performThrow={performThrow} setPerformThrow={setPerformThrow}
-        onStopTransform={{ position: [-6, 0, 3] }}
-      />
-      <GameDice props={{ material: "dice", args: [0.3, 0.3, 0.3], position: [4.5, 3, 5] }}
-        color="orange" throwForce={diceState.throwForceB} throwOffset={diceState.throwOffsetB}
-        display={diceState.diceBRender} onStopCallback={onDiceLand}
-        performThrow={performThrow} setPerformThrow={setPerformThrow}
-        onStopTransform={{ position: [-6, 0, 4] }} />
+      {dices}
     </React.Fragment>
   )
 });

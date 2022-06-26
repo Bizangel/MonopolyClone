@@ -20,7 +20,6 @@ export function Gamepage() {
     // notifyThrowDices(true);
     if (gameDiceHandler.current !== null)
       gameDiceHandler.current.orderThrowDices();
-    // gameDiceHandler.current
   }
 
   return (
@@ -36,7 +35,7 @@ export function Gamepage() {
 
           <GameBoard boxprops={{ material: "board", args: [10, 0.1, 10] }} color="blue" onClickCallback={ThrowDices} />
 
-          <GameDiceHandler ref={gameDiceHandler} />
+          <GameDiceHandler ref={gameDiceHandler} nDices={2} />
 
           <InvisiblePlane position={[0, -0.1, 0]} />
         </Physics>

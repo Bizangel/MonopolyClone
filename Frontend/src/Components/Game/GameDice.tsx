@@ -33,8 +33,7 @@ type gameDiceProps = {
   color: string,
   performThrow: boolean,
   setPerformThrow: React.Dispatch<React.SetStateAction<boolean>>,
-  throwForce: Triplet,
-  throwOffset: Triplet
+  throwParams: throwValues,
   display: boolean,
   onStopCallback: (sideUp: number) => void, // landed side up
   onStopTransform?: { position: [number, number, number], rotation?: [number, number, number] }
@@ -68,6 +67,7 @@ function getSideUP(currQuad: number[]) {
 }
 
 
+export type throwValues = { velocity: Triplet, offset: Triplet };
 
 export function GameDice(diceprops: gameDiceProps) {
 
@@ -78,7 +78,7 @@ export function GameDice(diceprops: gameDiceProps) {
   // whenever it receives the performThrow order from the parent, throw dices
   useEffect(() => {
     if (diceprops.props.position !== undefined && diceprops.display && diceprops.performThrow) {
-      throwDice(diceprops.props.position, api, diceprops.throwForce, diceprops.throwOffset)
+      throwDice(diceprops.props.position, api, diceprops.throwParams.velocity, diceprops.throwParams.offset)
       diceprops.setPerformThrow(false);
       setOnStopCalled(false);
     }
