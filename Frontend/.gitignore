@@ -1,6 +1,6 @@
 ### Typescript/React Gitignore
 
-models3d/
+
 
 .env
 # dependencies
