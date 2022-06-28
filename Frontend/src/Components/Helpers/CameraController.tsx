@@ -4,14 +4,18 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { MOUSE } from "three";
 
 
-export const CameraController = () => {
+type cameraProps = {
+  initialPos: [number, number, number]
+  initialLookatLocation: [number, number, number]
+}
+export const CameraController = (props: cameraProps) => {
   const { camera, gl } = useThree();
 
 
   useEffect(
     () => {
-      camera.position.set(0, 5, 5);
-      camera.lookAt(0, 0, 0);
+      camera.position.set(...props.initialPos);
+      camera.lookAt(...props.initialLookatLocation);
       const controls = new OrbitControls(camera, gl.domElement);
 
       controls.minDistance = 3;
@@ -35,7 +39,7 @@ export const CameraController = () => {
         controls.dispose();
       };
     },
-    [camera, gl]
+    [camera, gl, props.initialLookatLocation, props.initialPos]
   );
   return null;
 };

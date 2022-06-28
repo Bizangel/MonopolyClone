@@ -1,8 +1,13 @@
-import { Vec3 } from "cannon-es"
+import { Vector3 } from "three"
 
 /* Board Global Consts */
-export const boardSize = 10;
-export const boardYLocation = 0.1;
+export const boardSize = 10; // physical board size in threejs
+export const boardYLocation = 0.1; // physical board y-coordinate 
+
+export const BaseCharacterSpeed = 2; // base speed, without any speed boost (due to far away) 
+export const SpeedBoostDistance = 1; // distance from where character starts going faster, to not take too long
+export const SpeedBostScale = 2; // When farther than SpeedBoostDistance, how much should speed be multiplied?
+export const DistanceArriveThreshold = 0.05; // The threshold for the character to be considered arrived
 
 const cornerLengthImg = 215;
 const tileLengthImg = 130;
@@ -49,16 +54,19 @@ export function imagepixels_to_tileindex(x: number, y: number) {
   return tileIndex
 }
 
-type TileLocation = {
-  topleft: Vec3,
-  topright: Vec3,
-  botleft: Vec3,
-  botright: Vec3
+export type TileLocation = {
+  topleft: Vector3,
+  topright: Vector3,
+  botleft: Vector3,
+  botright: Vector3
 }
 
 
 export function getMidPoint(loc: TileLocation) {
-  return loc.botleft.vadd(loc.botright).vadd(loc.topleft).vadd(loc.topright).scale(1 / 4);
+  var returnVec = new Vector3();
+  returnVec.add(loc.botright).add(loc.botleft);
+  returnVec.add(loc.topleft).add(loc.topright);
+  return returnVec.divideScalar(4);
 }
 
 function pixelToBoardXZ(px: number) {
@@ -80,7 +88,7 @@ const cornerBoardLength = cornerLengthImg / boardImgSize * boardSize;
 const tileBoardLength = tileLengthImg / boardImgSize * boardSize;
 
 function XZVector(x: number, z: number) {
-  return new Vec3(x, boardYLocation, z);
+  return new Vector3(x, boardYLocation, z);
 }
 
 // Returned locations are relative to tile directioning!

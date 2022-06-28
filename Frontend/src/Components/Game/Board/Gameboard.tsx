@@ -3,9 +3,9 @@ import { ThreeEvent, useLoader } from '@react-three/fiber';
 import { useRef } from 'react'
 import { Mesh, MeshStandardMaterial } from 'three';
 import { TextureLoader } from 'three/src/loaders/TextureLoader'
-import { imagepixels_to_tileindex, boardSize, tileToWorldLocation, boardYLocation } from '../../common/boardhelpers';
+import { imagepixels_to_tileindex, boardSize, tileToWorldLocation, boardYLocation } from '../../../common/boardhelpers';
 
-const boardimg = require("../../img/board_fireteam.jpg");
+const boardimg = require("../../../img/board_fireteam.jpg");
 
 type gameboardProps = {
   color: string,

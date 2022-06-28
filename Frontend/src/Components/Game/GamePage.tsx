@@ -1,10 +1,14 @@
 import { useRef } from 'react';
 import { Canvas } from '@react-three/fiber'
-import { CameraController } from "./CameraController";
+import { CameraController } from "../Helpers/CameraController";
 import { Physics } from '@react-three/cannon'
-import { GameBoard, InvisiblePlane } from "./Gameboard";
-import { GameDiceHandler, HandlerRefObject } from './GameDiceHandler';
-import { PlayerHandler } from './PlayerHandler';
+import { GameBoard, InvisiblePlane } from "./Board/Gameboard";
+import { GameDiceHandler, HandlerRefObject } from './Board/GameDiceHandler';
+import { PlayerModelHandler } from './Player/PlayerModelHandler';
+
+// PlayerModel
+
+
 // import { Point, Points } from '@react-three/drei';
 // import { getMidPoint, tileToWorldLocation } from '../../common/boardhelpers';
 
@@ -17,12 +21,13 @@ export function Gamepage() {
   const gameDiceHandler = useRef<HandlerRefObject>(null);
 
   const onTileClick = (tileIndex: number) => {
-    console.log("Clicked on tile: ", tileIndex);
+    // gameDiceHandler.current?.orderThrowDices();
+    console.log("Clicked on tile: " + tileIndex)
   }
 
 
 
-  // var ptsloc = tileToWorldLocation(39);
+  // var ptsloc = tileToWorldLocation(0);
   // var midpoint = getMidPoint(ptsloc);
 
   return (
@@ -32,7 +37,8 @@ export function Gamepage() {
       <Canvas>
         <ambientLight intensity={0.3} />
         <directionalLight color="white" position={[30, 30, 0]} intensity={0.5} />
-        <CameraController />
+        <CameraController initialPos={[0, 5, 5]} initialLookatLocation={[0, 0, 0]} />
+
 
         {/* <Points
           limit={1000} // Optional: max amount of items (for calculating buffer size)
@@ -57,7 +63,7 @@ export function Gamepage() {
         </Points> */}
 
         <Physics>
-          <PlayerHandler />
+          <PlayerModelHandler position={10} />
 
           <GameBoard color="blue" onTileClicked={onTileClick} />
 
