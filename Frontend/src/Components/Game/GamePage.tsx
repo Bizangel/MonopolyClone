@@ -4,9 +4,9 @@ import { CameraController } from "./CameraController";
 import { Physics } from '@react-three/cannon'
 import { GameBoard, InvisiblePlane } from "./Gameboard";
 import { GameDiceHandler, HandlerRefObject } from './GameDiceHandler';
-
-
-
+import { PlayerHandler } from './PlayerHandler';
+// import { Point, Points } from '@react-three/drei';
+// import { getMidPoint, tileToWorldLocation } from '../../common/boardhelpers';
 
 
 
@@ -16,24 +16,50 @@ export function Gamepage() {
 
   const gameDiceHandler = useRef<HandlerRefObject>(null);
 
-  const ThrowDices = () => {
-    // notifyThrowDices(true);
-    if (gameDiceHandler.current !== null)
-      gameDiceHandler.current.orderThrowDices();
+  const onTileClick = (tileIndex: number) => {
+    console.log("Clicked on tile: ", tileIndex);
   }
+
+
+
+  // var ptsloc = tileToWorldLocation(39);
+  // var midpoint = getMidPoint(ptsloc);
 
   return (
     // <div> cool game goes here </div>
     < div id="canvas-container" style={{ width: "100vw", height: "100vh" }} >
+
       <Canvas>
         <ambientLight intensity={0.3} />
         <directionalLight color="white" position={[30, 30, 0]} intensity={0.5} />
         <CameraController />
 
+        {/* <Points
+          limit={1000} // Optional: max amount of items (for calculating buffer size)
+          range={1000} // Optional: draw-range
+        >
+
+          <pointsMaterial vertexColors size={0.2} />
+          <Point scale={0.05} position={[ptsloc.botleft.x, ptsloc.botleft.y, ptsloc.botleft.z]} color="red" />
+
+          <pointsMaterial vertexColors size={0.2} />
+          <Point scale={0.05} position={[ptsloc.botright.x, ptsloc.botright.y, ptsloc.botright.z]} color="orange" />
+
+          <pointsMaterial vertexColors size={0.2} />
+          <Point scale={0.05} position={[ptsloc.topright.x, ptsloc.topright.y, ptsloc.topright.z]} color="lightgreen" />
+
+          <pointsMaterial vertexColors size={0.2} />
+          <Point scale={0.05} position={[ptsloc.topleft.x, ptsloc.topleft.y, ptsloc.topleft.z]} color="green" />
+
+          <pointsMaterial vertexColors size={0.2} />
+          <Point scale={0.05} position={[midpoint.x, midpoint.y, midpoint.z]} color="blue" />
+
+        </Points> */}
+
         <Physics>
+          <PlayerHandler />
 
-
-          <GameBoard boxprops={{ material: "board", args: [10, 0.1, 10] }} color="blue" onClickCallback={ThrowDices} />
+          <GameBoard color="blue" onTileClicked={onTileClick} />
 
           <GameDiceHandler ref={gameDiceHandler} nDices={2} />
 

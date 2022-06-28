@@ -1,6 +1,8 @@
 import { useEffect } from "react"
 import { useThree } from '@react-three/fiber'
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { MOUSE } from "three";
+
 
 export const CameraController = () => {
   const { camera, gl } = useThree();
@@ -8,7 +10,7 @@ export const CameraController = () => {
 
   useEffect(
     () => {
-      camera.position.set(-5, 5, 0);
+      camera.position.set(0, 5, 5);
       camera.lookAt(0, 0, 0);
       const controls = new OrbitControls(camera, gl.domElement);
 
@@ -18,12 +20,16 @@ export const CameraController = () => {
       controls.enablePan = true;
       controls.enableZoom = true;
       controls.screenSpacePanning = false;
-      controls.keys = {
-        LEFT: 'ArrowLeft', //left arrow
-        UP: 'ArrowUp', // up arrow
-        RIGHT: 'ArrowRight', // right arrow
-        BOTTOM: 'ArrowDown' // down arrow
+
+      controls.mouseButtons = {
+        LEFT: MOUSE.PAN,
+        RIGHT: MOUSE.PAN,
+        MIDDLE: MOUSE.ROTATE,
       }
+      // @ts-ignore
+      delete controls.mouseButtons.LEFT
+
+
 
       return () => {
         controls.dispose();
