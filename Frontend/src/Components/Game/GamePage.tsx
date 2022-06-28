@@ -1,69 +1,74 @@
-import { useRef } from 'react';
-import { Canvas } from '@react-three/fiber'
-import { CameraController } from "../Helpers/CameraController";
+import { useContext, useRef } from 'react';
+import { Canvas, } from '@react-three/fiber'
+import { CameraController, CameraRefObject } from "../Helpers/CameraController";
 import { Physics } from '@react-three/cannon'
 import { GameBoard, InvisiblePlane } from "./Board/Gameboard";
 import { GameDiceHandler, HandlerRefObject } from './Board/GameDiceHandler';
 import { PlayerModelHandler } from './Player/PlayerModelHandler';
-
-// PlayerModel
-
-
-// import { Point, Points } from '@react-three/drei';
-// import { getMidPoint, tileToWorldLocation } from '../../common/boardhelpers';
-
+import { playerHandlerContext } from '../../Game/PlayerHandler';
+import { PlayerCharacter } from './Player/PlayerCharacterCommons';
+import { useRenderTrigger } from '../Helpers/customHooks';
 
 
 export function Gamepage() {
-
-  // const [throwDicesNotifier, notifyThrowDices] = useState(false)
-
+  const playerHandler = useContext(playerHandlerContext);
+  const triggerRender = useRenderTrigger();
   const gameDiceHandler = useRef<HandlerRefObject>(null);
+  const cameraController = useRef<CameraRefObject>(null);
 
-  const onTileClick = (tileIndex: number) => {
-    // gameDiceHandler.current?.orderThrowDices();
-    console.log("Clicked on tile: " + tileIndex)
+  if (playerHandler.playerLocations.size === 0) {
+    playerHandler.registerPlayer([
+      {
+        username: "carplayer",
+        character: PlayerCharacter.Car,
+      },
+      {
+        username: "shipplayer",
+        character: PlayerCharacter.Ship,
+      },
+      {
+        username: "ironplayer",
+        character: PlayerCharacter.Iron,
+      },
+      {
+        username: "ddd",
+        character: PlayerCharacter.Hat,
+      },
+      {
+        username: "dd",
+        character: PlayerCharacter.Thimble,
+      },
+      {
+        username: "d",
+        character: PlayerCharacter.Wheelcart,
+      },
+    ]);
   }
 
 
-
-  // var ptsloc = tileToWorldLocation(0);
-  // var midpoint = getMidPoint(ptsloc);
+  const onTileClick = (tileIndex: number) => {
+    playerHandler.updatePlayersLocations([
+      { character: PlayerCharacter.Car, location: tileIndex },
+      { character: PlayerCharacter.Ship, location: tileIndex - 1 },
+      { character: PlayerCharacter.Iron, location: tileIndex - 2 },
+      { character: PlayerCharacter.Hat, location: tileIndex - 3 },
+      { character: PlayerCharacter.Thimble, location: tileIndex - 4 },
+      { character: PlayerCharacter.Wheelcart, location: tileIndex - 5 },
+    ]);
+    triggerRender()
+  }
 
   return (
     // <div> cool game goes here </div>
     < div id="canvas-container" style={{ width: "100vw", height: "100vh" }} >
 
       <Canvas>
-        <ambientLight intensity={0.3} />
+        <ambientLight intensity={0.2} />
         <directionalLight color="white" position={[30, 30, 0]} intensity={0.5} />
-        <CameraController initialPos={[0, 6, 6]} initialLookatLocation={[0, 0, 0]} />
-
-
-        {/* <Points
-          limit={1000} // Optional: max amount of items (for calculating buffer size)
-          range={1000} // Optional: draw-range
-        >
-
-          <pointsMaterial vertexColors size={0.2} />
-          <Point scale={0.05} position={[ptsloc.botleft.x, ptsloc.botleft.y, ptsloc.botleft.z]} color="red" />
-
-          <pointsMaterial vertexColors size={0.2} />
-          <Point scale={0.05} position={[ptsloc.botright.x, ptsloc.botright.y, ptsloc.botright.z]} color="orange" />
-
-          <pointsMaterial vertexColors size={0.2} />
-          <Point scale={0.05} position={[ptsloc.topright.x, ptsloc.topright.y, ptsloc.topright.z]} color="lightgreen" />
-
-          <pointsMaterial vertexColors size={0.2} />
-          <Point scale={0.05} position={[ptsloc.topleft.x, ptsloc.topleft.y, ptsloc.topleft.z]} color="green" />
-
-          <pointsMaterial vertexColors size={0.2} />
-          <Point scale={0.05} position={[midpoint.x, midpoint.y, midpoint.z]} color="blue" />
-
-        </Points> */}
+        <CameraController ref={cameraController} initialLookatLocation={[0, 0, 0]} initialPos={[0, 5, 5]} />
 
         <Physics>
-          <PlayerModelHandler position={10} />
+          <PlayerModelHandler locations={playerHandler.playerLocations} />
 
           <GameBoard color="blue" onTileClicked={onTileClick} />
 

@@ -3,9 +3,7 @@ import { ThreeEvent, useLoader } from '@react-three/fiber';
 import { useRef } from 'react'
 import { Mesh, MeshStandardMaterial } from 'three';
 import { TextureLoader } from 'three/src/loaders/TextureLoader'
-import { imagepixels_to_tileindex, boardSize, tileToWorldLocation, boardYLocation } from '../../../common/boardhelpers';
-
-const boardimg = require("../../../img/board_fireteam.jpg");
+import { imagepixels_to_tileindex, boardSize, tileToWorldLocation, boardYLocation, boardimg, boardImgSize } from '../../../common/boardhelpers';
 
 type gameboardProps = {
   color: string,
@@ -24,8 +22,8 @@ export function GameBoard(props: gameboardProps) {
 
   const onBoardClick = (event: ThreeEvent<MouseEvent>) => {
 
-    var x = (event.point.x + boardSize / 2) / boardSize * 1600; // board in pixels
-    var y = (event.point.z + boardSize / 2) / boardSize * 1600;
+    var x = (event.point.x + boardSize / 2) / boardSize * boardImgSize; // board in pixels
+    var y = (event.point.z + boardSize / 2) / boardSize * boardImgSize;
 
     var tileIndex = imagepixels_to_tileindex(x, y);
 
@@ -45,7 +43,7 @@ export function GameBoard(props: gameboardProps) {
 
   cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));
   cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));
-  cubeMaterials.push(new MeshStandardMaterial({ map: colorMap }));
+  cubeMaterials.push(new MeshStandardMaterial({ map: colorMap, roughness: 0.4, metalness: 0 }));
   cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));
   cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));
   cubeMaterials.push(new MeshStandardMaterial({ color: cardboardColor }));

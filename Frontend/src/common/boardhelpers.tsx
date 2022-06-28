@@ -9,9 +9,22 @@ export const SpeedBoostDistance = 1; // distance from where character starts goi
 export const SpeedBostScale = 2; // When farther than SpeedBoostDistance, how much should speed be multiplied?
 export const DistanceArriveThreshold = 0.05; // The threshold for the character to be considered arrived
 
-const cornerLengthImg = 215;
-const tileLengthImg = 130;
-const boardImgSize = 1600;
+export const playerSeparationDistance = 0.35; // the distance to separate the players on each tile
+
+export const housebarHeight = 0.5; // the height of each square occupied by the color-housebar
+
+
+/* Board Img CONSTS */
+// const cornerLengthImg = 215;
+// const tileLengthImg = 130;
+// const boardImgSize = 1600;
+// export const boardimg = require("../img/board.jpg");
+
+/* High RES version! */
+export const cornerLengthImg = 855;
+export const tileLengthImg = 520;
+export const boardImgSize = 6400;
+export const boardimg = require("../img/board_high_res.jpg");
 
 export function imagepixels_to_tileindex(x: number, y: number) {
   var hallway_idx = -1;
@@ -132,8 +145,6 @@ export function tileToWorldLocation(tileIndex: number): TileLocation {
   else
     row = 4;
 
-
-  // console.log("row: " + row)
   var offset = ((tileIndex % 10) - 1) * tileBoardLength + cornerBoardLength;
   switch (row) {
     case 1:
@@ -173,5 +184,63 @@ export function tileToWorldLocation(tileIndex: number): TileLocation {
       }
     default:
       throw new Error("invalid tileIndex given in tileToWorldLocation")
+  }
+}
+
+export function getInwardDirection(tileIndex: number) {
+  var row = -1;
+  if (0 <= tileIndex && tileIndex < 10)
+    row = 1;
+  else if (10 <= tileIndex && tileIndex < 20)
+    row = 2;
+  else if (20 <= tileIndex && tileIndex < 30)
+    row = 3;
+  else
+    row = 4;
+
+  switch (row) {
+    case 1:
+      return new Vector3(0, 0, -1);
+
+    case 2:
+      return new Vector3(1, 0, 0);
+
+    case 3:
+      return new Vector3(0, 0, 1);
+
+    case 4:
+      return new Vector3(-1, 0, 0);
+
+    default:
+      throw new Error("Received invalid tileIndex in getInwardDirection: " + tileIndex)
+  }
+}
+
+export function getNextTileRotation(tileIndex: number) {
+  var row = -1;
+  if (0 <= tileIndex && tileIndex < 10)
+    row = 1;
+  else if (10 <= tileIndex && tileIndex < 20)
+    row = 2;
+  else if (20 <= tileIndex && tileIndex < 30)
+    row = 3;
+  else
+    row = 4;
+
+  switch (row) {
+    case 1:
+      return Math.PI;
+
+    case 2:
+      return 3 * Math.PI / 2;
+
+    case 3:
+      return 0;
+
+    case 4:
+      return Math.PI / 2;
+
+    default:
+      throw new Error("Received invalid tileIndex in getNextDirection: " + tileIndex)
   }
 }

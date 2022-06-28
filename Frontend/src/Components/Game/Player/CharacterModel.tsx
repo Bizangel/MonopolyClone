@@ -4,7 +4,7 @@ import { Mesh, MeshStandardMaterial, Vector3 } from "three";
 import { useFrame } from "@react-three/fiber";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import { useBox } from "@react-three/cannon";
-import { BaseCharacterSpeed, SpeedBoostDistance, getMidPoint, tileToWorldLocation, SpeedBostScale, DistanceArriveThreshold, boardSize } from "../../../common/boardhelpers";
+import { BaseCharacterSpeed, SpeedBoostDistance, getMidPoint, tileToWorldLocation, SpeedBostScale, DistanceArriveThreshold, boardSize, getNextTileRotation } from "../../../common/boardhelpers";
 import { characterToPath, PlayerCharacter, characterScales, characterRotationOffset } from "./PlayerCharacterCommons"
 
 type GLTFResult = GLTF & {
@@ -21,6 +21,7 @@ type CharacterModelProps = {
   baseRotation: [number, number, number],
   yoffset: number,
   character: PlayerCharacter,
+  onStopLocation?: Vector3,
 }
 
 export function CharacterModel(props: CharacterModelProps) {
@@ -79,8 +80,22 @@ export function CharacterModel(props: CharacterModelProps) {
         if (fakeTarget) {
           var nextCorner = (Math.floor(currTileInternal / 10) + 1) * 10 % 40;
           setCurrentTileInternal(nextCorner);
+          if (props.currentTile === nextCorner && props.onStopLocation !== undefined) { // if actually arrived, (going to corner)
+            cannonapi.position.set(props.onStopLocation.x, props.onStopLocation.y, props.onStopLocation.z);
+            cannonapi.rotation.set(props.baseRotation[0], props.baseRotation[1], props.baseRotation[2] + getNextTileRotation(props.currentTile))
+          }
           return;
         }
+
+        var angleoffset2 = characterRotationOffset.get(props.character)
+        if (angleoffset2 === undefined)
+          throw new Error("no defined offset for given character: " + props.character)
+
+        if (props.onStopLocation !== undefined) {
+          cannonapi.position.set(props.onStopLocation.x, props.onStopLocation.y, props.onStopLocation.z);
+          cannonapi.rotation.set(props.baseRotation[0], props.baseRotation[1], props.baseRotation[2] + angleoffset2 + getNextTileRotation(props.currentTile))
+        }
+
         setCurrentTileInternal(props.currentTile);
         return;
       }

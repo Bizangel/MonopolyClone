@@ -1,21 +1,48 @@
-import { useEffect } from "react"
+import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from "react"
 import { useThree } from '@react-three/fiber'
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { MOUSE } from "three";
 
 
+
+export interface CameraRefObject {
+  cameraLookAt: (x: number, y: number, z: number) => void,
+  cameraSetPos: (x: number, y: number, z: number) => void,
+}
+
 type cameraProps = {
   initialPos: [number, number, number]
   initialLookatLocation: [number, number, number]
 }
-export const CameraController = (props: cameraProps) => {
+
+type cameraControls = {
+  pos?: [number, number, number],
+  lookAt?: [number, number, number],
+}
+
+export const CameraController = forwardRef((props: cameraProps, ref: Ref<CameraRefObject>) => {
   const { camera, gl } = useThree();
+
+  const [controlsRequest, setControlRequest] = useState<cameraControls>({ pos: props.initialPos, lookAt: props.initialLookatLocation });
+
+  useImperativeHandle(ref, () => ({
+    cameraLookAt(x: number, y: number, z: number) {
+      setControlRequest({ lookAt: [x, y, z] })
+    },
+
+    cameraSetPos(x: number, y: number, z: number) {
+      setControlRequest({ pos: [x, y, z] })
+    }
+  }));
 
 
   useEffect(
     () => {
-      camera.position.set(...props.initialPos);
-      camera.lookAt(...props.initialLookatLocation);
+      if (controlsRequest.pos !== undefined)
+        camera.position.set(controlsRequest.pos[0], controlsRequest.pos[1], controlsRequest.pos[2]);
+
+      if (controlsRequest.lookAt !== undefined)
+        camera.lookAt(controlsRequest.lookAt[0], controlsRequest.lookAt[1], controlsRequest.lookAt[2]);
       const controls = new OrbitControls(camera, gl.domElement);
 
       controls.minDistance = 3;
@@ -39,7 +66,8 @@ export const CameraController = (props: cameraProps) => {
         controls.dispose();
       };
     },
-    [camera, gl, props.initialLookatLocation, props.initialPos]
+    [camera, gl, controlsRequest]
   );
+
   return null;
-};
+});
