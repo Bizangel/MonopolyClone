@@ -1,28 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
-import { Mesh, MeshStandardMaterial, TextureLoader, Vector3 } from "three";
-import { useFrame, useLoader } from "@react-three/fiber";
+import { Mesh, MeshStandardMaterial, Vector3 } from "three";
+import { useFrame } from "@react-three/fiber";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import { useBox } from "@react-three/cannon";
-import { BaseCharacterSpeed, SpeedBoostDistance, getMidPoint, tileToWorldLocation, SpeedBostScale, DistanceArriveThreshold } from "../../../common/boardhelpers";
+import { BaseCharacterSpeed, SpeedBoostDistance, getMidPoint, tileToWorldLocation, SpeedBostScale, DistanceArriveThreshold, boardSize } from "../../../common/boardhelpers";
+import { characterToPath, PlayerCharacter, characterScales, characterRotationOffset } from "./PlayerCharacterCommons"
 
 type GLTFResult = GLTF & {
   nodes: {
-    char1_cart: THREE.Mesh
+    character_model: THREE.Mesh
   }
 }
 
-const char1model_path = require("../../../img/models3d/char1_car.glb") as string;
-
 // Material for characters
-const alumininum_ao = require("../../../img/models3d/texture/ao.jpg") as string;
-const alumininum_colormap = require("../../../img/models3d/texture/colormap.jpg") as string;
-const alumininum_roughness = require("../../../img/models3d/texture/roughness.jpg") as string;
-
+var characterMaterial = new MeshStandardMaterial({ color: 0x959595, metalness: 0.3, roughness: 0.2 })
 
 type CharacterModelProps = {
-  displayScale: number,
   currentTile: number,
+  baseRotation: [number, number, number],
+  yoffset: number,
+  character: PlayerCharacter,
 }
 
 export function CharacterModel(props: CharacterModelProps) {
@@ -31,20 +29,19 @@ export function CharacterModel(props: CharacterModelProps) {
   const [currTileInternal, setCurrentTileInternal] = useState(0);
   const [fakeTarget, setFakeTarget] = useState(false);
 
-  const currPos = useRef([3, 0.12, 3]);
+  const currPos = useRef([boardSize / 2, props.yoffset, boardSize / 2]);
 
   const [ref, cannonapi] = useBox(() =>
   ({
     mass: 1, velocity: [0, 0, 0], type: "Kinematic", material: "character",
-    position: [3, 0.12, 3], rotation: [Math.PI / 2, 0, 0], args: [bbox.x, bbox.y, bbox.z]
+    position: [boardSize / 2, props.yoffset, boardSize / 2], rotation: props.baseRotation, args: [bbox.x, bbox.y, bbox.z]
   }), useRef<Mesh>(null))
-
 
   /* When tile changes, automatically move to said tile*/
   useEffect(() => {
     // move to said tile
     if (currPos.current !== null && currTileInternal !== props.currentTile) {
-      if (Math.floor(currTileInternal / 10) !== Math.floor(props.currentTile / 10)) { // different row
+      if (Math.floor(currTileInternal / 10) !== Math.floor(props.currentTile / 10) || props.currentTile < currTileInternal) { // different row, or before
         // go first to next corner 
         var nextCorner = (Math.floor(currTileInternal / 10) + 1) * 10 % 40;
         var temptarget = getMidPoint(tileToWorldLocation(nextCorner));
@@ -91,7 +88,12 @@ export function CharacterModel(props: CharacterModelProps) {
       var dirVector = new Vector3();
       dirVector.subVectors(target, currLoc);
       dirVector.normalize();
-      var angles = Math.atan2(dirVector.z, dirVector.x) + Math.PI;
+
+      var angleoffset = characterRotationOffset.get(props.character)
+      if (angleoffset === undefined)
+        throw new Error("no defined offset for given character: " + props.character)
+
+      var angles = Math.atan2(dirVector.z, dirVector.x) + angleoffset;
       if (distance < SpeedBoostDistance)
         dirVector.multiplyScalar(delta * BaseCharacterSpeed);
       else
@@ -102,7 +104,7 @@ export function CharacterModel(props: CharacterModelProps) {
 
       // set rotation while moving.
       cannonapi.position.set(currLoc.x, currLoc.y, currLoc.z)
-      cannonapi.rotation.set(Math.PI / 2, 0, angles)
+      cannonapi.rotation.set(props.baseRotation[0], props.baseRotation[1], props.baseRotation[2] + angles)
 
 
 
@@ -113,31 +115,32 @@ export function CharacterModel(props: CharacterModelProps) {
 
 
   /* Render Stuff */
-  const { nodes } = useGLTF(char1model_path) as unknown as GLTFResult;
-  if (nodes.char1_cart.geometry.boundingBox === null)
-    nodes.char1_cart.geometry.computeBoundingBox();
+
+  var dispScale = characterScales.get(props.character);
+  if (dispScale === undefined)
+    throw new Error("No given character scale for: " + props.character)
+
+  var charpath = characterToPath.get(props.character);
+  if (charpath === undefined)
+    throw new Error("No given model path for character: " + props.character)
+
+  const { nodes } = useGLTF(charpath) as unknown as GLTFResult;
+  if (nodes.character_model.geometry.boundingBox === null) {
+    nodes.character_model.geometry.computeBoundingBox();
+  }
+
   var bbox = new Vector3();
-  if (nodes.char1_cart.geometry.boundingBox !== null)
-    bbox = nodes.char1_cart.geometry.boundingBox.max.sub(nodes.char1_cart.geometry.boundingBox.min).multiplyScalar(props.displayScale);
-  const [aoMap, colorMap, roughnessMap] = useLoader(
-    TextureLoader, [alumininum_ao, alumininum_colormap, alumininum_roughness]);
-  var characterMaterial = new MeshStandardMaterial({ aoMap: aoMap, map: colorMap, roughnessMap: roughnessMap });
+  if (nodes.character_model.geometry.boundingBox !== null)
+    bbox = nodes.character_model.geometry.boundingBox.max.sub(nodes.character_model.geometry.boundingBox.min).multiplyScalar(dispScale);
 
   return (
     <mesh ref={ref}
-      scale={props.displayScale}
+      scale={dispScale}
       castShadow
       receiveShadow
-      geometry={nodes.char1_cart.geometry}
+      geometry={nodes.character_model.geometry}
       material={characterMaterial}
     >
-      <meshStandardMaterial attach="material"
-        map={colorMap}
-        roughnessMap={roughnessMap}
-        aoMap={aoMap}
-      />
     </mesh>
   );
 }
-
-useGLTF.preload(char1model_path);

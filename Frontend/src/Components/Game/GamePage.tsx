@@ -37,7 +37,7 @@ export function Gamepage() {
       <Canvas>
         <ambientLight intensity={0.3} />
         <directionalLight color="white" position={[30, 30, 0]} intensity={0.5} />
-        <CameraController initialPos={[0, 5, 5]} initialLookatLocation={[0, 0, 0]} />
+        <CameraController initialPos={[0, 6, 6]} initialLookatLocation={[0, 0, 0]} />
 
 
         {/* <Points

@@ -1,5 +1,6 @@
+import React from "react"
 import { CharacterModel } from "./CharacterModel"
-
+import { PlayerCharacter } from "./PlayerCharacterCommons"
 
 type PlayerLocationHandlerProps = {
   position: number
@@ -8,10 +9,10 @@ type PlayerLocationHandlerProps = {
 
 // Only manages logic of multiple characters
 export function PlayerModelHandler(props: PlayerLocationHandlerProps) {
-
-
-
   return (
-    <CharacterModel displayScale={0.002} currentTile={2} />
+    <React.Fragment>
+      <CharacterModel currentTile={12} baseRotation={[Math.PI / 2, 0, 0]} yoffset={0.12} character={PlayerCharacter.Thimble} />
+      <CharacterModel currentTile={24} baseRotation={[Math.PI / 2, 0, 0]} yoffset={0.12} character={PlayerCharacter.Car} />
+    </React.Fragment>
   )
 }
