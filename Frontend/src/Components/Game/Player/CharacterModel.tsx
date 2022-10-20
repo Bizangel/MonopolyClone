@@ -1,17 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useGLTF } from "@react-three/drei";
 import { Mesh, MeshStandardMaterial, Vector3 } from "three";
 import { useFrame } from "@react-three/fiber";
-import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import { useBox } from "@react-three/cannon";
 import { BaseCharacterSpeed, SpeedBoostDistance, getMidPoint, tileToWorldLocation, SpeedBostScale, DistanceArriveThreshold, boardSize, getNextTileRotation } from "../../../common/boardhelpers";
 import { characterToPath, PlayerCharacter, characterScales, characterRotationOffset } from "./PlayerCharacterCommons"
+import { useLoader } from '@react-three/fiber'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
-type GLTFResult = GLTF & {
-  nodes: {
-    character_model: THREE.Mesh
-  }
-}
 
 // Material for characters
 var characterMaterial = new MeshStandardMaterial({ color: 0x959595, metalness: 0.3, roughness: 0.2 })
@@ -61,7 +56,7 @@ export function CharacterModel(props: CharacterModelProps) {
   // Keep track of position at all times
   useEffect(() => {
     const unsub = cannonapi.position.subscribe((pos) => {
-      currPos.current = pos
+      currPos.current = pos;
     })
     return unsub;
   }, [cannonapi])
@@ -139,21 +134,19 @@ export function CharacterModel(props: CharacterModelProps) {
   if (charpath === undefined)
     throw new Error("No given model path for character: " + props.character)
 
-  const { nodes } = useGLTF(charpath) as unknown as GLTFResult;
-  if (nodes.character_model.geometry.boundingBox === null) {
-    nodes.character_model.geometry.computeBoundingBox();
-  }
+  const loader = useLoader(GLTFLoader, charpath);
+  const character_model = loader.scene.getObjectByName("character_model") as THREE.Mesh
 
   var bbox = new Vector3();
-  if (nodes.character_model.geometry.boundingBox !== null)
-    bbox = nodes.character_model.geometry.boundingBox.max.sub(nodes.character_model.geometry.boundingBox.min).multiplyScalar(dispScale);
+  if (character_model.geometry.boundingBox !== null)
+    bbox = character_model.geometry.boundingBox.max.sub(character_model.geometry.boundingBox.min).multiplyScalar(dispScale);
 
   return (
     <mesh ref={ref}
       scale={dispScale}
       castShadow
       receiveShadow
-      geometry={nodes.character_model.geometry}
+      geometry={character_model.geometry}
       material={characterMaterial}
     >
     </mesh>

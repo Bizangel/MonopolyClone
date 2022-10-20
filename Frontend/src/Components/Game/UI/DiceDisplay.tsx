@@ -1,0 +1,39 @@
+import React from "react";
+// import { Dice1 as dice} from "../../../img/dicesvg/dice1.svg"
+
+const Dice1 = require("../../../img/dicesvg/dice1.svg").ReactComponent;
+const Dice2 = require("../../../img/dicesvg/dice2.svg").ReactComponent;
+const Dice3 = require("../../../img/dicesvg/dice3.svg").ReactComponent;
+const Dice4 = require("../../../img/dicesvg/dice4.svg").ReactComponent;
+const Dice5 = require("../../../img/dicesvg/dice5.svg").ReactComponent;
+const Dice6 = require("../../../img/dicesvg/dice6.svg").ReactComponent;
+
+type DiceDisplayProps = {
+  number: number,
+}
+
+
+function diceImg(diceNumber: number) {
+  switch (diceNumber) {
+    case 1:
+      return <Dice1 />
+    case 2:
+      return <Dice2 />
+    case 3:
+      return <Dice3 />
+    case 4:
+      return <Dice4 />
+    case 5:
+      return <Dice5 />
+    case 6:
+      return <Dice6 />
+    default:
+      throw new Error("Request to render invalid dice number!");
+  }
+}
+
+export function DiceDisplay(props: DiceDisplayProps) {
+  return (<div style={{ width: "5vw", height: "5vw" }}>
+    {diceImg(props.number)}
+  </div>)
+}

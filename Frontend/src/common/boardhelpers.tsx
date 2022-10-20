@@ -24,7 +24,7 @@ export const housebarHeight = 0.5; // the height of each square occupied by the 
 export const cornerLengthImg = 855;
 export const tileLengthImg = 520;
 export const boardImgSize = 6400;
-export const boardimg = require("../img/board_high_res.jpg");
+export const boardimg = require("../img/board_high_res.png");
 
 export function imagepixels_to_tileindex(x: number, y: number) {
   var hallway_idx = -1;

@@ -3,6 +3,7 @@ import { Card } from 'react-bootstrap';
 import { RegisterReply, RegisterReplySchema } from '../../Models/Models';
 import { MonopolyRequests } from '../../Requests';
 import { PageCenteredGridContainer } from '../Helpers/PageCenteredGridContainer';
+import { UserLoginForm } from 'common/types';
 import { UserPassForm } from './UserPassForm';
 
 type RegisterFormProps = {
@@ -16,8 +17,8 @@ export class RegisterFormPage extends React.Component<RegisterFormProps> {
   }
 
 
-  public onSubmit = async (form: UserPassForm) => {
-    var registerreply = await MonopolyRequests.requestSchema<RegisterReply>("/RegisterAccount", form.state, MonopolyRequests.RequestMethods.POST, RegisterReplySchema, false);
+  public onSubmit = async (form: UserLoginForm) => {
+    var registerreply = await MonopolyRequests.requestSchema<RegisterReply>("/RegisterAccount", form, MonopolyRequests.RequestMethods.POST, RegisterReplySchema, false);
     if (registerreply === null) {
       this.setState({ messageDisp: "Connection Error!", username: "", password: "", messageDispColor: "red" });
     } else {

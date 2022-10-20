@@ -23,7 +23,9 @@ function cookieCheckGoToGame(stateChanger: React.Dispatch<React.SetStateAction<D
 
 export function GameAuthHandler() {
   const game = useContext(GameContext);
-  const [currentDisplay, setDisplayState] = useState(DisplayState.Login);
+
+  const [currentDisplay, setDisplayState] = useState(DisplayState.Game);
+  // const [currentDisplay, setDisplayState] = useState(DisplayState.Login);
 
 
   useEffect(() => {

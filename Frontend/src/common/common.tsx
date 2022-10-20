@@ -1,7 +1,8 @@
+export const isDevelopment = true;
 
 export function HOSTURL() {
   // REMOVE IN PRODUCTION CODE! 
-  return "192.168.1.69:7105";
+  return "192.168.0.69:7105";
 
   // return window.location.host;
 }

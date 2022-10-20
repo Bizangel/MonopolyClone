@@ -42,7 +42,7 @@ builder.Services.AddCors(options =>
                           //    })
                           //  .AllowAnyHeader()
                           //  .AllowAnyMethod();
-                          policy.WithOrigins("https://192.168.1.69:3000", "https://192.168.1.69")
+                          policy.WithOrigins("https://192.168.0.69:3000", "https://192.168.0.69")
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials();
@@ -75,7 +75,7 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment()) { logger.Warn("Warning: Running on DEVELOPMENT environment!"); }
-if (app.Environment.IsProduction()) { logger.Info("Running production environment!");  }
+if (app.Environment.IsProduction()) { logger.Info("Running production environment!"); }
 
 // Add cors on development
 if (app.Environment.IsDevelopment())

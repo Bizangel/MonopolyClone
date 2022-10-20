@@ -1,3 +1,4 @@
+import React from "react";
 import { useContext, useRef } from 'react';
 import { Canvas, } from '@react-three/fiber'
 import { CameraController, CameraRefObject } from "../Helpers/CameraController";
@@ -8,6 +9,8 @@ import { PlayerModelHandler } from './Player/PlayerModelHandler';
 import { playerHandlerContext } from '../../Game/PlayerHandler';
 import { PlayerCharacter } from './Player/PlayerCharacterCommons';
 import { useRenderTrigger } from '../Helpers/customHooks';
+import { UI } from './UI/UI';
+
 
 
 export function Gamepage() {
@@ -26,22 +29,6 @@ export function Gamepage() {
         username: "shipplayer",
         character: PlayerCharacter.Ship,
       },
-      {
-        username: "ironplayer",
-        character: PlayerCharacter.Iron,
-      },
-      {
-        username: "ddd",
-        character: PlayerCharacter.Hat,
-      },
-      {
-        username: "dd",
-        character: PlayerCharacter.Thimble,
-      },
-      {
-        username: "d",
-        character: PlayerCharacter.Wheelcart,
-      },
     ]);
   }
 
@@ -49,11 +36,7 @@ export function Gamepage() {
   const onTileClick = (tileIndex: number) => {
     playerHandler.updatePlayersLocations([
       { character: PlayerCharacter.Car, location: tileIndex },
-      { character: PlayerCharacter.Ship, location: tileIndex - 1 },
-      { character: PlayerCharacter.Iron, location: tileIndex - 2 },
-      { character: PlayerCharacter.Hat, location: tileIndex - 3 },
-      { character: PlayerCharacter.Thimble, location: tileIndex - 4 },
-      { character: PlayerCharacter.Wheelcart, location: tileIndex - 5 },
+      { character: PlayerCharacter.Ship, location: tileIndex },
     ]);
     triggerRender()
   }
@@ -62,10 +45,12 @@ export function Gamepage() {
     // <div> cool game goes here </div>
     < div id="canvas-container" style={{ width: "100vw", height: "100vh" }} >
 
+      <UI />
       <Canvas>
-        <ambientLight intensity={0.2} />
-        <directionalLight color="white" position={[30, 30, 0]} intensity={0.5} />
+        <ambientLight intensity={0.4} color="white" />
+        <directionalLight color="white" position={[30, 30, 0]} intensity={0.2} />
         <CameraController ref={cameraController} initialLookatLocation={[0, 0, 0]} initialPos={[0, 5, 5]} />
+
 
         <Physics>
           <PlayerModelHandler locations={playerHandler.playerLocations} />

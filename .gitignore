@@ -4,6 +4,10 @@
 monopolyclone.db
 monopolyclone-log.db
 
+
+## code workspace
+*.code-workspace
+
 ### Typescript/React Gitignore
 # dependencies
 /imgs

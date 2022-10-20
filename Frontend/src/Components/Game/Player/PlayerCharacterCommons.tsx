@@ -1,6 +1,3 @@
-import { useGLTF } from "@react-three/drei";
-
-
 export enum PlayerCharacter {
   Car,
   Iron,
@@ -44,11 +41,3 @@ export const characterRotationOffset = new Map<number, number>([
   [PlayerCharacter.Wheelcart, Math.PI],
   [PlayerCharacter.Thimble, 0],
 ])
-
-
-useGLTF.preload(char1model_path);
-useGLTF.preload(char2model_path);
-useGLTF.preload(char3model_path);
-useGLTF.preload(char4model_path);
-useGLTF.preload(char5model_path);
-useGLTF.preload(char6model_path);

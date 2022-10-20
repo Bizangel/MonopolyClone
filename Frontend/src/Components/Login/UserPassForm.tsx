@@ -1,59 +1,55 @@
-import React from 'react';
-import { Form, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Form, Button as Button2 } from 'react-bootstrap';
+import { UserLoginForm } from 'common/types'
+
 
 type UserPassFormProps = {
-  onSubmit: (form: UserPassForm) => void,
+  onSubmit: (form: UserLoginForm) => void,
   messageDisp: string,
   messageDispColor: string,
   title: string,
   passwordAutoComplete: string,
 }
 
-export class UserPassForm extends React.Component<UserPassFormProps>{
 
-  state = {
-    username: "",
-    password: "",
-  };
+export function UserPassForm(props: UserPassFormProps) {
+  const [formState, setFormState] = useState<UserLoginForm>({ username: "", password: "" })
 
-  // This syntax allows for (this) to be defined.
-  // onSubmit = 
+  return (
+    <Form className="loginForm" onSubmit={(e) => { props.onSubmit(formState); e.preventDefault() }}>
+      <Form.Group className="mb-3" controlId="formBasicEmail">
+        <Form.Label>Username</Form.Label>
+        <Form.Control type="username" placeholder="Enter Username"
+          name="username"
+          value={formState.username}
+          onChange={
+            (event) => { setFormState(e => { return { ...e, username: event.target.value } }) }
+          }
+          autoComplete="username" />
+      </Form.Group>
 
-  onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ [e.target.name]: e.target.value })
-  };
+      <Form.Group className="mb-3" controlId="formBasicPassword">
+        <Form.Label>Password</Form.Label>
+        <Form.Control type="password" placeholder="Password"
+          name="password"
+          value={formState.username}
+          onChange={
+            (event) => { setFormState(e => { return { ...e, password: event.target.value } }) }
+          }
+          autoComplete="password"
+        />
+      </Form.Group>
+      <p style={{ color: props.messageDispColor }}>
+        {props.messageDisp}
+      </p>
 
-  render() {
-    return (
-      <Form className="loginForm">
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Username</Form.Label>
-          <Form.Control type="username" placeholder="Enter Username"
-            name="username"
-            value={this.state.username}
-            onChange={this.onChange}
-            autoComplete="username" />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Password"
-            name="password"
-            value={this.state.password}
-            onChange={this.onChange}
-            autoComplete="password"
-          />
-        </Form.Group>
-        <p style={{ color: this.props.messageDispColor }}>
-          {this.props.messageDisp}
-        </p>
-
-        <Button variant="primary" onClick={() => this.props.onSubmit(this)}>
-          Submit
-        </Button>
+      <Button2 variant="primary" onClick={() => props.onSubmit(formState)}>
+        Submit
+      </Button2>
 
 
-      </Form>
-    )
-  }
+
+    </Form>
+  )
+
 }

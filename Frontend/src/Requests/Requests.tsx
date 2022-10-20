@@ -1,6 +1,6 @@
 import { ZodSchema } from "zod";
-import { HTTPSHOST } from "../common/common";
-
+import { HTTPSHOST } from "common/common";
+import { isDevelopment } from "common/common";
 
 export namespace MonopolyRequests {
 
@@ -9,11 +9,14 @@ export namespace MonopolyRequests {
     POST = "POST",
   }
 
-  export async function requestSchema<T>(url: string, json_body: Object, method: RequestMethods, expected_response: ZodSchema<T>, includeCredentials: boolean) {
-    var response = null;
+  export async function requestSchema<T>(url: string, json_body: Object,
+    method: RequestMethods, expected_response: ZodSchema<T>,
+    includeCredentials: boolean) {
+    var response: any = null;
     try {
       response = await fetch(HTTPSHOST() + url, {
         method: method,
+        mode: isDevelopment ? "no-cors" : "cors",
         headers: {
           'Content-Type': 'application/json',
         },

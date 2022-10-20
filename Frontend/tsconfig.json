@@ -18,12 +18,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": "./src"
   },
-  "rootDir": "./src",
   "outDir": "./build",
   "strict": true,
   "include": [
-    "index.d.ts"
+    "index.d.ts",
+    "src"
   ]
 }

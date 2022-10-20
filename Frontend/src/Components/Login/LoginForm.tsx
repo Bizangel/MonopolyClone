@@ -4,6 +4,7 @@ import { LoginReply, LoginReplySchema } from '../../Models';
 import { MonopolyRequests } from '../../Requests';
 import { PageCenteredGridContainer } from '../Helpers/PageCenteredGridContainer';
 import { UserPassForm } from './UserPassForm';
+import { UserLoginForm } from 'common/types'
 
 type LoginFormProps = {
   onLoginSuccess: () => void,
@@ -17,8 +18,8 @@ export class LoginFormPage extends React.Component<LoginFormProps>{
     messageDisp: "",
   }
 
-  onSubmit = async (form: UserPassForm) => {
-    var loginreply = await MonopolyRequests.requestSchema<LoginReply>("/Login", form.state, MonopolyRequests.RequestMethods.POST, LoginReplySchema, true);
+  onSubmit = async (form: UserLoginForm) => {
+    var loginreply = await MonopolyRequests.requestSchema<LoginReply>("/Login", form, MonopolyRequests.RequestMethods.POST, LoginReplySchema, true);
     if (loginreply == null) {
       this.setState({ messageDisp: "Connection Error!", username: "", password: "", messageDispColor: "red" });
     } else {
