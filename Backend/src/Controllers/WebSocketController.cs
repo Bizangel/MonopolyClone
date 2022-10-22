@@ -1,12 +1,12 @@
 using System.Buffers;
 using System.Net.WebSockets;
 using System.Text.Json;
+using System.Threading;
 using Microsoft.AspNetCore.Mvc;
+using MonopolyClone.Auth;
 using MonopolyClone.Auth.CryptTools;
 using MonopolyClone.Events;
-using MonopolyClone.Auth;
 using MonopolyClone.Sockets;
-using System.Threading;
 using NLog;
 
 namespace MonopolyClone.Controllers;
@@ -22,7 +22,8 @@ public class WebSocketController : ControllerBase
     private readonly Logger _logger;
     private readonly AesEncryptor _aesEncryptor;
 
-    static WebSocketController(){
+    static WebSocketController()
+    {
         _synclock = new ReaderWriterLockSlim();
         _socketHandler = new ServerSocketHandler();
     }
@@ -42,7 +43,8 @@ public class WebSocketController : ControllerBase
 
             using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
             string? authCookie = Request.Cookies["Auth"];
-            if (authCookie == null) {
+            if (authCookie == null)
+            {
                 await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
                 return;
             }
@@ -58,12 +60,14 @@ public class WebSocketController : ControllerBase
                 return;
             }
 
-            if (holder == null) {
+            if (holder == null)
+            {
                 await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
                 return;
             }
 
-            if (!VerifyCookieTime(holder)) {
+            if (!VerifyCookieTime(holder))
+            {
                 await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
                 return;
             }
@@ -78,11 +82,12 @@ public class WebSocketController : ControllerBase
                     alreadyExists = true;
             }
 
-            if (alreadyExists) {
+            if (alreadyExists)
+            {
                 await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
                 return;
             }
-           
+
 
 
 
@@ -102,9 +107,8 @@ public class WebSocketController : ControllerBase
         }
     }
 
-
-
-    private static bool VerifyCookieTime(CookieHolder holder) {
+    private static bool VerifyCookieTime(CookieHolder holder)
+    {
         return holder.ExpiryTimestamp > ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
     }
 
@@ -121,11 +125,12 @@ public class WebSocketController : ControllerBase
                 continue;
             }
 
-            if (newEvent.EventIdentifier == "CloseEvent") {
+            if (newEvent.EventIdentifier == "CloseEvent")
+            {
                 requestedClose = true;
                 break;
             }
-                
+
             // handle event
             SocketsEventHandler.HandleEvent(newEvent.EventIdentifier, socket, newEvent.Payload, _socketHandler);
         }
@@ -148,7 +153,6 @@ public class WebSocketController : ControllerBase
             _logger.Info("----------- Lost Websocket Connection, Aborted: ");
             return;
         }
-
 
         if (webSocket.State == WebSocketState.Open)
         {
