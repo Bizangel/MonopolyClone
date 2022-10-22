@@ -4,12 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Mesh, MeshStandardMaterial, TextureLoader } from "three";
 import { Vec3, Quaternion } from "cannon-es"
 
-const dice1 = require("../../../img/dice/dice1.jpeg");
-const dice2 = require("../../../img/dice/dice2.jpeg");
-const dice3 = require("../../../img/dice/dice3.jpeg");
-const dice4 = require("../../../img/dice/dice4.jpeg");
-const dice5 = require("../../../img/dice/dice5.jpeg");
-const dice6 = require("../../../img/dice/dice6.jpeg");
+const dice1 = require("assets/dice/dice1.jpeg");
+const dice2 = require("assets/dice/dice2.jpeg");
+const dice3 = require("assets/dice/dice3.jpeg");
+const dice4 = require("assets/dice/dice4.jpeg");
+const dice5 = require("assets/dice/dice5.jpeg");
+const dice6 = require("assets/dice/dice6.jpeg");
 
 const diceStopVelocityThreshold = 0.05;
 

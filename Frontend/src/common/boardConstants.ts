@@ -16,10 +16,10 @@ export const housebarHeight = 0.5; // the height of each square occupied by the 
 // const cornerLengthImg = 215;
 // const tileLengthImg = 130;
 // const boardImgSize = 1600;
-// export const boardimg = require("../img/board.jpg");
+// export const boardimg = require("assets/board.jpg");
 
 /* High RES version! */
 export const cornerLengthImg = 855;
 export const tileLengthImg = 520;
 export const boardImgSize = 6400;
-export const boardimg = require("../img/board_high_res.png");
+export const boardimg = require("assets/board_high_res.png");

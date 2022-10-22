@@ -7,12 +7,12 @@ export enum PlayerCharacter {
   Thimble,
 }
 
-const char1model_path = require("img/models3d/char1_car.glb") as string;
-const char2model_path = require("img/models3d/char2_iron.glb") as string;
-const char3model_path = require("img/models3d/char3_hat.glb") as string;
-const char4model_path = require("img/models3d/char4_ship.glb") as string;
-const char5model_path = require("img/models3d/char5_wheelcart.glb") as string;
-const char6model_path = require("img/models3d/char6_thimble.glb") as string;
+const char1model_path = require("assets/models3d/char1_car.glb") as string;
+const char2model_path = require("assets/models3d/char2_iron.glb") as string;
+const char3model_path = require("assets/models3d/char3_hat.glb") as string;
+const char4model_path = require("assets/models3d/char4_ship.glb") as string;
+const char5model_path = require("assets/models3d/char5_wheelcart.glb") as string;
+const char6model_path = require("assets/models3d/char6_thimble.glb") as string;
 
 
 export const characterToPath = new Map<number, string>([

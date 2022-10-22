@@ -1,4 +1,4 @@
-import { UserSocket } from "../../socket-events";
+import { UserSocket } from "socketEvents";
 import React from "react";
 
 export class MonopolyGame {

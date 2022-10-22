@@ -1,12 +1,11 @@
 import React from "react";
-// import { Dice1 as dice} from "../../../img/dicesvg/dice1.svg"
 
-const Dice1 = require("../../../img/dicesvg/dice1.svg").ReactComponent;
-const Dice2 = require("../../../img/dicesvg/dice2.svg").ReactComponent;
-const Dice3 = require("../../../img/dicesvg/dice3.svg").ReactComponent;
-const Dice4 = require("../../../img/dicesvg/dice4.svg").ReactComponent;
-const Dice5 = require("../../../img/dicesvg/dice5.svg").ReactComponent;
-const Dice6 = require("../../../img/dicesvg/dice6.svg").ReactComponent;
+const Dice1 = require("assets/dicesvg/dice1.svg").ReactComponent;
+const Dice2 = require("assets/dicesvg/dice2.svg").ReactComponent;
+const Dice3 = require("assets/dicesvg/dice3.svg").ReactComponent;
+const Dice4 = require("assets/dicesvg/dice4.svg").ReactComponent;
+const Dice5 = require("assets/dicesvg/dice5.svg").ReactComponent;
+const Dice6 = require("assets/dicesvg/dice6.svg").ReactComponent;
 
 type DiceDisplayProps = {
   number: number,

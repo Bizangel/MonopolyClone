@@ -1,6 +1,6 @@
 ### Typescript/React Gitignore
 
-src/img/
+src/assets/
 
 .env
 # dependencies
