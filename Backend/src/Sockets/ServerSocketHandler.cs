@@ -21,9 +21,10 @@ public class ServerSocketHandler
         _sockets.Remove(socket.Username);
     }
 
-    public bool AlreadyConnected(string username) {
+    public bool AlreadyConnected(string username)
+    {
         return _sockets.ContainsKey(username);
-    }  
+    }
 
     public List<string> GetConnectedUsers()
     {

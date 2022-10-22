@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using MonopolyClone.Auth;
-using MonopolyClone.Auth.Validator;
-using MonopolyClone.Auth.CryptTools;
-using MonopolyClone.Database;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using MonopolyClone.Auth;
+using MonopolyClone.Auth.CryptTools;
+using MonopolyClone.Auth.Validator;
+using MonopolyClone.Database;
 using NLog;
 
 namespace MonopolyClone.Controllers;
@@ -26,7 +26,7 @@ public class AuthenticationController : ControllerBase
         _aesEncryptor = new AesEncryptor();
     }
 
-    [HttpPost("RegisterAccount")]
+    [HttpPost("register-account")]
     public RegisterReply RegisterAccount(AuthSchema auth)
     {
         // Validate that they're not null
@@ -66,7 +66,7 @@ public class AuthenticationController : ControllerBase
         return new RegisterReply() { Success = true, Message = "Successfully registered!" };
     }
 
-    [HttpPost("Login")]
+    [HttpPost("login")]
     public LoginReply GetGamePlayTicket(AuthSchema auth)
     {
         // validate that they're not null
@@ -111,7 +111,8 @@ public class AuthenticationController : ControllerBase
         {
             cookiestring = _aesEncryptor.Encrypt(JsonSerializer.Serialize(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             _logger.Error($"Error serializing and encrypting {auth.Username} {auth.Password}:" + e.Message);
             return new LoginReply() { Success = false };
         }

@@ -1,4 +1,3 @@
-
 namespace MonopolyClone.Events;
 
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]

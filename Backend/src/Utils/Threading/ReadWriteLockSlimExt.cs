@@ -3,7 +3,6 @@ using System.Threading;
 
 // Taken, with (*very slight* shame) from https://theburningmonk.com/2010/02/threading-using-readerwriterlockslim/
 
-
 public static class ReaderWriterLockSlimExtensions
 {
     private sealed class ReadLockToken : IDisposable

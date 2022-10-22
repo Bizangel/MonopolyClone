@@ -53,7 +53,7 @@ public class UserSocket
 
                     return eventmessage;
                 case WebSocketMessageType.Close:
-                    return new SocketEventMessage() { EventIdentifier="CloseEvent", Payload = "Closing"};
+                    return new SocketEventMessage() { EventIdentifier = "CloseEvent", Payload = "Closing" };
                 default:
                     break;
             }
