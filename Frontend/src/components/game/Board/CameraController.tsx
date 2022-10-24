@@ -3,8 +3,6 @@ import { useThree } from '@react-three/fiber'
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { MOUSE } from "three";
 
-
-
 export interface CameraRefObject {
   cameraLookAt: (x: number, y: number, z: number) => void,
   cameraSetPos: (x: number, y: number, z: number) => void,

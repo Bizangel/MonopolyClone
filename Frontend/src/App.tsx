@@ -1,7 +1,7 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { GameAuthHandler } from 'components/game/GameAuthHandler';
-import { GameContext, game } from 'features/game';
+import { GameContext, game } from 'gamehandlers/MonopolyGame';
 
 
 function App() {

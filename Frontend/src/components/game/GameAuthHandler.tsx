@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react"
 
-import { LoginFormPage, RegisterFormPage } from "../../features/login";
+import { LoginFormPage, RegisterFormPage } from "../login";
 import { Gamepage } from "./GamePage";
-import { GameContext, MonopolyGame } from "../../features/game";
+import { GameContext, MonopolyGame } from "gamehandlers/MonopolyGame";
 import { readCookie } from "common/common";
 
 export enum DisplayState {

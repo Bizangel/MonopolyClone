@@ -1,12 +1,12 @@
 import React from "react";
 import { useContext, useRef } from 'react';
 import { Canvas, } from '@react-three/fiber'
-import { CameraController, CameraRefObject } from "components/helpers/CameraController";
+import { CameraController, CameraRefObject } from "components/game/Board/CameraController";
 import { Physics } from '@react-three/cannon'
 import { GameBoard, InvisiblePlane } from "./Board/Gameboard";
 import { GameDiceHandler, HandlerRefObject } from './Board/GameDiceHandler';
 import { PlayerModelHandler } from './Player/PlayerModelHandler';
-import { playerHandlerContext } from '../../features/game/PlayerHandler';
+import { playerHandlerContext } from '../../gamehandlers/PlayerHandler';
 import { PlayerCharacter } from 'common/characterModelConstants';
 import { useRenderTrigger } from 'hooks';
 import { UI } from './UI/UI';

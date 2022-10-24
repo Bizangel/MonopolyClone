@@ -18,17 +18,10 @@ function ContainerSizeWrapper(x: React.ReactNode, childWidth: string, childHeigh
 
 }
 
-export class PageCenteredGridContainer extends React.Component<PageCenteredGridContainerProps> {
-
-  // constructor(props: React.PropsWithChildren) {
-  //   super(props);
-  // }
-
-  render() {
-    return (
-      <Container className="fullPageContainer d-flex align-items-center justify-content-center" style={{ margin: "0 0 0 0", padding: "0 0 0 0" }} fluid>
-        {ContainerSizeWrapper(this.props.children, this.props.childWidth, this.props.childHeight)}
-      </Container>
-    )
-  }
+export default function PageCenteredGridContainer(props: PageCenteredGridContainerProps) {
+  return (
+    <Container className="fullPageContainer d-flex align-items-center justify-content-center" style={{ margin: "0 0 0 0", padding: "0 0 0 0" }} fluid>
+      {ContainerSizeWrapper(props.children, props.childWidth, props.childHeight)}
+    </Container>
+  )
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from 'react-bootstrap';
 import { RegisterReply, RegisterReplySchema, AuthForm } from 'schemas';
 import { MonopolyRequests } from 'remote';
-import { PageCenteredGridContainer } from 'components/helpers/PageCenteredGridContainer';
+import PageCenteredGridContainer from 'components/helpers/PageCenteredGridContainer';
 import { UserPassForm } from './UserPassForm';
 
 type RegisterFormProps = {
