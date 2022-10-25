@@ -1,55 +1,107 @@
 import { BoxProps, PublicApi, Triplet, useBox } from "@react-three/cannon";
 import { useLoader } from "@react-three/fiber";
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { Mesh, MeshStandardMaterial, TextureLoader } from "three";
-import { Vec3, Quaternion } from "cannon-es"
+import { Quaternion } from "cannon-es"
+import {
+  dice1, dice2, dice3, dice4, dice5, dice6, diceSize,
+  diceStopVelocityThreshold, dirVectors, LocalDirectionUp, DiceThrowValues, diceMass, Transform, dicePositions
+} from 'common/diceConstants'
+import { cosineSimilarity, tripletLength } from "utils/vectormath";
 
-const dice1 = require("assets/dice/dice1.jpeg");
-const dice2 = require("assets/dice/dice2.jpeg");
-const dice3 = require("assets/dice/dice3.jpeg");
-const dice4 = require("assets/dice/dice4.jpeg");
-const dice5 = require("assets/dice/dice5.jpeg");
-const dice6 = require("assets/dice/dice6.jpeg");
 
-const diceStopVelocityThreshold = 0.05;
 
-const LocalDirectionUp = new Vec3(0, 1, 0);
-const dirVectors = [
-  new Vec3(1, 0, 0),
-  new Vec3(-1, 0, 0),
-  new Vec3(0, 1, 0),
-  new Vec3(0, -1, 0),
-  new Vec3(0, 0, 1),
-  new Vec3(0, 0, -1),
-]
+export type DiceThrowState = {
+  /** If true, dice should be rolling and will be put to roll on next update */
+  shouldRoll: boolean,
+  /** Whether dice is Rolling or not. */
+  isRolling: boolean,
+  /** Current dice throw force, or the force that the dice was thrown with */
+  throwForce: DiceThrowValues,
+  /** Function to call once dice stops rolling */
+  onStopCallback: (n: number) => void,
+  /** Transform that the dice should take once it is not rolling */
+  standbyTransform?: Transform,
+  /** Whether the dice is displayed or not */
+  display: boolean,
+};
 
-function cosineSimilarity(vec1: Vec3, vec2: Vec3) {
-  return vec1.dot(vec2) / (vec1.length() * vec2.length());
+type ThrowDiceAction = {
+  action: "throw-dice",
+  /** Force to use to throw the dice */
+  throwForce: DiceThrowValues,
+  /** Callback to call once the dice stops rolling */
+  onStopCallback: (n: number) => void,
+}
+
+type StopDiceAction = {
+  action: "stop-dice",
+  /** Transform to optionally set the dice to take once stopping */
+  standbyTransform?: Transform,
+  /** Whether to hide the dice after stopping it. */
+  hideDice?: boolean,
+}
+
+type FakeDiceAction = {
+  action: "fake-dice"
+  /** Transform for the dice to take once it has stopped, to allow "faking" the dice */
+  standbyTransform: Transform
+}
+
+type InternalStartRolling = {
+  action: "internal-start-rolling"
+}
+
+export type DiceReducerAction = (
+  ThrowDiceAction | StopDiceAction |
+  FakeDiceAction | InternalStartRolling
+)
+
+export function diceReducer(state: DiceThrowState, action: DiceReducerAction): DiceThrowState {
+  switch (action.action) {
+    case "throw-dice":
+      return {
+        ...state, shouldRoll: true,
+        isRolling: false,
+        display: true,
+        throwForce: action.throwForce,
+        onStopCallback: action.onStopCallback
+      }
+
+    case "stop-dice":
+      return {
+        ...state, isRolling: false,
+        display: action.hideDice !== true,
+        standbyTransform: action.standbyTransform
+      }
+
+    case "internal-start-rolling":
+      return {
+        ...state, isRolling: true,
+        shouldRoll: false,
+        display: true,
+      }
+
+    default:
+      break;
+  }
+
+  return state;
 }
 
 type gameDiceProps = {
-  props: BoxProps,
-  color: string,
-  performThrow: boolean,
-  setPerformThrow: React.Dispatch<React.SetStateAction<boolean>>,
-  throwParams: throwValues,
-  display: boolean,
-  onStopCallback: (sideUp: number) => void, // landed side up
-  onStopTransform?: { position: [number, number, number], rotation?: [number, number, number] }
+  /** The diceReducer state */
+  throwingState: DiceThrowState,
+  /** The dice reducer respective dispatcher */
+  throwingDispatch: React.Dispatch<DiceReducerAction>,
+
+  additionalBoxProps?: BoxProps,
 }
 
-
-function tripletLength(triplet: Triplet, squared = false) {
-  var sq = triplet[0] * triplet[0] + triplet[1] * triplet[1] + triplet[2] * triplet[2]
-  if (squared)
-    return sq
-  return Math.sqrt(sq);
-}
-
-function throwDice(position: Triplet, physicsApi: PublicApi, velocity: Triplet, offsetApply: Triplet) {
+function throwDice(position: Triplet, physicsApi: PublicApi, throwParams: DiceThrowValues) {
   physicsApi.position.set(position[0], position[1], position[2]);
   physicsApi.velocity.set(0, 0, 0);
-  physicsApi.applyImpulse(velocity, offsetApply)
+  physicsApi.applyImpulse(throwParams.velocity, throwParams.offset)
 }
 
 function getSideUP(currQuad: number[]) {
@@ -65,60 +117,46 @@ function getSideUP(currQuad: number[]) {
   return argmax + 1;
 }
 
-
-export type throwValues = { velocity: Triplet, offset: Triplet };
-
 export function GameDice(diceprops: gameDiceProps) {
 
-  const [ref, api] = useBox(() => ({ mass: 1, velocity: [0, 0, 0], ...diceprops.props }), useRef<Mesh>(null))
-  const [currQuad, setCurrQuad] = useState([0, 0, 0, 0]);
-  const [stopCalled, setOnStopCalled] = useState(false);
+  const [ref, api] = useBox(() => (
+    {
+      mass: diceMass, velocity: [0, 0, 0], args: diceSize,
+      ...diceprops.additionalBoxProps
+    }), useRef<Mesh>(null))
 
-  // whenever it receives the performThrow order from the parent, throw dices
-  useEffect(() => {
-    if (diceprops.props.position !== undefined && diceprops.display && diceprops.performThrow) {
-      throwDice(diceprops.props.position, api, diceprops.throwParams.velocity, diceprops.throwParams.offset)
-      diceprops.setPerformThrow(false);
-      setOnStopCalled(false);
-    }
-  }, [diceprops, api])
+  const currQuad = useRef<number[]>([0, 0, 0, 0])
 
-
-
-  // Perform proper callbacks once velocity is set close to 0
   const velocityCallback = useCallback((vel: Triplet) => {
-    if (diceprops.display && tripletLength(vel) < diceStopVelocityThreshold && !stopCalled) {
-      diceprops.onStopCallback(getSideUP(currQuad));
-      setOnStopCalled(true);
+    if (tripletLength(vel) < diceStopVelocityThreshold && diceprops.throwingState.isRolling) {
+      diceprops.throwingState.onStopCallback(getSideUP(currQuad.current));
+      diceprops.throwingDispatch({ action: "stop-dice" })
     }
-  }, [diceprops, stopCalled, currQuad])
+  }, [diceprops, currQuad])
 
-  // subscribe to keep track of variables like speed and so
-  useEffect(() => { // welcome to react, where you need to do this thing, and resubscribe every 0.033 ms. I'm for sure using a state managing library next time.
-    const unsubvel = api.velocity.subscribe(velocityCallback);
-    const unsubquad = api.quaternion.subscribe((quad) => { setCurrQuad(quad) })
-    return () => { unsubvel(); unsubquad(); }
-  }, [api.velocity, api.quaternion, velocityCallback])
-
-
-  // whenever dice is stopped, set props stop location (should it exist!)
+  /** Track variables at all times, as well as perform callback for checks */
   useEffect(() => {
-    if (stopCalled && diceprops.onStopTransform !== undefined && !diceprops.performThrow) {
-      api.velocity.set(0, 0, 0);
-      api.position.set(...diceprops.onStopTransform.position);
-      if (diceprops.onStopTransform.rotation !== undefined)
-        api.rotation.set(...diceprops.onStopTransform.rotation);
+    const unsubvel = api.velocity.subscribe(velocityCallback);
+    const unsubquad = api.quaternion.subscribe((quad) => { currQuad.current = quad })
+    return () => { unsubvel(); unsubquad(); }
+  }, [api, velocityCallback])
+
+  useEffect(() => {
+    if (diceprops.throwingState.shouldRoll) {
+      diceprops.throwingDispatch({ action: "internal-start-rolling" }) // first, update state, to ensure it is not run twice
+      throwDice(dicePositions[0], api, diceprops.throwingState.throwForce)
     }
-  }, [stopCalled, api, diceprops.onStopTransform, diceprops.performThrow])
+  }, [api, diceprops])
 
   // Render
   const materialsfaces = useLoader(TextureLoader, [dice1, dice2, dice3, dice4, dice5, dice6]);
   const cubeMaterials = materialsfaces.map((face) => new MeshStandardMaterial({ map: face }))
+
   return (
     < mesh ref={ref}
       material={cubeMaterials}
-      visible={diceprops.display}>
-      <boxBufferGeometry args={diceprops.props.args} />
+      visible={diceprops.throwingState.display}>
+      <boxGeometry args={diceSize} />
     </mesh >
   )
 }

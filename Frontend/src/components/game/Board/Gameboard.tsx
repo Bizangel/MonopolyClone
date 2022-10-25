@@ -5,6 +5,7 @@ import { Mesh, MeshStandardMaterial } from 'three';
 import { TextureLoader } from 'three/src/loaders/TextureLoader'
 import * as bc from 'common/boardConstants'
 import { imagepixels_to_tileindex, tileToWorldLocation } from 'utils/boardHelpers';
+import { diceMaterial } from 'common/diceConstants';
 
 type gameboardProps = {
   color: string,
@@ -14,7 +15,8 @@ type gameboardProps = {
 export function GameBoard(props: gameboardProps) {
   const [ref] = useBox(() => ({ mass: 1, velocity: [0, 0, 0], type: "Kinematic", material: "board" }), useRef<Mesh>(null))
 
-  useContactMaterial("dice", "board", {
+
+  useContactMaterial(diceMaterial, bc.boardMaterial, {
     restitution: 0.3,
     friction: 1,
   })
@@ -54,7 +56,7 @@ export function GameBoard(props: gameboardProps) {
       material={cubeMaterials}
       onClick={onBoardClick}
     >
-      <boxBufferGeometry args={[bc.boardSize, bc.boardYLocation, bc.boardSize]} />
+      <boxGeometry args={[bc.boardSize, bc.boardYLocation, bc.boardSize]} />
     </mesh>
   )
 }

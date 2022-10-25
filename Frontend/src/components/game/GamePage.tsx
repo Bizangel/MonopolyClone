@@ -1,22 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import { useContext, useRef } from 'react';
 import { Canvas, } from '@react-three/fiber'
 import { CameraController, CameraRefObject } from "components/game/Board/CameraController";
 import { Physics } from '@react-three/cannon'
 import { GameBoard, InvisiblePlane } from "./Board/Gameboard";
-import { GameDiceHandler, HandlerRefObject } from './Board/GameDiceHandler';
+// import { GameDiceHandler, HandlerRefObject } from './Board/GameDiceHandler';
 import { PlayerModelHandler } from './Player/PlayerModelHandler';
 import { playerHandlerContext } from '../../gamehandlers/PlayerHandler';
 import { PlayerCharacter } from 'common/characterModelConstants';
 import { useRenderTrigger } from 'hooks';
 import { UI } from './UI/UI';
+import { useOnKeyDown } from "hooks/onKeydown";
+import { GameDiceHandler } from "./Board/GameDiceHandler";
 
 
 
 export function Gamepage() {
   const playerHandler = useContext(playerHandlerContext);
   const triggerRender = useRenderTrigger();
-  const gameDiceHandler = useRef<HandlerRefObject>(null);
+  // const gameDiceHandler = useRef<HandlerRefObject>(null);
   const cameraController = useRef<CameraRefObject>(null);
 
   if (playerHandler.playerLocations.size === 0) {
@@ -38,12 +40,11 @@ export function Gamepage() {
       { character: PlayerCharacter.Car, location: tileIndex },
       { character: PlayerCharacter.Ship, location: tileIndex },
     ]);
-    triggerRender()
+    triggerRender();
   }
 
   return (
-    // <div> cool game goes here </div>
-    < div id="canvas-container" style={{ width: "100vw", height: "100vh" }} >
+    < div id="canvas-container" style={{ width: "100vw", height: "100vh" }}>
 
       <UI />
       <Canvas>
@@ -57,8 +58,9 @@ export function Gamepage() {
 
           <GameBoard color="blue" onTileClicked={onTileClick} />
 
-          <GameDiceHandler ref={gameDiceHandler} nDices={2} />
+          {/* <GameDiceHandler ref={gameDiceHandler} nDices={2} /> */}
 
+          <GameDiceHandler />
           <InvisiblePlane position={[0, -0.1, 0]} />
         </Physics>
       </Canvas>

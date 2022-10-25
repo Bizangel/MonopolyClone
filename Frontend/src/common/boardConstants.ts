@@ -23,3 +23,5 @@ export const cornerLengthImg = 855;
 export const tileLengthImg = 520;
 export const boardImgSize = 6400;
 export const boardimg = require("assets/board_high_res.png");
+
+export const boardMaterial = "board"
