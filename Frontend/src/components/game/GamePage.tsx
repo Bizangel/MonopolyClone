@@ -1,17 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { useContext, useRef } from 'react';
 import { Canvas, } from '@react-three/fiber'
 import { CameraController, CameraRefObject } from "components/game/Board/CameraController";
 import { Physics } from '@react-three/cannon'
 import { GameBoard, InvisiblePlane } from "./Board/Gameboard";
-// import { GameDiceHandler, HandlerRefObject } from './Board/GameDiceHandler';
 import { PlayerModelHandler } from './Player/PlayerModelHandler';
 import { playerHandlerContext } from '../../gamehandlers/PlayerHandler';
 import { PlayerCharacter } from 'common/characterModelConstants';
 import { useRenderTrigger } from 'hooks';
 import { UI } from './UI/UI';
-import { useOnKeyDown } from "hooks/onKeydown";
 import { GameDiceHandler } from "./Board/GameDiceHandler";
+import { boardYLocation } from "common/boardConstants";
 
 
 
@@ -61,7 +60,7 @@ export function Gamepage() {
           {/* <GameDiceHandler ref={gameDiceHandler} nDices={2} /> */}
 
           <GameDiceHandler />
-          <InvisiblePlane position={[0, -0.1, 0]} />
+          <InvisiblePlane position={[0, boardYLocation, 0]} />
         </Physics>
       </Canvas>
     </div>

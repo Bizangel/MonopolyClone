@@ -1,7 +1,7 @@
-import { MaxDiceOffsetPos, MaxDiceThrowVelocity, DiceThrowValues } from "common/diceConstants";
+import { MaxDiceOffsetPos, MaxDiceThrowVelocity, DiceThrowValues, dicePositions } from "common/diceConstants";
 import { useOnKeyDown } from "hooks/onKeydown";
-import { useReducer } from "react";
-import { GameDice, DiceThrowState, diceReducer } from "./GameDice";
+import { useReducer, useState } from "react";
+import { GameDice, DiceThrowState, diceReducer, DiceReducerAction } from "./GameDice";
 
 
 
@@ -17,28 +17,72 @@ function generateThrowValues(): DiceThrowValues {
 
 const diceInit: DiceThrowState = {
   shouldRoll: false,
+  throwPosition: [0, 0, 0],
   isRolling: true,
   throwForce: { velocity: [0, 0, 0], offset: [0, 0, 0] },
   onStopCallback: () => { },
   display: true,
 }
 
-export function GameDiceHandler() {
-  const [diceState, diceDispatcher] = useReducer(diceReducer, diceInit)
-  // const [throwDiceWatcher, setThrowDice] = useState(false);
+type DiceMultiAction = {
+  action: DiceReducerAction
+  targetIndex: number
+}
 
-  // debug
-  useOnKeyDown("f", () => {
-    console.log("F pressed")
-    diceDispatcher({
-      action: "throw-dice", throwForce: generateThrowValues(),
-      onStopCallback: (n: number) => { console.log("dice landed on: ", n) }
+function diceMultiReducer(states: DiceThrowState[], action: DiceMultiAction): DiceThrowState[] {
+  const newState = [...states];
+  newState[action.targetIndex] = diceReducer(states[action.targetIndex], action.action)
+  return newState
+}
+
+
+export function GameDiceHandler() {
+  const [diceThrown, updateDiceRolling] = useState<(number | undefined)[]>([undefined, undefined]);
+
+  const [diceStates, multiDispatcher] = useReducer(diceMultiReducer, diceThrown.map(e => diceInit))
+
+  const onDiceLand = (diceIndexLand: number, diceLandNumber: number) => {
+    console.log(`Dice ${diceIndexLand}, landed on number: ${diceLandNumber}`)
+    updateDiceRolling(e => {
+      const e2 = [...e];
+      e2[diceIndexLand] = diceLandNumber;
+      return e2;
     })
+  }
+
+  const throwAllDices = () => {
+    diceThrown.forEach((e, i) => {
+      var action: DiceReducerAction = {
+        action: "throw-dice", throwForce: generateThrowValues(),
+        throwPosition: dicePositions[i],
+        onStopCallback: (n: number) => { onDiceLand(i, n) }
+      }
+
+      multiDispatcher({ action: action, targetIndex: i })
+    })
+  };
+
+  useOnKeyDown("f", () => {
+    throwAllDices();
   });
 
-  return (
+  // useOnKeyDown("c", () => {
+  //   // hack dice on position
+  //   var action: DiceReducerAction = { action: "fake-dice", standbyTransform: { position: [1, 0.3, 1], rotation: [2, 3, 1] } }
+  //   multiDispatcher({ action: action, targetIndex: 0 })
+  // })
+
+  const dices = diceThrown.map((e, i) =>
     <GameDice
-      throwingDispatch={diceDispatcher}
-      throwingState={diceState}
-    />)
+      key={"dice-" + i}
+      throwingDispatch={(action: DiceReducerAction) => { multiDispatcher({ action: action, targetIndex: i }) }}
+      throwingState={diceStates[i]}
+    />
+  )
+
+  return (
+    <>
+      {dices}
+    </>
+  )
 }

@@ -5,7 +5,7 @@ import { Mesh, MeshStandardMaterial, TextureLoader } from "three";
 import { Quaternion } from "cannon-es"
 import {
   dice1, dice2, dice3, dice4, dice5, dice6, diceSize,
-  diceStopVelocityThreshold, dirVectors, LocalDirectionUp, DiceThrowValues, diceMass, Transform, dicePositions
+  diceStopVelocityThreshold, dirVectors, LocalDirectionUp, DiceThrowValues, diceMass, Transform, diceMaterial
 } from 'common/diceConstants'
 import { cosineSimilarity, tripletLength } from "utils/vectormath";
 
@@ -18,6 +18,8 @@ export type DiceThrowState = {
   isRolling: boolean,
   /** Current dice throw force, or the force that the dice was thrown with */
   throwForce: DiceThrowValues,
+  /** Current original thrown dice position */
+  throwPosition: Triplet,
   /** Function to call once dice stops rolling */
   onStopCallback: (n: number) => void,
   /** Transform that the dice should take once it is not rolling */
@@ -30,6 +32,8 @@ type ThrowDiceAction = {
   action: "throw-dice",
   /** Force to use to throw the dice */
   throwForce: DiceThrowValues,
+  /** From where to throw the dice */
+  throwPosition: Triplet,
   /** Callback to call once the dice stops rolling */
   onStopCallback: (n: number) => void,
 }
@@ -65,6 +69,7 @@ export function diceReducer(state: DiceThrowState, action: DiceReducerAction): D
         isRolling: false,
         display: true,
         throwForce: action.throwForce,
+        throwPosition: action.throwPosition,
         onStopCallback: action.onStopCallback
       }
 
@@ -82,6 +87,12 @@ export function diceReducer(state: DiceThrowState, action: DiceReducerAction): D
         display: true,
       }
 
+    case "fake-dice":
+      return {
+        ...state, isRolling: false,
+        shouldRoll: false,
+        standbyTransform: action.standbyTransform
+      }
     default:
       break;
   }
@@ -121,7 +132,7 @@ export function GameDice(diceprops: gameDiceProps) {
 
   const [ref, api] = useBox(() => (
     {
-      mass: diceMass, velocity: [0, 0, 0], args: diceSize,
+      mass: diceMass, velocity: [0, 0, 0], args: diceSize, material: diceMaterial,
       ...diceprops.additionalBoxProps
     }), useRef<Mesh>(null))
 
@@ -144,10 +155,23 @@ export function GameDice(diceprops: gameDiceProps) {
   useEffect(() => {
     if (diceprops.throwingState.shouldRoll) {
       diceprops.throwingDispatch({ action: "internal-start-rolling" }) // first, update state, to ensure it is not run twice
-      throwDice(dicePositions[0], api, diceprops.throwingState.throwForce)
+      throwDice(diceprops.throwingState.throwPosition, api, diceprops.throwingState.throwForce)
     }
   }, [api, diceprops])
 
+  // set dice to fake position if on standby
+
+  useEffect(() => {
+    if (!diceprops.throwingState.isRolling && diceprops.throwingState.standbyTransform) {
+      console.log("i was hacked into a 5")
+      api.position.set(...diceprops.throwingState.standbyTransform.position)
+      if (diceprops.throwingState.standbyTransform.rotation)
+        api.rotation.set(...diceprops.throwingState.standbyTransform.rotation)
+    }
+  }, [
+    api.position, api.rotation,
+    diceprops.throwingState.standbyTransform,
+    diceprops.throwingState.isRolling])
   // Render
   const materialsfaces = useLoader(TextureLoader, [dice1, dice2, dice3, dice4, dice5, dice6]);
   const cubeMaterials = materialsfaces.map((face) => new MeshStandardMaterial({ map: face }))
