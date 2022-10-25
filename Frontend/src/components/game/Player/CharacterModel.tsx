@@ -1,16 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Mesh, MeshStandardMaterial, Vector3 } from "three";
+import { Mesh, Vector3 } from "three";
 import { useFrame } from "@react-three/fiber";
 import { useBox } from "@react-three/cannon";
 import { getMidPoint, tileToWorldLocation, getNextTileRotation } from "utils/boardHelpers";
 import * as bc from 'common/boardConstants'
-import { characterToPath, PlayerCharacter, characterScales, characterRotationOffset } from "common/characterModelConstants"
+import { characterToPath, PlayerCharacter, characterScales, characterRotationOffset, characterMaterial } from "common/characterModelConstants"
 import { useLoader } from '@react-three/fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 
-// Material for characters
-var characterMaterial = new MeshStandardMaterial({ color: 0x959595, metalness: 0.3, roughness: 0.2 })
 
 type CharacterModelProps = {
   currentTile: number,

@@ -17,7 +17,6 @@ import { boardYLocation } from "common/boardConstants";
 export function Gamepage() {
   const playerHandler = useContext(playerHandlerContext);
   const triggerRender = useRenderTrigger();
-  // const gameDiceHandler = useRef<HandlerRefObject>(null);
   const cameraController = useRef<CameraRefObject>(null);
 
   if (playerHandler.playerLocations.size === 0) {

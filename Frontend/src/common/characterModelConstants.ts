@@ -1,3 +1,5 @@
+import { MeshStandardMaterial } from "three";
+
 export enum PlayerCharacter {
   Car,
   Iron,
@@ -41,3 +43,6 @@ export const characterRotationOffset = new Map<number, number>([
   [PlayerCharacter.Wheelcart, Math.PI],
   [PlayerCharacter.Thimble, 0],
 ])
+
+// Material for characters
+export const characterMaterial = new MeshStandardMaterial({ color: 0x959595, metalness: 0.3, roughness: 0.2 })

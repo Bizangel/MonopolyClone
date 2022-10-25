@@ -1,7 +1,10 @@
 import { forwardRef, Ref, useEffect, useImperativeHandle, useState } from "react"
 import { useThree } from '@react-three/fiber'
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { MOUSE } from "three";
+import { MOUSE, Vector3 } from "three";
+import { tripletLength } from "utils/vectormath";
+import { maxCameraRadius } from "common/boardConstants";
+
 
 export interface CameraRefObject {
   cameraLookAt: (x: number, y: number, z: number) => void,
@@ -20,7 +23,6 @@ type cameraControls = {
 
 export const CameraController = forwardRef((props: cameraProps, ref: Ref<CameraRefObject>) => {
   const { camera, gl } = useThree();
-
   const [controlsRequest, setControlRequest] = useState<cameraControls>({ pos: props.initialPos, lookAt: props.initialLookatLocation });
 
   useImperativeHandle(ref, () => ({
@@ -58,7 +60,11 @@ export const CameraController = forwardRef((props: cameraProps, ref: Ref<CameraR
       // @ts-ignore
       delete controls.mouseButtons.LEFT
 
-
+      // set cap distance on camera
+      controls.addEventListener('change', (e) => {
+        const cameraloc = e.target.target as Vector3
+        if (cameraloc.length() > maxCameraRadius) { setControlRequest({ pos: [0, 5, 5], lookAt: [0, 0, 0] }) }
+      })
 
       return () => {
         controls.dispose();
@@ -66,6 +72,15 @@ export const CameraController = forwardRef((props: cameraProps, ref: Ref<CameraR
     },
     [camera, gl, controlsRequest]
   );
+
+  useEffect(() => {
+    console.log("read")
+    if (controlsRequest.pos) {
+      if (tripletLength(controlsRequest.pos) >= maxCameraRadius) {
+        setControlRequest({ pos: [0, 0, 0] })
+      }
+    }
+  }, [controlsRequest.pos])
 
   return null;
 });

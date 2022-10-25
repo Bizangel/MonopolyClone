@@ -1,7 +1,7 @@
 /* Board Global Consts */
 export const boardSize = 10; // physical board size in threejs
 export const boardYLocation = 0.1; // physical board y-coordinate
-
+export const maxCameraRadius = 12; // how far camera can go away from center
 export const BaseCharacterSpeed = 2; // base speed, without any speed boost (due to far away)
 export const SpeedBoostDistance = 1; // distance from where character starts going faster, to not take too long
 export const SpeedBostScale = 2; // When farther than SpeedBoostDistance, how much should speed be multiplied?
