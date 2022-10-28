@@ -32,7 +32,7 @@ export function UserPassForm(props: UserPassFormProps) {
         <Form.Label>Password</Form.Label>
         <Form.Control type="password" placeholder="Password"
           name="password"
-          value={formState.username}
+          value={formState.password}
           onChange={
             (event) => { setFormState(e => { return { ...e, password: event.target.value } }) }
           }

@@ -1,1 +1,1 @@
-export { MonopolyRequests } from './Requests';
+export { requestSchema } from './Requests';

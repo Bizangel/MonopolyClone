@@ -2,7 +2,7 @@ import { WSSHOST } from "common/common";
 import { SocketEventMessageSchema } from "schemas";
 
 export type SocketEventCallback = (payload: string) => void;
-export type SocketOpenCloseCallback = (suer: UserSocket) => void;
+export type SocketOpenCloseCallback = (user: UserSocket) => void;
 
 
 type InternalSocketEventCallback = {
@@ -33,8 +33,6 @@ export class UserSocket {
   public get Username() {
     return this.authenticatedUser;
   }
-
-
 
   constructor(username: string) {
     this.authenticatedUser = username;

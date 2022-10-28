@@ -1,5 +1,6 @@
 using System.Web;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using MonopolyClone.DotEnv;
 using NLog;
@@ -115,11 +116,16 @@ app.UseWebSockets();
 app.UseDefaultFiles();
 
 // Make it so it serves static files
+
+var provider = new FileExtensionContentTypeProvider();
+provider.Mappings[".glb"] = "model/gltf-buffer";
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
            Path.Combine(builder.Environment.ContentRootPath, hostingPath)),
-    RequestPath = ""
+    RequestPath = "",
+    ContentTypeProvider = provider,
 });
 
 

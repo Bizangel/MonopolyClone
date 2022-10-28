@@ -74,7 +74,6 @@ public class WebSocketController : ControllerBase
 
             var alreadyExists = false;
 
-
             using (_synclock.Read())
             {
                 // Disallow duplicate websocket connections!

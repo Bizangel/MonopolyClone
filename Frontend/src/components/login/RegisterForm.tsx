@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { RegisterReply, RegisterReplySchema, AuthForm } from 'schemas';
-import { MonopolyRequests } from 'remote';
+import { requestSchema } from 'remote';
 import PageCenteredGridContainer from 'components/helpers/PageCenteredGridContainer';
 import { UserPassForm } from './UserPassForm';
 
@@ -17,7 +17,8 @@ export class RegisterFormPage extends React.Component<RegisterFormProps> {
 
 
   public onSubmit = async (form: AuthForm) => {
-    var registerreply = await MonopolyRequests.requestSchema<RegisterReply>("/RegisterAccount", form, MonopolyRequests.RequestMethods.POST, RegisterReplySchema, false);
+    var registerreply = await requestSchema<AuthForm, RegisterReply>("/RegisterAccount", form, "POST", RegisterReplySchema, false);
+
     if (registerreply === null) {
       this.setState({ messageDisp: "Connection Error!", username: "", password: "", messageDispColor: "red" });
     } else {

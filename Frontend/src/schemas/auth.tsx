@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+/**
+ * Internal request out types
+ */
+export type AuthForm = {
+  username: string,
+  password: string,
+};
+
+/**
+ * Reply Schemas
+ */
 export const LoginReplySchema = z.object({
   success: z.boolean(),
 });
@@ -19,10 +30,3 @@ export const SocketEventMessageSchema = z.object({
 });
 
 export type SocketEventMessage = z.infer<typeof SocketEventMessageSchema>;
-
-export const AuthFormSchema = z.object({
-  username: z.string(),
-  password: z.string(),
-});
-
-export type AuthForm = z.infer<typeof AuthFormSchema>;

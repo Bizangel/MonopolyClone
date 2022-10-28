@@ -163,7 +163,6 @@ export function GameDice(diceprops: gameDiceProps) {
 
   useEffect(() => {
     if (!diceprops.throwingState.isRolling && diceprops.throwingState.standbyTransform) {
-      console.log("i was hacked into a 5")
       api.position.set(...diceprops.throwingState.standbyTransform.position)
       if (diceprops.throwingState.standbyTransform.rotation)
         api.rotation.set(...diceprops.throwingState.standbyTransform.rotation)

@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import { LoginFormPage, RegisterFormPage } from "../login";
 import { Gamepage } from "./GamePage";
-import { GameContext, MonopolyGame } from "gamehandlers/MonopolyGame";
 import { readCookie } from "common/common";
 
 export enum DisplayState {
@@ -12,25 +11,23 @@ export enum DisplayState {
 }
 
 
-function cookieCheckGoToGame(stateChanger: React.Dispatch<React.SetStateAction<DisplayState>>, game: MonopolyGame) {
+function cookieCheckGoToGame(stateChanger: React.Dispatch<React.SetStateAction<DisplayState>>) {
   var userCookie = readCookie("Auth-User");
   if (userCookie !== null) {
     // no need for auth, create usersocket right away
     stateChanger(DisplayState.Game);
-    // game.initializeUserSocket(userCookie);
   }
 }
 
 export function GameAuthHandler() {
-  const game = useContext(GameContext);
 
-  const [currentDisplay, setDisplayState] = useState(DisplayState.Game);
+  const [currentDisplay, setDisplayState] = useState(DisplayState.Login);
   // const [currentDisplay, setDisplayState] = useState(DisplayState.Login);
 
 
   useEffect(() => {
-    cookieCheckGoToGame(setDisplayState, game);
-  }, [game])
+    cookieCheckGoToGame(setDisplayState);
+  }, [])
 
   function goToLogin() {
     return setDisplayState(DisplayState.Login);
@@ -41,10 +38,8 @@ export function GameAuthHandler() {
   }
 
   function onLoginSuccess() {
-    cookieCheckGoToGame(setDisplayState, game);
+    cookieCheckGoToGame(setDisplayState);
   }
-
-
 
   /* Rendering */
   var display;

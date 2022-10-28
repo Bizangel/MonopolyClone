@@ -1,10 +1,11 @@
-export const isDevelopment = true;
+export const isDevelopment = process.env.NODE_ENV === "development";
 
 export function HOSTURL() {
-  // REMOVE IN PRODUCTION CODE! 
-  return "192.168.0.69:7105";
+  // REMOVE IN PRODUCTION CODE!
+  if (isDevelopment)
+    return process.env.REACT_APP_DEV_BACKEND_SERVER_URL
 
-  // return window.location.host;
+  return window.location.host;
 }
 
 export function HTTPSHOST() {

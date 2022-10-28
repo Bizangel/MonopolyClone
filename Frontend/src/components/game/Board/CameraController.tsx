@@ -74,7 +74,6 @@ export const CameraController = forwardRef((props: cameraProps, ref: Ref<CameraR
   );
 
   useEffect(() => {
-    console.log("read")
     if (controlsRequest.pos) {
       if (tripletLength(controlsRequest.pos) >= maxCameraRadius) {
         setControlRequest({ pos: [0, 0, 0] })
