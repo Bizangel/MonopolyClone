@@ -12,13 +12,27 @@ import { UI } from './UI/UI';
 import { GameDiceHandler } from "./Board/GameDiceHandler";
 import { boardYLocation } from "common/boardConstants";
 import { useUserSocketInitialize } from "hooks/socketProvider";
+import { useOnKeyDown } from "hooks/onKeydown";
+import { useSocketEvent } from "hooks/useSocketEvent";
+
 
 export function Gamepage() {
   const playerHandler = useContext(playerHandlerContext);
   const triggerRender = useRenderTrigger();
   const cameraController = useRef<CameraRefObject>(null);
-  // const userSocket = useUserSocketInitialize();
-  useUserSocketInitialize();
+  const userSocket = useUserSocketInitialize();
+
+  useSocketEvent("testEvent", (payload) => {
+    console.log("Received test event:!", payload)
+  })
+
+  const testPing = async () => {
+    userSocket.emit("sampleEvent", "sample payload");
+  }
+
+  useOnKeyDown("r", () => {
+    testPing();
+  })
 
   if (playerHandler.playerLocations.size === 0) {
     playerHandler.registerPlayer([

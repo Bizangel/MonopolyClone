@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { LoginFormPage, RegisterFormPage } from "../login";
 import { Gamepage } from "./GamePage";
 import { readCookie } from "common/common";
+import { useOnKeyDown } from "hooks/onKeydown";
 
 export enum DisplayState {
   Game,
@@ -22,6 +23,14 @@ function cookieCheckGoToGame(stateChanger: React.Dispatch<React.SetStateAction<D
 export function GameAuthHandler() {
 
   const [currentDisplay, setDisplayState] = useState(DisplayState.Login);
+
+  useOnKeyDown("z", () => {
+    setDisplayState(DisplayState.Login)
+  })
+
+  useOnKeyDown("x", () => {
+    setDisplayState(DisplayState.Game)
+  })
 
   useEffect(() => {
     cookieCheckGoToGame(setDisplayState);

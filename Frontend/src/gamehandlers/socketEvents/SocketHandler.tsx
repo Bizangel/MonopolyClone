@@ -1,19 +1,13 @@
 import { readCookie, WSSHOST } from "common/common";
 import { SocketEventMessageSchema } from "schemas";
-import { sleep } from "utils/funcs";
+import { generateID, sleep } from "utils/funcs";
 
-export type SocketEventCallback = (payload: any) => void;
-export type SocketOpenCloseCallback = (user: UserSocket) => void;
+type EventPayload = any;
+export type SocketEventCallback = (payload: EventPayload, callback_id: string) => void;
+type SocketOpenCloseCallback = (user: UserSocket) => void;
 
 const INTERNAL_RECONNECT_EVENT = "INTERNAL-RECONNECT-EVENT"
 
-type InternalSocketEventCallback = {
-  eventcallback: SocketEventCallback;
-};
-
-type InternalSocketOpenCloseCallback = {
-  openclosecallback: SocketOpenCloseCallback;
-}
 
 export enum SocketEventTypes {
   SocketEvent = 0,
@@ -26,10 +20,10 @@ export class UserSocket {
   private reconnectionDelay = 10000;
   private socket?: WebSocket;
   private authenticatedUser: string;
-  private temporaryEvents: Map<string, InternalSocketEventCallback[]>;
-  private RegisteredEvents: Map<string, InternalSocketEventCallback[]>;
-  private onOpenEvents: InternalSocketOpenCloseCallback[];
-  private onCloseEvents: InternalSocketOpenCloseCallback[];
+  // maps, event-id > internal_id > callback
+  private registeredEvents: Map<string, Map<string, SocketEventCallback>>;
+  private onOpenEvents: SocketOpenCloseCallback[];
+  private onCloseEvents: SocketOpenCloseCallback[];
   private unauthorizedCallback: () => void;
 
   public get Username() {
@@ -40,9 +34,7 @@ export class UserSocket {
     var username = "";
 
     this.authenticatedUser = username;
-
-    this.temporaryEvents = new Map<string, InternalSocketEventCallback[]>();
-    this.RegisteredEvents = new Map<string, InternalSocketEventCallback[]>();
+    this.registeredEvents = new Map<string, Map<string, SocketEventCallback>>();
     this.onOpenEvents = [];
     this.onCloseEvents = [];
 
@@ -51,12 +43,12 @@ export class UserSocket {
 
   private onSocketOpen = async () => {
     console.log("socket opened!")
-    this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.OpenEvent);
+    this.onOpenEvents.forEach(callback => callback(this))
   }
 
   private onSocketClose = () => {
-    console.log("socket closed!")
-    this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.CloseEvent);
+    console.log("socket closed")
+    this.onCloseEvents.forEach(callback => callback(this));
   }
 
   private handleOnMessage = (event: MessageEvent) => {
@@ -75,129 +67,46 @@ export class UserSocket {
       return;
     }
 
-    // Fire normal events
-    this.InvokeRegisteredEventHandlers(parsed.data.EventIdentifier, parsed.data.Payload, SocketEventTypes.SocketEvent);
-    // Fire temporary events
-    this.InvokeRegisteredEventHandlers(parsed.data.EventIdentifier, parsed.data.Payload, SocketEventTypes.TempEvent);
+    // Fire Registered handlers
+    this.invokeEventHandlers(parsed.data.EventIdentifier, parsed.data.Payload);
+  }
+
+  private onSocketErrorClose = () => {
+    this.onSocketClose();
+    this.socket = undefined;
+    // attempt to reconnect.
+    this.attemptEndlessReconnection()
   }
 
   private handleOnError = (event: Event) => {
     // this will automatically fire handleOnClose
     console.warn("Websockets Errored:")
-    this.onSocketClose()
-
-    // attempt to reconnect.
-    this.attemptEndlessReconnection()
+    this.onSocketErrorClose();
   }
 
+  private onSocketUnauthorized = () => {
+    this.onSocketClose();
+    this.unauthorizedCallback();
+  }
 
   private handleOnClose = (event: CloseEvent) => {
     console.log("Connection closed, reason: " + event.reason)
-    this.onSocketClose();
-    if (event.reason === "Unauthorized") { this.unauthorizedCallback(); }
+
+    if (event.reason === "Unauthorized") { this.onSocketUnauthorized(); }
     else {  // if not unauthorized, then attempt to try reconnecting
-      this.attemptEndlessReconnection();
+      this.onSocketErrorClose()
     }
 
   }
 
-  private ResolveEventTypeToHandlers = (
-    eventType: SocketEventTypes,
-    event_id: string | null,
-    createIfEmpty: boolean = false): InternalSocketEventCallback[] | undefined => {
-    var handlers = undefined;
-    switch (eventType) {
-      case SocketEventTypes.SocketEvent:
-        if (event_id === null) {
-          return undefined;
-        }
-
-        if (createIfEmpty) {
-          handlers = this.RegisteredEvents.get(event_id);
-          if (handlers === undefined) {
-            this.RegisteredEvents.set(event_id, []);
-          }
-        }
-
-
-        return this.RegisteredEvents.get(event_id);;
-      case SocketEventTypes.TempEvent:
-        if (event_id === null) {
-          return undefined;
-        }
-
-        if (createIfEmpty) {
-          handlers = this.temporaryEvents.get(event_id);
-          if (handlers === undefined) {
-            this.temporaryEvents.set(event_id, []);
-          }
-        }
-
-
-        return this.temporaryEvents.get(event_id);
-      default:
-        throw new Error("Invalid event type");
+  private invokeEventHandlers = (event: string, payload: EventPayload) => {
+    const handlers = this.registeredEvents.get(event)
+    if (handlers === undefined) {
+      console.warn(`Received unhandled event: ${event} with payload:`, payload)
+      return;
     }
-  }
 
-  private ResolveOpenCloseEventsToType = (eventType: SocketEventTypes): InternalSocketOpenCloseCallback[] | undefined => {
-    switch (eventType) {
-      case SocketEventTypes.OpenEvent:
-        return this.onOpenEvents;
-      case SocketEventTypes.CloseEvent:
-        return this.onCloseEvents;
-      default:
-        throw new Error("Invalid event type");
-    }
-  }
-
-  private InvokeRegisteredEventHandlers = (event_id: string, payload: string, eventType: SocketEventTypes) => {
-    var handlers = undefined;
-    if (eventType === SocketEventTypes.OpenEvent || eventType === SocketEventTypes.CloseEvent) {
-      handlers = this.ResolveOpenCloseEventsToType(eventType);
-
-      if (handlers !== undefined) {
-        handlers.forEach(handler => {
-          handler.openclosecallback(this);
-        });
-      }
-    } else {
-      handlers = this.ResolveEventTypeToHandlers(eventType, event_id);
-      if (handlers !== undefined) {
-        handlers.forEach(handler => {
-          handler.eventcallback(payload);
-        });
-
-        if (eventType === SocketEventTypes.TempEvent) {
-          handlers.length = 0; // clear array
-        }
-      }
-    }
-  }
-
-
-  private addEventListener = (event: string, callback: InternalSocketEventCallback | InternalSocketOpenCloseCallback, eventType: SocketEventTypes) => {
-    var handlers;
-    if ("eventcallback" in callback) {
-      if (eventType === SocketEventTypes.SocketEvent || eventType === SocketEventTypes.TempEvent) {
-        handlers = this.ResolveEventTypeToHandlers(eventType, event, true);
-        if (handlers !== undefined) {
-          handlers.push(callback);
-        }
-
-      } else {
-        throw new Error("Invalid event type with callback type");
-      }
-    } else {
-      if (eventType === SocketEventTypes.OpenEvent || eventType === SocketEventTypes.CloseEvent) {
-        handlers = this.ResolveOpenCloseEventsToType(eventType);
-        if (handlers !== undefined) {
-          handlers.push(callback);
-        }
-      } else {
-        throw new Error("Invalid event type with callback type");
-      }
-    }
+    handlers.forEach((callback, int_id) => { callback(payload, int_id) });
   }
 
   private attemptEndlessReconnection = async () => {
@@ -268,21 +177,35 @@ export class UserSocket {
   /* Public Api */
 
   /**
-   * Adds a temporary event listener, that will called once and then be deleted once the event is fired.
-   * @param event The event to bind to.
-   * @param callback The callback to fire.
-   */
-  public addTemporaryEventListener = (event: string, callback: SocketEventCallback) => {
-    this.addEventListener(event, { eventcallback: callback }, SocketEventTypes.TempEvent);
-  }
-
-  /**
    * Adds an event listener to the socket.
    * @param event The event to listen for.
    * @param callback The callback to call when the event is fired.
+   * @returns An ID of the attached callback. Use to remove event listener.
    */
-  public on = (event: string, callback: SocketEventCallback) => {
-    this.addEventListener(event, { eventcallback: callback }, SocketEventTypes.SocketEvent);
+  public on = (event: string, callback: SocketEventCallback): string => {
+    var handlers = this.registeredEvents.get(event);
+    if (handlers === undefined) {
+      handlers = new Map<string, SocketEventCallback>();
+    }
+
+    var id = generateID(25);
+    handlers.set(id, callback)
+    this.registeredEvents.set(event, handlers);
+    return id;
+  }
+
+  public off(event: string, id: string) {
+    var handlers = this.registeredEvents.get(event);
+    if (handlers === undefined) {
+      console.warn(`Attempted to remove event listener from ${event} without any attached listener.`);
+      return;
+    }
+
+
+    var deleted = handlers.delete(id);
+    if (!deleted) {
+      console.warn(`Attempted to remove event listener from ${event} with id ${id}, but event didn't exist`)
+    }
   }
 
   /**
@@ -291,7 +214,7 @@ export class UserSocket {
    * @param callback The callback to call when the socket is opened.
    */
   public onReady = (callback: SocketOpenCloseCallback) => {
-    this.addEventListener("", { openclosecallback: callback }, SocketEventTypes.OpenEvent);
+    this.onOpenEvents.push(callback);
   }
 
   /**
@@ -299,7 +222,7 @@ export class UserSocket {
    * @param callback The callback to call when the socket is closed.
    */
   public onClose = (callback: SocketOpenCloseCallback) => {
-    this.addEventListener("", { openclosecallback: callback }, SocketEventTypes.CloseEvent);
+    this.onCloseEvents.push(callback);
   }
 
   /**
@@ -315,10 +238,10 @@ export class UserSocket {
    * @param event The event to listen for.
    * @returns A promise that will be resolved when the event is fired.
    */
-  public getPromiseFromEvent = (event: string) => {
-    return new Promise<string>((resolve) => {
-      const listener = (payload: string) => { resolve(payload); }
-      this.addTemporaryEventListener(event, listener);
+  public eventPromise = (event: string) => {
+    return new Promise<EventPayload>((resolve) => {
+      var listener = (payload: EventPayload, id: string) => { this.off(event, id); resolve(payload); }
+      this.on(event, listener)
     })
   }
 
@@ -330,7 +253,7 @@ export class UserSocket {
   public emit = async (event: string, payload: string) => {
     if (this.socket !== undefined) {
       if (this.socket.readyState === WebSocket.CLOSED || this.socket.readyState === WebSocket.CLOSING) {
-        await this.getPromiseFromEvent(INTERNAL_RECONNECT_EVENT)
+        await this.eventPromise(INTERNAL_RECONNECT_EVENT)
       }
 
       this.socket.send(JSON.stringify({ EventIdentifier: event, Payload: payload }));
@@ -338,7 +261,6 @@ export class UserSocket {
       throw new Error("Attempted to emit event without initialization")
     }
   }
-
 
   /**
    * Closes the socket connection.
