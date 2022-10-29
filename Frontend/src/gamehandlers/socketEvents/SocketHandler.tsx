@@ -1,9 +1,11 @@
-import { WSSHOST } from "common/common";
+import { readCookie, WSSHOST } from "common/common";
 import { SocketEventMessageSchema } from "schemas";
+import { sleep } from "utils/funcs";
 
-export type SocketEventCallback = (payload: string) => void;
+export type SocketEventCallback = (payload: any) => void;
 export type SocketOpenCloseCallback = (user: UserSocket) => void;
 
+const INTERNAL_RECONNECT_EVENT = "INTERNAL-RECONNECT-EVENT"
 
 type InternalSocketEventCallback = {
   eventcallback: SocketEventCallback;
@@ -34,7 +36,13 @@ export class UserSocket {
     return this.authenticatedUser;
   }
 
-  constructor(username: string) {
+  constructor() {
+    var username = readCookie("Auth-User");
+
+    if (username === null) {
+      throw new Error("At gamepage without auth-user cookie")
+    }
+
     this.authenticatedUser = username;
 
     this.temporaryEvents = new Map<string, InternalSocketEventCallback[]>();
@@ -45,7 +53,8 @@ export class UserSocket {
     this.unauthorizedCallback = () => { };
   }
 
-  private handleOnOpen = async (event: Event) => {
+  private onSocketOpen = async () => {
+    console.log("socket opened!")
     this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.OpenEvent);
   }
 
@@ -60,8 +69,10 @@ export class UserSocket {
     }
 
     var parsed = SocketEventMessageSchema.safeParse(json);
-    if (!parsed.success)
+    if (!parsed.success) {
+      console.warn("Received invalid event from backend server:", json)
       return;
+    }
 
     // Fire normal events
     this.InvokeRegisteredEventHandlers(parsed.data.EventIdentifier, parsed.data.Payload, SocketEventTypes.SocketEvent);
@@ -70,18 +81,28 @@ export class UserSocket {
   }
 
   private handleOnError = (event: Event) => {
-    console.log("Websocket error!");
     // this will automatically fire handleOnClose
+    console.log("errored")
+    this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.CloseEvent);
+    // attempt to reconnect.
+    this.attemptEndlessReconnection()
   }
 
 
   private handleOnClose = (event: CloseEvent) => {
     console.log("Connection closed, reason: " + event.reason)
-    if (event.reason === "Unauthorized") { this.unauthorizedCallback(); }
     this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.CloseEvent);
+    if (event.reason === "Unauthorized") { this.unauthorizedCallback(); }
+    else {  // if not unauthorized, then attempt to try reconnecting
+      this.attemptEndlessReconnection();
+    }
+
   }
 
-  private ResolveEventTypeToHandlers = (eventType: SocketEventTypes, event_id: string | null, createIfEmpty: boolean = false): InternalSocketEventCallback[] | undefined => {
+  private ResolveEventTypeToHandlers = (
+    eventType: SocketEventTypes,
+    event_id: string | null,
+    createIfEmpty: boolean = false): InternalSocketEventCallback[] | undefined => {
     var handlers = undefined;
     switch (eventType) {
       case SocketEventTypes.SocketEvent:
@@ -177,7 +198,67 @@ export class UserSocket {
     }
   }
 
+  private attemptEndlessReconnection = async () => {
+    while (true) {
+      var status = await this.attemptConnect();
 
+      switch (status) {
+        case "opened":
+          if (this.socket === undefined) {
+            throw new Error("Websocket was resolved as open yet undefined")
+          }
+          this.initializeOpenedSocket(this.socket);
+          return;
+        case "errored":
+          await sleep(this.reconnectionDelay)// await
+          continue; // and retry
+
+        case "unauthorized":
+          this.unauthorizedCallback() // call event, but no point in trying so leave.
+          return;
+      }
+    }
+  }
+
+  private attemptConnect = async () => {
+    if (this.socket !== undefined && this.socket.readyState === WebSocket.OPEN) {
+      return; // already connected
+    }
+
+    var socket = new WebSocket(WSSHOST() + "/ws");
+    type resolvedStatus = "opened" | "errored" | "unauthorized";
+
+    var status = new Promise<resolvedStatus>((resolve) => {
+      socket.onopen = () => { resolve("opened"); }
+      socket.onerror = () => { resolve("errored"); }
+      socket.onclose = (event: CloseEvent) => {
+        if (event.reason === "Unauthorized") { resolve("unauthorized") }
+        else { throw new Error(`Websocket connection was closed. Reason: ${event.reason}`) }
+      }
+    })
+
+    var resolved = await status;
+
+    if (resolved === "opened" && this.socket === undefined) {
+      await this.onSocketOpen();
+      this.socket = socket;
+    }
+
+    return resolved;
+  }
+
+  private initializeOpenedSocket(socket: WebSocket) {
+    if (socket.readyState !== WebSocket.OPEN)
+      throw new Error("Received non-opened socket on initializeOpenSocket!")
+
+    this.socket = socket
+
+    this.socket.onmessage = this.handleOnMessage;
+    this.socket.onclose = this.handleOnClose;
+    this.socket.onerror = this.handleOnError;
+
+    // this.onSocketOpen() // sockets supposed to be opened at this point
+  }
   /* Public Api */
 
   /**
@@ -240,8 +321,12 @@ export class UserSocket {
    * @param event The event to fire
    * @param payload The payload of the event.
    */
-  public emit = (event: string, payload: string) => {
+  public emit = async (event: string, payload: string) => {
     if (this.socket !== undefined) {
+      if (this.socket.readyState === WebSocket.CLOSED || this.socket.readyState === WebSocket.CLOSING) {
+        await this.getPromiseFromEvent(INTERNAL_RECONNECT_EVENT)
+      }
+
       this.socket.send(JSON.stringify({ EventIdentifier: event, Payload: payload }));
     } else {
       throw new Error("Attempted to emit event without initialization")
@@ -253,9 +338,12 @@ export class UserSocket {
    * Closes the socket connection.
    */
   public Close = () => {
-    if (this.socket !== undefined)
+    if (this.socket !== undefined) {
       this.socket.close();
+      this.socket = undefined;
+    }
   }
+
   /**
    * Initializes the websocket. This will connect to the server and authenticate.
    * Allows then to send and receive events.
@@ -263,12 +351,8 @@ export class UserSocket {
    * Additionally will try to keep a steady and automatically reconnect upon disconnect.
    */
   public Initialize = async () => {
-    this.socket = new WebSocket(WSSHOST() + "/ws");
-
-    this.socket.onmessage = this.handleOnMessage;
-    this.socket.onclose = this.handleOnClose;
-    this.socket.onerror = this.handleOnError;
-    this.socket.onopen = this.handleOnOpen;
+    await this.attemptEndlessReconnection(); // attempt to connect
   }
+
 }
 

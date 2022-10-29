@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useContext, useRef } from 'react';
 import { Canvas, } from '@react-three/fiber'
 import { CameraController, CameraRefObject } from "components/game/Board/CameraController";
@@ -11,6 +11,7 @@ import { useRenderTrigger } from 'hooks';
 import { UI } from './UI/UI';
 import { GameDiceHandler } from "./Board/GameDiceHandler";
 import { boardYLocation } from "common/boardConstants";
+import { UserSocket } from "gamehandlers/socketEvents";
 
 
 
@@ -18,6 +19,17 @@ export function Gamepage() {
   const playerHandler = useContext(playerHandlerContext);
   const triggerRender = useRenderTrigger();
   const cameraController = useRef<CameraRefObject>(null);
+
+  const userSocket = useRef(new UserSocket()); // shouldn't be like this
+
+  useEffect(
+    () => {
+      var socket = userSocket.current;
+      socket.Initialize();
+      return () => { socket.Close() }
+    }
+    , []);
+
 
   if (playerHandler.playerLocations.size === 0) {
     playerHandler.registerPlayer([
@@ -42,6 +54,7 @@ export function Gamepage() {
   }
 
   return (
+
     < div id="canvas-container" style={{ width: "100vw", height: "100vh" }}>
 
       <UI />
