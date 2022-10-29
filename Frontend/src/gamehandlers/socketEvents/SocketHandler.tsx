@@ -7,7 +7,7 @@ export type SocketEventCallback = (payload: EventPayload, callback_id: string) =
 type SocketOpenCloseCallback = (user: UserSocket) => void;
 
 const INTERNAL_RECONNECT_EVENT = "INTERNAL-RECONNECT-EVENT"
-
+const INTERNAL_EVENTS = [INTERNAL_RECONNECT_EVENT];
 
 export enum SocketEventTypes {
   SocketEvent = 0,
@@ -43,6 +43,8 @@ export class UserSocket {
 
   private onSocketOpen = async () => {
     console.log("socket opened!")
+    // socket is open, trigger reconnect event in case anything is waiting
+    this.invokeEventHandlers(INTERNAL_RECONNECT_EVENT, "");
     this.onOpenEvents.forEach(callback => callback(this))
   }
 
@@ -102,7 +104,8 @@ export class UserSocket {
   private invokeEventHandlers = (event: string, payload: EventPayload) => {
     const handlers = this.registeredEvents.get(event)
     if (handlers === undefined) {
-      console.warn(`Received unhandled event: ${event} with payload:`, payload)
+      if (!INTERNAL_EVENTS.includes(event))
+        console.warn(`Received unhandled event: ${event} with payload:`, payload)
       return;
     }
 
@@ -158,8 +161,8 @@ export class UserSocket {
       }
 
       this.authenticatedUser = username;
-      await this.onSocketOpen();
       this.socket = socket;
+      await this.onSocketOpen();
     }
 
     return resolved;
@@ -251,11 +254,10 @@ export class UserSocket {
    * @param payload The payload of the event.
    */
   public emit = async (event: string, payload: string) => {
+    if (this.socket === undefined || this.socket.readyState === WebSocket.CLOSED || this.socket.readyState === WebSocket.CLOSING) {
+      await this.eventPromise(INTERNAL_RECONNECT_EVENT);
+    }
     if (this.socket !== undefined) {
-      if (this.socket.readyState === WebSocket.CLOSED || this.socket.readyState === WebSocket.CLOSING) {
-        await this.eventPromise(INTERNAL_RECONNECT_EVENT)
-      }
-
       this.socket.send(JSON.stringify({ EventIdentifier: event, Payload: payload }));
     } else {
       throw new Error("Attempted to emit event without initialization")
