@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useContext, useRef } from 'react';
 import { Canvas, } from '@react-three/fiber'
 import { CameraController, CameraRefObject } from "components/game/Board/CameraController";
@@ -11,25 +11,14 @@ import { useRenderTrigger } from 'hooks';
 import { UI } from './UI/UI';
 import { GameDiceHandler } from "./Board/GameDiceHandler";
 import { boardYLocation } from "common/boardConstants";
-import { UserSocket } from "gamehandlers/socketEvents";
-
-
+import { useUserSocketInitialize } from "hooks/socketProvider";
 
 export function Gamepage() {
   const playerHandler = useContext(playerHandlerContext);
   const triggerRender = useRenderTrigger();
   const cameraController = useRef<CameraRefObject>(null);
-
-  const userSocket = useRef(new UserSocket()); // shouldn't be like this
-
-  useEffect(
-    () => {
-      var socket = userSocket.current;
-      socket.Initialize();
-      return () => { socket.Close() }
-    }
-    , []);
-
+  // const userSocket = useUserSocketInitialize();
+  useUserSocketInitialize();
 
   if (playerHandler.playerLocations.size === 0) {
     playerHandler.registerPlayer([

@@ -37,11 +37,7 @@ export class UserSocket {
   }
 
   constructor() {
-    var username = readCookie("Auth-User");
-
-    if (username === null) {
-      throw new Error("At gamepage without auth-user cookie")
-    }
+    var username = "";
 
     this.authenticatedUser = username;
 
@@ -56,6 +52,11 @@ export class UserSocket {
   private onSocketOpen = async () => {
     console.log("socket opened!")
     this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.OpenEvent);
+  }
+
+  private onSocketClose = () => {
+    console.log("socket closed!")
+    this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.CloseEvent);
   }
 
   private handleOnMessage = (event: MessageEvent) => {
@@ -82,8 +83,9 @@ export class UserSocket {
 
   private handleOnError = (event: Event) => {
     // this will automatically fire handleOnClose
-    console.log("errored")
-    this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.CloseEvent);
+    console.warn("Websockets Errored:")
+    this.onSocketClose()
+
     // attempt to reconnect.
     this.attemptEndlessReconnection()
   }
@@ -91,7 +93,7 @@ export class UserSocket {
 
   private handleOnClose = (event: CloseEvent) => {
     console.log("Connection closed, reason: " + event.reason)
-    this.InvokeRegisteredEventHandlers("", "", SocketEventTypes.CloseEvent);
+    this.onSocketClose();
     if (event.reason === "Unauthorized") { this.unauthorizedCallback(); }
     else {  // if not unauthorized, then attempt to try reconnecting
       this.attemptEndlessReconnection();
@@ -240,6 +242,13 @@ export class UserSocket {
     var resolved = await status;
 
     if (resolved === "opened" && this.socket === undefined) {
+      // read cookie for username
+      var username = readCookie("Auth-User");
+      if (username === null) {
+        throw new Error("At gamepage without auth-user cookie")
+      }
+
+      this.authenticatedUser = username;
       await this.onSocketOpen();
       this.socket = socket;
     }
@@ -252,12 +261,9 @@ export class UserSocket {
       throw new Error("Received non-opened socket on initializeOpenSocket!")
 
     this.socket = socket
-
     this.socket.onmessage = this.handleOnMessage;
     this.socket.onclose = this.handleOnClose;
     this.socket.onerror = this.handleOnError;
-
-    // this.onSocketOpen() // sockets supposed to be opened at this point
   }
   /* Public Api */
 
@@ -339,6 +345,7 @@ export class UserSocket {
    */
   public Close = () => {
     if (this.socket !== undefined) {
+      this.socket.onclose = () => { this.onSocketClose(); } // no additional handling needs to be done
       this.socket.close();
       this.socket = undefined;
     }
