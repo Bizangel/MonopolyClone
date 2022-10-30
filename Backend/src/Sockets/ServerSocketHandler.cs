@@ -31,13 +31,15 @@ public class ServerSocketHandler
         return _sockets.Keys.ToList();
     }
 
-    // public async Task BroadcastMessage(string message)
-    // {
-    //     // foreach (var socket in _sockets)
-    //     // {
-    //     //     await socket.SendMessage(message);
-    //     // }
-    // }
+    public async Task BroadcastMessage(string eventID, dynamic payload, string? exclude = null)
+    {
+        foreach (var socket in _sockets)
+        {
+            if (exclude != null && socket.Key == exclude)
+                continue;
+            await socket.Value.SendEvent(eventID, payload);
+        }
+    }
 
 
 

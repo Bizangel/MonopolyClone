@@ -20,7 +20,7 @@ public class CustomEventSchema
 public static class OnDiceThrownEvent
 {
     [SocketEvent("dice-thrown-start")]
-    public static void Run(UserSocket user, ServerSocketHandler handler, CustomEventSchema payload)
+    public static async Task Run(UserSocket user, ServerSocketHandler handler, CustomEventSchema payload)
     {
         if (payload.diceLanded.Length != 2 || payload.dicesStop.Length != 2)
             throw new InvalidPayloadException("Dice length must be 2");
@@ -30,6 +30,10 @@ public static class OnDiceThrownEvent
         {
             Console.WriteLine("Dices Landed: " + payload.diceLanded[i]);
         }
+
+        // await handler
+        await handler.BroadcastMessage("dice-thrown-start", payload);
+
     }
 
 }

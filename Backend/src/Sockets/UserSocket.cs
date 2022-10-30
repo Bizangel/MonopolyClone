@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using MonopolyClone.Events;
 using NLog;
 
@@ -28,12 +29,12 @@ public class UserSocket
         Username = username;
     }
 
-    public async Task SendEvent(string eventID, string payload)
+    public async Task SendEvent(string eventID, dynamic payload)
     {
         var message = new SocketEventMessage
         {
             EventIdentifier = eventID,
-            Payload = payload,
+            Payload = JsonSerializer.Serialize(payload),
         };
 
         var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(SocketEventMessage.Serialize(message)));
