@@ -5,7 +5,7 @@ import { Mesh, MeshStandardMaterial, TextureLoader } from "three";
 import { Quaternion } from "cannon-es"
 import {
   dice1, dice2, dice3, dice4, dice5, dice6, diceSize,
-  diceStopVelocityThreshold, dirVectors, LocalDirectionUp, DiceThrowValues, diceMass, Transform, diceMaterial
+  diceStopVelocityThreshold, dirVectors, LocalDirectionUp, DiceThrowValues, diceMass, Transform, diceMaterial, makeTransform
 } from 'common/diceConstants'
 import { cosineSimilarity, tripletLength } from "utils/vectormath";
 
@@ -21,7 +21,7 @@ export type DiceThrowState = {
   /** Current original thrown dice position */
   throwPosition: Triplet,
   /** Function to call once dice stops rolling */
-  onStopCallback: (n: number) => void,
+  onStopCallback: (n: number, stopTransform: Transform) => void,
   /** Transform that the dice should take once it is not rolling */
   standbyTransform?: Transform,
   /** Whether the dice is displayed or not */
@@ -35,7 +35,7 @@ type ThrowDiceAction = {
   /** From where to throw the dice */
   throwPosition: Triplet,
   /** Callback to call once the dice stops rolling */
-  onStopCallback: (n: number) => void,
+  onStopCallback: (n: number, stopTransform: Transform) => void,
 }
 
 type StopDiceAction = {
@@ -136,20 +136,24 @@ export function GameDice(diceprops: gameDiceProps) {
       ...diceprops.additionalBoxProps
     }), useRef<Mesh>(null))
 
+  const currPos = useRef<Triplet>([0, 0, 0]);
+  const currRotation = useRef<Triplet>([0, 0, 0]);
   const currQuad = useRef<number[]>([0, 0, 0, 0])
 
   const velocityCallback = useCallback((vel: Triplet) => {
     if (tripletLength(vel) < diceStopVelocityThreshold && diceprops.throwingState.isRolling) {
-      diceprops.throwingState.onStopCallback(getSideUP(currQuad.current));
+      diceprops.throwingState.onStopCallback(getSideUP(currQuad.current), makeTransform(currPos.current, currRotation.current));
       diceprops.throwingDispatch({ action: "stop-dice" })
     }
   }, [diceprops, currQuad])
 
   /** Track variables at all times, as well as perform callback for checks */
   useEffect(() => {
+    const unsubpos = api.position.subscribe((pos) => { currPos.current = pos })
+    const unsubrot = api.rotation.subscribe((rot) => { currRotation.current = rot })
     const unsubvel = api.velocity.subscribe(velocityCallback);
     const unsubquad = api.quaternion.subscribe((quad) => { currQuad.current = quad })
-    return () => { unsubvel(); unsubquad(); }
+    return () => { unsubvel(); unsubquad(); unsubpos(); unsubrot(); }
   }, [api, velocityCallback])
 
   useEffect(() => {

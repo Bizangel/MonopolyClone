@@ -30,7 +30,10 @@ const dirVectors = [
   new Vec3(0, 0, -1),
 ]
 
-export type Transform = { position: [number, number, number], rotation?: [number, number, number] }
+export type Transform = { position: [number, number, number], rotation: [number, number, number] }
+export const makeTransform = (position: [number, number, number], rotation: [number, number, number]): Transform => {
+  return { position: position, rotation: rotation };
+}
 
 export type DiceThrowValues = { velocity: Triplet, offset: Triplet };
 
