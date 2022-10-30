@@ -6,6 +6,12 @@ using NLog;
 
 namespace MonopolyClone.Events;
 
+class InvalidPayloadException : Exception
+{
+    public InvalidPayloadException() { }
+    public InvalidPayloadException(string name) : base(String.Format("Invalid payload: {0}", name)) { }
+};
+
 public delegate void OnSocketConnectionLostEvent(string dc_user);
 
 public static class SocketsEventHandler
@@ -38,19 +44,37 @@ public static class SocketsEventHandler
             return;
         }
 
+        object? payloadIn = null;
         try
         {
-            _logger.Debug("Deserializing: " + payload);
-            var payloadIn = JsonSerializer.Deserialize(payload, payloadType);
-            _logger.Debug("payload name: " + payloadType.Name);
+            payloadIn = JsonSerializer.Deserialize(payload, payloadType);
+
             if (payloadIn == null)
                 throw new ArgumentException("Invalid Signature.");
-
-            _registeredEvents[EventID].Invoke(null, new object[] { userSocket, socketHandler, payloadIn });
         }
         catch
         {
-            _logger.Debug("Received corrupted event payload: ", payload);
+            _logger.Debug("Received corrupted event payload: " + payload);
+        }
+
+
+        if (payloadIn != null)
+        {
+            try
+            {
+                _registeredEvents[EventID].Invoke(null, new object[] { userSocket, socketHandler, payloadIn });
+            }
+            catch (TargetInvocationException ex)
+            {
+                if (ex.InnerException is InvalidPayloadException)
+                {
+                    _logger.Debug("Received corrupted event payload: " + payload + " " + ex.InnerException.Message);
+                }
+                else
+                {
+                    throw ex;
+                }
+            }
         }
     }
 

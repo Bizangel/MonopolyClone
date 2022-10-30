@@ -102,15 +102,24 @@ export function GameDiceHandler() {
 
   useEffect(() => {
     if (diceCatches.diceCatchedNumbers.every(e => e !== undefined)) {
+      diceCatches.diceReset();
       console.log("numbers are: ", diceCatches.diceCatchedNumbers)
       console.log("transforms, are:", diceCatches.diceStoppedTransforms)
-      // userSocket.emit("dice-thrown-start",
-      //   {
-      //     diceLanded: diceCatches.diceCatchedNumbers,
-      //     dicesStop: diceCatches.diceStoppedTransforms
-      //   }
-      // )
-      userSocket.emit("dice-thrown-start", { notinfo: "my info" })
+
+      const transforms = produce(diceCatches.diceStoppedTransforms, (draft) => {
+        draft.forEach(diceTransform => {
+          if (diceTransform) {
+            diceTransform.rotation.splice(3, 1)
+          }
+        })
+      }); // remove XYZ thing from rotation
+
+      userSocket.emit("dice-thrown-start",
+        {
+          diceLanded: diceCatches.diceCatchedNumbers,
+          dicesStop: transforms,
+        }
+      )
     }
   }, [diceCatches, userSocket])
 

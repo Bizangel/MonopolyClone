@@ -1,19 +1,35 @@
 using MonopolyClone.Sockets;
 namespace MonopolyClone.Events;
 
-// [Serializable]
-// [JsonObject()]
+[Serializable]
+public class Transform
+{
+    public float[]? position { get; set; }
+    public float[]? rotation { get; set; }
+}
+
+[Serializable]
 public class CustomEventSchema
 {
-    public string info { get; } = "";
+    public string mystring { get; } = "";
+    public int[] diceLanded { get; set; } = new int[0];
+    public Transform[] dicesStop { get; set; } = new Transform[0];
 }
+
 
 public static class OnDiceThrownEvent
 {
     [SocketEvent("dice-thrown-start")]
     public static void Run(UserSocket user, ServerSocketHandler handler, CustomEventSchema payload)
     {
-        Console.WriteLine($"Received Dice start with payload {payload.info}");
+        if (payload.diceLanded.Length != 2 || payload.dicesStop.Length != 2)
+            throw new InvalidPayloadException("Dice length must be 2");
+
+
+        for (int i = 0; i < 2; i++)
+        {
+            Console.WriteLine("Dices Landed: " + payload.diceLanded[i]);
+        }
     }
 
 }

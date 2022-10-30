@@ -152,7 +152,7 @@ export class UserSocket {
     })
 
     var resolved = await status;
-
+    console.log("resolved socket: ", resolved)
     if (resolved === "opened" && this.socket === undefined) {
       // read cookie for username
       var username = readCookie("Auth-User");
@@ -282,7 +282,7 @@ export class UserSocket {
    * Additionally will try to keep a steady and automatically reconnect upon disconnect.
    */
   public Initialize = async () => {
-    await this.attemptEndlessReconnection(); // attempt to connect
+    this.attemptEndlessReconnection(); // attempt to connect
   }
 
 }
