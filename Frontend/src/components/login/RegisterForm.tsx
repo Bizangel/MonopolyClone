@@ -17,7 +17,7 @@ export class RegisterFormPage extends React.Component<RegisterFormProps> {
 
 
   public onSubmit = async (form: AuthForm) => {
-    var registerreply = await requestSchema<AuthForm, RegisterReply>("/RegisterAccount", form, "POST", RegisterReplySchema, false);
+    var registerreply = await requestSchema<AuthForm, RegisterReply>("/register-account", form, "POST", RegisterReplySchema, false);
 
     if (registerreply === null) {
       this.setState({ messageDisp: "Connection Error!", username: "", password: "", messageDispColor: "red" });

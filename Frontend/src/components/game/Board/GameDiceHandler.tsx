@@ -5,6 +5,7 @@ import { GameDice, DiceThrowState, diceReducer, DiceReducerAction } from "./Game
 import create from 'zustand'
 import { produce } from "immer"
 import { useUserSocket } from "hooks/socketProvider";
+import { useSocketEvent } from "hooks/useSocketEvent";
 
 // =======================
 // Throwing Dices Reducer
@@ -50,11 +51,16 @@ function diceMultiReducer(states: DiceThrowState[], action: DiceMultiAction): Di
 type DiceCatchedState = {
   diceCatchedNumbers: (number | undefined)[]
   diceStoppedTransforms: (Transform | undefined)[],
+  /** Whether dice is from current player or another remote player,
+   * if it's not the dice player, no callback will be executed on stop */
+  isLocalDice: boolean,
   diceFall: (idx: number, diceNumber: number, transform: Transform) => void;
   diceReset: () => void;
+  setLocalDice: (isLocal: boolean) => void;
 }
 
 const useDiceCatch = create<DiceCatchedState>()((set) => ({
+  isLocalDice: true,
   diceCatchedNumbers: [undefined, undefined],
   diceStoppedTransforms: [undefined, undefined],
   diceFall: (idx: number, diceNumber: number, transform: Transform) =>
@@ -70,7 +76,8 @@ const useDiceCatch = create<DiceCatchedState>()((set) => ({
       draft.diceCatchedNumbers = n_defined;
       draft.diceStoppedTransforms = n_defined;
     }))
-  }
+  },
+  setLocalDice: (isLocal: boolean) => { set({ isLocalDice: isLocal }); }
 }))
 
 export function GameDiceHandler() {
@@ -84,12 +91,22 @@ export function GameDiceHandler() {
     diceCatches.diceFall(diceIndexLand, diceLandNumber, transf)
   }
 
-  const throwAllDices = () => {
+
+  useSocketEvent("throw-dice-start", (payload) => {
+    diceCatches.setLocalDice(false);
+    const recv = payload as { throwValues: DiceThrowValues[] }
+    throwAllDices(recv.throwValues);
+    console.log("Start: ", payload)
+  });
+
+  useSocketEvent("throw-dice-finish", (payload) => {
+    console.log("Finish: ", payload)
+  });
+
+  const throwAllDices = (throwValues: DiceThrowValues[]) => {
     n_array.forEach((e, i) => {
-      var genValues = generateThrowValues();
-      console.log(`For dice ${i} values generated:`, genValues)
       var action: DiceReducerAction = {
-        action: "throw-dice", throwForce: genValues,
+        action: "throw-dice", throwForce: throwValues[i],
         throwPosition: dicePositions[i],
         onStopCallback: (n: number, transf: Transform) => { onDiceLand(i, n, transf) }
       }
@@ -98,13 +115,20 @@ export function GameDiceHandler() {
     })
   };
 
+  const performDiceLocally = () => {
+    const throwVals = n_array.map(e => generateThrowValues());
+    console.log("generated: ", throwVals)
+    diceCatches.setLocalDice(true);
+    userSocket.emit("throw-dice-start", { throwValues: throwVals })
+    throwAllDices(throwVals);
+  }
+
   useOnKeyDown("f", () => {
-    throwAllDices();
+    performDiceLocally();
   });
 
   useEffect(() => {
-    console.log("spamming useeffect dicehandler")
-    if (diceCatches.diceCatchedNumbers.every(e => e !== undefined)) {
+    if (diceCatches.diceCatchedNumbers.every(e => e !== undefined) && diceCatches.isLocalDice) {
       diceCatches.diceReset();
       const transforms = produce(diceCatches.diceStoppedTransforms, (draft) => {
         draft.forEach(diceTransform => {
@@ -114,7 +138,7 @@ export function GameDiceHandler() {
         })
       }); // remove XYZ thing from rotation
 
-      userSocket.emit("dice-thrown-start",
+      userSocket.emit("throw-dice-finish",
         {
           diceLanded: diceCatches.diceCatchedNumbers,
           dicesStop: transforms,

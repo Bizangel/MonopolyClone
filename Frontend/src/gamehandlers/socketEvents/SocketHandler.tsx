@@ -70,7 +70,14 @@ export class UserSocket {
     }
 
     // Fire Registered handlers
-    this.invokeEventHandlers(parsed.data.EventIdentifier, parsed.data.Payload);
+    var payloadobject = undefined;
+    try {
+      payloadobject = JSON.parse(parsed.data.Payload);
+    } catch {
+      console.warn("Received invalid payload json from backend server: ", parsed.data.Payload)
+    }
+
+    this.invokeEventHandlers(parsed.data.EventIdentifier, payloadobject);
   }
 
   private onSocketErrorClose = () => {

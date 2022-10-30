@@ -26,7 +26,7 @@ export type RegisterReply = z.infer<typeof RegisterReplySchema>;
 
 export const SocketEventMessageSchema = z.object({
   EventIdentifier: z.string(),
-  Payload: z.any(),
+  Payload: z.string(),
 });
 
 export type SocketEventMessage = z.infer<typeof SocketEventMessageSchema>;

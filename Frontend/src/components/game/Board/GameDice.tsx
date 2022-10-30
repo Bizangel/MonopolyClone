@@ -149,7 +149,6 @@ export function GameDice(diceprops: gameDiceProps) {
 
   /** Track variables at all times, as well as perform callback for checks */
   useEffect(() => {
-    console.log("spamming useffect resubbing")
     const unsubpos = api.position.subscribe((pos) => { currPos.current = pos })
     const unsubrot = api.rotation.subscribe((rot) => { currRotation.current = rot })
     const unsubvel = api.velocity.subscribe(velocityCallback);
@@ -158,7 +157,6 @@ export function GameDice(diceprops: gameDiceProps) {
   }, [api, velocityCallback])
 
   useEffect(() => {
-    console.log("spamming diceroll effect shouldRoll")
     if (diceprops.throwingState.shouldRoll) {
       diceprops.throwingDispatch({ action: "internal-start-rolling" }) // first, update state, to ensure it is not run twice
       throwDice(diceprops.throwingState.throwPosition, api, diceprops.throwingState.throwForce)
@@ -168,7 +166,6 @@ export function GameDice(diceprops: gameDiceProps) {
   // set dice to fake position if on standby
 
   useEffect(() => {
-    console.log("spamming diceroll effect standby")
     if (!diceprops.throwingState.isRolling && diceprops.throwingState.standbyTransform) {
       api.position.set(...diceprops.throwingState.standbyTransform.position)
       if (diceprops.throwingState.standbyTransform.rotation)
