@@ -32,7 +32,7 @@ public static class OnDiceThrownEvent
         }
 
         // await handler
-        await handler.BroadcastMessage("dice-thrown-start", payload);
+        await handler.BroadcastMessage("dice-thrown-start", payload, user.Username);
 
     }
 

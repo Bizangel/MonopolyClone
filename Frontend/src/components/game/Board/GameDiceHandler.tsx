@@ -86,8 +86,10 @@ export function GameDiceHandler() {
 
   const throwAllDices = () => {
     n_array.forEach((e, i) => {
+      var genValues = generateThrowValues();
+      console.log(`For dice ${i} values generated:`, genValues)
       var action: DiceReducerAction = {
-        action: "throw-dice", throwForce: generateThrowValues(),
+        action: "throw-dice", throwForce: genValues,
         throwPosition: dicePositions[i],
         onStopCallback: (n: number, transf: Transform) => { onDiceLand(i, n, transf) }
       }
@@ -101,11 +103,9 @@ export function GameDiceHandler() {
   });
 
   useEffect(() => {
+    console.log("spamming useeffect dicehandler")
     if (diceCatches.diceCatchedNumbers.every(e => e !== undefined)) {
       diceCatches.diceReset();
-      console.log("numbers are: ", diceCatches.diceCatchedNumbers)
-      console.log("transforms, are:", diceCatches.diceStoppedTransforms)
-
       const transforms = produce(diceCatches.diceStoppedTransforms, (draft) => {
         draft.forEach(diceTransform => {
           if (diceTransform) {

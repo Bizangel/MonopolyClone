@@ -20,11 +20,14 @@ export function useUserSocket() {
 
 export function useUserSocketInitialize() {
   const userSocket = useUserSocket()
+
   useEffect(
     () => {
-      var socket = userSocket;
-      socket.Initialize();
-      return () => { socket.Close(); }
+      if (userSocket !== undefined) {
+        var socket = userSocket;
+        socket.Initialize();
+        return () => { socket.Close(); }
+      }
     }
     , [userSocket]);
 

@@ -59,7 +59,7 @@ export class UserSocket {
       json = JSON.parse(event.data.toString());
     }
     catch (e) {
-      console.log("Error parsing JSON: " + e);
+      console.warn("Error parsing JSON: " + e);
       return;
     }
 
@@ -92,7 +92,7 @@ export class UserSocket {
   }
 
   private handleOnClose = (event: CloseEvent) => {
-    console.log("Connection closed, reason: " + event.reason)
+    console.warn("Connection closed, reason: " + event.reason)
 
     if (event.reason === "Unauthorized") { this.onSocketUnauthorized(); }
     else {  // if not unauthorized, then attempt to try reconnecting
@@ -152,7 +152,7 @@ export class UserSocket {
     })
 
     var resolved = await status;
-    console.log("resolved socket: ", resolved)
+
     if (resolved === "opened" && this.socket === undefined) {
       // read cookie for username
       var username = readCookie("Auth-User");
