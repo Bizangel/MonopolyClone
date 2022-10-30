@@ -2,7 +2,8 @@ import { MaxDiceOffsetPos, MaxDiceThrowVelocity, DiceThrowValues, dicePositions,
 import { useOnKeyDown } from "hooks/onKeydown";
 import { useReducer, useEffect } from "react";
 import { GameDice, DiceThrowState, diceReducer, DiceReducerAction } from "./GameDice";
-// import create from 'zustand'
+import create from 'zustand'
+import { produce } from "immer"
 
 // =======================
 // Throwing Dices Reducer
@@ -48,53 +49,38 @@ function diceMultiReducer(states: DiceThrowState[], action: DiceMultiAction): Di
 type DiceCatchedState = {
   diceCatchedNumbers: (number | undefined)[]
   diceStoppedTransforms: (Transform | undefined)[],
+  diceFall: (idx: number, diceNumber: number, transform: Transform) => void;
+  diceReset: () => void;
 }
 
-type DiceCatchOnStopAction = {
-  action: "catch-dice",
-  diceCatchedNumber: number,
-  diceCatchedTransform: Transform,
-  diceCatchedIndex: number,
-}
-
-type DiceCatchInternalStopAction = {
-  action: "catch-stop-reset",
-}
-
-
-type DiceCatchAction = DiceCatchOnStopAction | DiceCatchInternalStopAction
-
-
-function diceCatcherReducer(state: DiceCatchedState, action: DiceCatchAction): DiceCatchedState {
-  switch (action.action) {
-    case "catch-dice":
-      const transforms = [...state.diceStoppedTransforms];
-      const numbers = [...state.diceCatchedNumbers];
-      numbers[action.diceCatchedIndex] = action.diceCatchedNumber
-      transforms[action.diceCatchedIndex] = action.diceCatchedTransform
-      return { diceStoppedTransforms: transforms, diceCatchedNumbers: numbers }
-    case "catch-stop-reset":
-      const n_undefined = state.diceCatchedNumbers.map(e => undefined)
-      return { diceCatchedNumbers: n_undefined, diceStoppedTransforms: n_undefined }
+const useDiceCatch = create<DiceCatchedState>()((set) => ({
+  diceCatchedNumbers: [undefined, undefined],
+  diceStoppedTransforms: [undefined, undefined],
+  diceFall: (idx: number, diceNumber: number, transform: Transform) =>
+    set((diceState) => {
+      return produce(diceState, (draft) => {
+        draft.diceCatchedNumbers[idx] = diceNumber;
+        draft.diceStoppedTransforms[idx] = transform;
+      })
+    }),
+  diceReset: () => {
+    set((e) => produce(e, (draft) => {
+      const n_defined = e.diceCatchedNumbers.map(i => undefined);
+      draft.diceCatchedNumbers = n_defined;
+      draft.diceStoppedTransforms = n_defined;
+    }))
   }
-}
+}))
 
 export function GameDiceHandler() {
   const n_dices = 2;
   const n_array = Array(n_dices).fill(undefined);
-  const [diceThrown, catchDices] = useReducer(diceCatcherReducer,
-    {
-      diceCatchedNumbers: n_array, diceStoppedTransforms: n_array
-    });
+  const diceCatches = useDiceCatch();
 
   const [diceStates, multiDispatcher] = useReducer(diceMultiReducer, n_array.map(e => diceInit))
 
   const onDiceLand = (diceIndexLand: number, diceLandNumber: number, transf: Transform) => {
-    catchDices({
-      action: "catch-dice",
-      diceCatchedIndex: diceIndexLand,
-      diceCatchedTransform: transf, diceCatchedNumber: diceLandNumber
-    })
+    diceCatches.diceFall(diceIndexLand, diceLandNumber, transf)
   }
 
   const throwAllDices = () => {
@@ -114,12 +100,11 @@ export function GameDiceHandler() {
   });
 
   useEffect(() => {
-    if (diceThrown.diceCatchedNumbers.every(e => e !== undefined)) {
-      console.log("numbers are: ", diceThrown.diceCatchedNumbers)
-      console.log("transforms, are:", diceThrown.diceStoppedTransforms)
-      catchDices({ action: "catch-stop-reset" })
+    if (diceCatches.diceCatchedNumbers.every(e => e !== undefined)) {
+      console.log("numbers are: ", diceCatches.diceCatchedNumbers)
+      console.log("transforms, are:", diceCatches.diceStoppedTransforms)
     }
-  }, [diceThrown])
+  }, [diceCatches])
 
   const dices = n_array.map((e, i) =>
     <GameDice
