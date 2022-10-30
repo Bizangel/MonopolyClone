@@ -1,15 +1,19 @@
 using MonopolyClone.Sockets;
 namespace MonopolyClone.Events;
 
+// [Serializable]
+// [JsonObject()]
+public class CustomEventSchema
+{
+    public string info { get; } = "";
+}
 
 public static class OnDiceThrownEvent
 {
-    [SocketEvent("sampleEvent")]
-    public static async Task Run(UserSocket user, string payload, ServerSocketHandler handler)
+    [SocketEvent("dice-thrown-start")]
+    public static void Run(UserSocket user, ServerSocketHandler handler, CustomEventSchema payload)
     {
-        Console.WriteLine($"Received Event from {user.Username} with payload {payload}");
-
-        await user.SendEvent("testEvent", "Hello World from Server!");
+        Console.WriteLine($"Received Dice start with payload {payload.info}");
     }
 
 }

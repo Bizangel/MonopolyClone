@@ -4,6 +4,7 @@ import { useReducer, useEffect } from "react";
 import { GameDice, DiceThrowState, diceReducer, DiceReducerAction } from "./GameDice";
 import create from 'zustand'
 import { produce } from "immer"
+import { useUserSocket } from "hooks/socketProvider";
 
 // =======================
 // Throwing Dices Reducer
@@ -76,7 +77,7 @@ export function GameDiceHandler() {
   const n_dices = 2;
   const n_array = Array(n_dices).fill(undefined);
   const diceCatches = useDiceCatch();
-
+  const userSocket = useUserSocket()
   const [diceStates, multiDispatcher] = useReducer(diceMultiReducer, n_array.map(e => diceInit))
 
   const onDiceLand = (diceIndexLand: number, diceLandNumber: number, transf: Transform) => {
@@ -103,8 +104,15 @@ export function GameDiceHandler() {
     if (diceCatches.diceCatchedNumbers.every(e => e !== undefined)) {
       console.log("numbers are: ", diceCatches.diceCatchedNumbers)
       console.log("transforms, are:", diceCatches.diceStoppedTransforms)
+      // userSocket.emit("dice-thrown-start",
+      //   {
+      //     diceLanded: diceCatches.diceCatchedNumbers,
+      //     dicesStop: diceCatches.diceStoppedTransforms
+      //   }
+      // )
+      userSocket.emit("dice-thrown-start", { notinfo: "my info" })
     }
-  }, [diceCatches])
+  }, [diceCatches, userSocket])
 
   const dices = n_array.map((e, i) =>
     <GameDice

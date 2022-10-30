@@ -13,11 +13,8 @@ The backend will then validate that the user is indeed in his turn, and then bro
 {
   event: "dice-thrown-start"
   payload: {
-    diceLanded: number,
-    transform: {
-      position: Triplet,
-      rotation: Triplet,
-    }
+    diceLanded: [number, number],
+    dicesStop: [Transform, Transform],
   }
 }
 ```

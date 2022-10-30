@@ -253,12 +253,12 @@ export class UserSocket {
    * @param event The event to fire
    * @param payload The payload of the event.
    */
-  public emit = async (event: string, payload: string) => {
+  public emit = async (event: string, payload: EventPayload) => {
     if (this.socket === undefined || this.socket.readyState === WebSocket.CLOSED || this.socket.readyState === WebSocket.CLOSING) {
       await this.eventPromise(INTERNAL_RECONNECT_EVENT);
     }
     if (this.socket !== undefined) {
-      this.socket.send(JSON.stringify({ EventIdentifier: event, Payload: payload }));
+      this.socket.send(JSON.stringify({ EventIdentifier: event, Payload: JSON.stringify(payload) }));
     } else {
       throw new Error("Attempted to emit event without initialization")
     }
