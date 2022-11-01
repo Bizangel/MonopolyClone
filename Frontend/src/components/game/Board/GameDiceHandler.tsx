@@ -77,8 +77,20 @@ const useDiceCatch = create<DiceCatchedState>()((set) => ({
       draft.diceStoppedTransforms = n_defined;
     }))
   },
-  setLocalDice: (isLocal: boolean) => { set({ isLocalDice: isLocal }); }
+  setLocalDice: (isLocal: boolean) => {
+    set((e) => produce(e, (draft) => {
+      // reset to undefined
+      const n_defined = e.diceCatchedNumbers.map(i => undefined);
+      draft.diceCatchedNumbers = n_defined;
+      draft.diceStoppedTransforms = n_defined;
+      // AND also set local
+      draft.isLocalDice = isLocal;
+    }))
+  }
 }))
+
+
+// const mystaticthrowval = generateThrowValues();
 
 export function GameDiceHandler() {
   const n_dices = 2;
@@ -101,6 +113,11 @@ export function GameDiceHandler() {
 
   useSocketEvent("throw-dice-finish", (payload) => {
     console.log("Finish: ", payload)
+    // payload.dicesStop.forEach((e: any) => { e.rotation.push("XYZ") })
+    payload.dicesStop.forEach((transform: any, i: number) => {
+      multiDispatcher({ action: { action: "fake-dice", standbyTransform: transform }, targetIndex: i })
+    })
+
   });
 
   const throwAllDices = (throwValues: DiceThrowValues[]) => {
@@ -117,7 +134,7 @@ export function GameDiceHandler() {
 
   const performDiceLocally = () => {
     const throwVals = n_array.map(e => generateThrowValues());
-    console.log("generated: ", throwVals)
+
     diceCatches.setLocalDice(true);
     userSocket.emit("throw-dice-start", { throwValues: throwVals })
     throwAllDices(throwVals);

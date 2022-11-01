@@ -8,6 +8,7 @@ import {
   diceStopVelocityThreshold, dirVectors, LocalDirectionUp, DiceThrowValues, diceMass, Transform, diceMaterial, makeTransform
 } from 'common/diceConstants'
 import { cosineSimilarity, tripletLength } from "utils/vectormath";
+import { diceStoppedBoardLevel } from "common/boardConstants";
 
 
 
@@ -70,7 +71,8 @@ export function diceReducer(state: DiceThrowState, action: DiceReducerAction): D
         display: true,
         throwForce: action.throwForce,
         throwPosition: action.throwPosition,
-        onStopCallback: action.onStopCallback
+        onStopCallback: action.onStopCallback,
+        standbyTransform: undefined
       }
 
     case "stop-dice":
@@ -91,7 +93,8 @@ export function diceReducer(state: DiceThrowState, action: DiceReducerAction): D
       return {
         ...state, isRolling: false,
         shouldRoll: false,
-        standbyTransform: action.standbyTransform
+        standbyTransform: action.standbyTransform,
+        onStopCallback: () => { },
       }
     default:
       break;
@@ -111,6 +114,7 @@ type gameDiceProps = {
 
 function throwDice(position: Triplet, physicsApi: PublicApi, throwParams: DiceThrowValues) {
   physicsApi.position.set(position[0], position[1], position[2]);
+  physicsApi.angularVelocity.set(0, 0, 0);
   physicsApi.velocity.set(0, 0, 0);
   physicsApi.applyImpulse(throwParams.velocity, throwParams.offset)
 }
@@ -141,7 +145,10 @@ export function GameDice(diceprops: gameDiceProps) {
   const currQuad = useRef<number[]>([0, 0, 0, 0])
 
   const velocityCallback = useCallback((vel: Triplet) => {
-    if (tripletLength(vel) < diceStopVelocityThreshold && diceprops.throwingState.isRolling) {
+    if (tripletLength(vel) < diceStopVelocityThreshold &&
+      diceprops.throwingState.isRolling &&
+      currPos.current[1] < diceStoppedBoardLevel // is close to ground
+    ) {
       diceprops.throwingState.onStopCallback(getSideUP(currQuad.current), makeTransform(currPos.current, currRotation.current));
       diceprops.throwingDispatch({ action: "stop-dice" })
     }
@@ -168,8 +175,7 @@ export function GameDice(diceprops: gameDiceProps) {
   useEffect(() => {
     if (!diceprops.throwingState.isRolling && diceprops.throwingState.standbyTransform) {
       api.position.set(...diceprops.throwingState.standbyTransform.position)
-      if (diceprops.throwingState.standbyTransform.rotation)
-        api.rotation.set(...diceprops.throwingState.standbyTransform.rotation)
+      api.rotation.set(...diceprops.throwingState.standbyTransform.rotation)
     }
   }, [
     api.position, api.rotation,

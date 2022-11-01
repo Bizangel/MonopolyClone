@@ -6,6 +6,8 @@ export const BaseCharacterSpeed = 2; // base speed, without any speed boost (due
 export const SpeedBoostDistance = 1; // distance from where character starts going faster, to not take too long
 export const SpeedBostScale = 2; // When farther than SpeedBoostDistance, how much should speed be multiplied?
 export const DistanceArriveThreshold = 0.05; // The threshold for the character to be considered arrived
+export const diceStoppedBoardLevel = 0.27; // the Y level that the dice must be below so it is considered as stopped.
+
 
 export const playerSeparationDistance = 0.35; // the distance to separate the players on each tile
 
