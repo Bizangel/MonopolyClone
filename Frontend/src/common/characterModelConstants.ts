@@ -17,6 +17,8 @@ const char5model_path = require("assets/models3d/char5_wheelcart.glb") as string
 const char6model_path = require("assets/models3d/char6_thimble.glb") as string;
 
 
+
+
 export const characterToPath = new Map<number, string>([
   [PlayerCharacter.Car, char1model_path],
   [PlayerCharacter.Iron, char2model_path],
