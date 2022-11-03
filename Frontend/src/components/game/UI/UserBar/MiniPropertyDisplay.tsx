@@ -1,26 +1,48 @@
+import { NProperties, colorsToHex, propertyToColor } from "common/propertyConstants";
 import { Col, Container, Row } from "react-bootstrap"
 
-export type OwnedProperties = {
 
+
+
+// only needs to be calculated once really
+var colorToCount = new Map<string, number>();
+for (const propID of Array(NProperties).keys()) {
+  var color = colorsToHex.get(propertyToColor(propID));
+  if (color === undefined)
+    throw new Error(`Property ID ${propID} didn't resolve to a color.`)
+  var count = colorToCount.get(color);
+  if (count === undefined)
+    count = 0;
+
+  colorToCount.set(color, count + 1);
 }
 
-// properties are IDs from 0-27
-// 0-1 is brown, 2-3 is lightblue, 3-4 is pink and so on.
-// 22-25 are railroad services
-// 26-27 is services
+export type MiniPropertyDisplayProps = {
+  ownedProperties: number[],
+}
 
-// const colors = ["brown", "lightblue", "pink", "orange", "red", "yellow", "green", "blue", "black", "gray"]
-const colors = ["#997462", "#adddf5", "#c33c82", "#f08e30", "#dd2328", "#fff100", "#18a966", "#0066a4", "#4b413f", "#a8a6af"]
-export function MiniPropertyDisplay() {
+export function MiniPropertyDisplay(props: MiniPropertyDisplayProps) {
 
-  const cardEntry = (color: string, percent: number) => (
-    <div className="rounded-1" style={{ height: `${percent}%`, backgroundColor: color }}></div>
-  );
+  const cardEntry = (color: string | undefined, percent: number) => {
+    if (color)
+      return <div className="rounded-1" style={{ height: `${percent}%`, backgroundColor: color }}></div>
+    return <div className="rounded-1 invisible" style={{ height: `${percent}%` }}></div>
 
-  const sections = colors.map((color) => {
-    var entries = Array(4).fill(undefined).map(e => cardEntry(color, 25))
-    console.log(entries)
-    return (
+  }
+
+  const sections: React.ReactNode[] = [];
+
+  var curPropID = 0;
+  colorToCount.forEach((count, color) => {
+    var entries = Array(count).fill(undefined).map(e => {
+      if (props.ownedProperties.includes(curPropID)) {
+        curPropID++;
+        return cardEntry(color, 25)
+      }
+      curPropID++;
+      return cardEntry(undefined, 25);
+    })
+    sections.push(
       <Col className="m-0 p-0">
         <>
           {entries}
@@ -28,6 +50,10 @@ export function MiniPropertyDisplay() {
       </Col>
     )
   })
+
+
+
+
 
   return (
     <Container className="w-100 h-100 m-0 p-0">
