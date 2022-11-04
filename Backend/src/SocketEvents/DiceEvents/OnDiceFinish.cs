@@ -1,4 +1,7 @@
+using MonopolyClone.Game;
+using MonopolyClone.Handler;
 using MonopolyClone.Sockets;
+
 namespace MonopolyClone.Events;
 
 [Serializable]
@@ -19,22 +22,20 @@ public class DiceFinishEvent
 public static class OnDiceThrownEvent
 {
     [SocketEvent("throw-dice-finish")]
-    public static async Task Run(UserSocket user, ServerSocketHandler handler, DiceFinishEvent payload)
+    public static async Task Run(UserSocket user, ServerSocketHandler serversocket, DiceFinishEvent payload)
     {
+        if (!MonopolyGame.Instance.IsPlayerTurn(user.Username)) // not allowed to roll dice
+            return;
+
         if (payload.diceLanded.Length != 2 || payload.dicesStop.Length != 2)
             throw new InvalidPayloadException("Dice length must be 2");
 
-        // TODO: Verify that dice is actually from proper player in turn
-
         Console.WriteLine("Received throw dice finish event from: " + user.Username);
-        // for (int i = 0; i < 2; i++)
-        // {
-        //     Console.WriteLine("Dices Landed: " + payload.diceLanded[i]);
-        // }
 
         // await handler
-        await handler.BroadcastMessage("throw-dice-finish", payload, user.Username);
+        await serversocket.BroadcastMessage("throw-dice-finish", payload, user.Username);
 
+        await MonopolyHandler.Instance.BroadcastGameStateUpdate(serversocket);
     }
 
 }

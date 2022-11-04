@@ -23,10 +23,10 @@ export type MiniPropertyDisplayProps = {
 
 export function MiniPropertyDisplay(props: MiniPropertyDisplayProps) {
 
-  const cardEntry = (color: string | undefined, percent: number) => {
+  const cardEntry = (color: string | undefined, percent: number, key: string) => {
     if (color)
-      return <div className="rounded-1" style={{ height: `${percent}%`, backgroundColor: color }}></div>
-    return <div className="rounded-1 invisible" style={{ height: `${percent}%` }}></div>
+      return <div className="rounded-1" key={key} style={{ height: `${percent}%`, backgroundColor: color }}></div>
+    return <div className="rounded-1 invisible" key={key} style={{ height: `${percent}%` }}></div>
 
   }
 
@@ -37,13 +37,14 @@ export function MiniPropertyDisplay(props: MiniPropertyDisplayProps) {
     var entries = Array(count).fill(undefined).map(e => {
       if (props.ownedProperties.includes(curPropID)) {
         curPropID++;
-        return cardEntry(color, 25)
+        return cardEntry(color, 25, curPropID.toString())
       }
       curPropID++;
-      return cardEntry(undefined, 25);
+      return cardEntry(undefined, 25, curPropID.toString());
     })
+
     sections.push(
-      <Col className="m-0 p-0">
+      <Col key={"section" + color} className="m-0 p-0">
         <>
           {entries}
         </>

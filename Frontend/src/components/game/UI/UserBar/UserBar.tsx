@@ -10,11 +10,17 @@ export type UserBarProps = {
   character: PlayerCharacter
   money: string,
   ownedProperties: number[],
+  isPlayerTurn?: true,
 };
 
 export function UserBar(props: UserBarProps) {
+  const color = props.isPlayerTurn ? "#f1d397" : undefined
+  const outwardTurnClass = props.isPlayerTurn ? "mx-3" : undefined
   return (
-    <Card style={{ opacity: 0.7, width: "30vw", height: "7vh", maxWidth: "300px", minWidth: "300px" }} className="opacity-100-hover">
+    <Card style={{
+      opacity: 0.7, width: "300px", height: "7vh",
+      backgroundColor: color,
+    }} className={`opacity-100-hover ${outwardTurnClass}`}>
       <Container className="mw-100 mh-100 m-0 p-0">
         <Row className="w-100 h-100 m-0 p-0">
           {/* Image display */}
@@ -59,7 +65,7 @@ export function MultipleUserBars() {
       <UserBar username="royalguti" money="1300" character={PlayerCharacter.Iron}
         ownedProperties={[6, 11, 12, 14]} />
       <UserBar username="Ironicfox" money="100" character={PlayerCharacter.Ship}
-        ownedProperties={[3, 4, 5]} />
+        ownedProperties={[3, 4, 5]} isPlayerTurn={true} />
       <UserBar username="jugberius" money="800" character={PlayerCharacter.Wheelcart}
         ownedProperties={[0, 1, 21]} />
       <UserBar username="elgranteton" money="400" character={PlayerCharacter.Thimble}

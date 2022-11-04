@@ -1,3 +1,4 @@
+using MonopolyClone.Game;
 using MonopolyClone.Sockets;
 namespace MonopolyClone.Events;
 
@@ -19,16 +20,18 @@ public class DiceStartEvent
 public static class OnDiceFinishEvent
 {
     [SocketEvent("throw-dice-start")]
-    public static async Task Run(UserSocket user, ServerSocketHandler handler, DiceStartEvent payload)
+    public static async Task Run(UserSocket user, ServerSocketHandler serversocket, DiceStartEvent payload)
     {
+        if (!MonopolyGame.Instance.IsPlayerTurn(user.Username)) // not allowed to roll dice
+            return;
+
         if (payload.throwValues.Length != 2)
             throw new InvalidPayloadException("Dice length must be 2");
 
-        // TODO: Verify that dice is actually from proper player in turn
         Console.WriteLine("Received throw dice start event from: " + user.Username);
 
         // await handler
-        await handler.BroadcastMessage("throw-dice-start", payload, user.Username);
+        await serversocket.BroadcastMessage("throw-dice-start", payload, user.Username);
 
     }
 
