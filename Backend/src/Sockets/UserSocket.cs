@@ -29,7 +29,7 @@ public class UserSocket
         Username = username;
     }
 
-    public async Task SendEvent(string eventID, dynamic payload)
+    public async Task Emit(string eventID, dynamic payload)
     {
         var message = new SocketEventMessage
         {

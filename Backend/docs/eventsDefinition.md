@@ -2,6 +2,36 @@
 
 This intends to explain all events, their intended structure and the way they communicate as backend-
 
+
+## State Update Event
+
+Most important event.
+Broadcasts an update to all clients, attempting to synchronize game state.
+
+This is a fat event tree, and will get updated accordingly.
+
+```ts
+{
+  event: "state-update",
+  payload: {
+    currentTurn: int
+    players: Players
+  }
+}
+```
+
+## Request State Update Event
+
+Clients can emit this event to the server to request an state update.
+(The state will only be sent to the requesting client)
+
+```ts
+{
+  event: "request-state-update",
+  payload: "" // will be ignored, but must be string
+}
+```
+
 ## Dice throw Start event
 
 This notifies other users that the dice has been thrown.

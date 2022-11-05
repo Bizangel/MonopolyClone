@@ -37,7 +37,7 @@ public class ServerSocketHandler
         {
             if (exclude != null && socket.Key == exclude)
                 continue;
-            await socket.Value.SendEvent(eventID, payload);
+            await socket.Value.Emit(eventID, payload);
         }
     }
 

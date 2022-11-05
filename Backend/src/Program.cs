@@ -131,8 +131,14 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.MapControllers();
 
+// Initialize game singleton instance.
+MonopolyClone.Game.MonopolyGame.InitializeGameInstance();
+
+MonopolyClone.Game.MonopolyGame.Instance.InitializeGame(); // manually initialize agme
+
 // Register SocketEvents
 MonopolyClone.Events.SocketsEventHandler.RegisterAllEvents();
+
 
 app.Run();
 

@@ -1,5 +1,6 @@
 using MonopolyClone.Common;
 using MonopolyClone.Database.Models;
+using MonopolyClone.Game;
 using MonopolyClone.Sockets;
 using NLog;
 
@@ -23,7 +24,8 @@ public class MonopolyHandler
     /// <param name="serversocket">The server socket handler to broadcast to clients</param>
     public async Task BroadcastGameStateUpdate(ServerSocketHandler serversocket)
     {
-        // await serversocket.BroadcastMessage();
+        var state = MonopolyGame.Instance.GetStateUpdate();
+        await serversocket.BroadcastMessage("state-update", state);
     }
 
 }

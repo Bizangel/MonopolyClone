@@ -6,17 +6,28 @@ namespace MonopolyClone.Game;
 
 public class MonopolyGame
 {
+    public static void InitializeGameInstance() { _instance = new MonopolyGame(); }
     // Singleton
-    private static readonly MonopolyGame _instance = new MonopolyGame();
+    private static MonopolyGame? _instance = null;
     private MonopolyGame()
     {
         _logger = LogManager.GetCurrentClassLogger();
-        _instance.InitializeGame();
     }
 
     private readonly Logger _logger;
 
-    public static MonopolyGame Instance => _instance;
+    public static MonopolyGame Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                throw new InvalidOperationException("Attempted to access MonopolyGame Instance and wasn't initialized!");
+            }
+
+            return _instance;
+        }
+    }
 
     private GameState _gameState = new GameState();
     private TurnPhase _currentTurnPhase = TurnPhase.Standby;
@@ -43,6 +54,7 @@ public class MonopolyGame
     // and the order of the players (this matters!)
     public void InitializeGame()
     {
+        _logger.Debug("Initialized monopolygame!");
         var PlayerOrder = new string[] { "string", "bizangel" };
         var Characters = new Character[] { Character.Car, Character.Hat };
 
@@ -59,8 +71,10 @@ public class MonopolyGame
 
         _gameState.Players = new Player[nPlayers];
 
+
         for (int i = 0; i < nPlayers; i++)
         {
+            _gameState.Players[i] = new Player();
             _gameState.Players[i].Location = 0; // all start in position 0
             _gameState.Players[i].Money = BoardConstants.StartingPlayerMoney;
             _gameState.Players[i].character = Characters[i];
@@ -139,5 +153,15 @@ public class MonopolyGame
                 _logger.Warn("Tried to proceed to next phase after being in Purchaseby phase (final phase)");
                 break;
         }
+    }
+
+
+    /// <summary>
+    /// Builds and returns the current state update.
+    /// </summary>
+    /// <returns>The current state updated</returns>
+    public GameState GetStateUpdate()
+    {
+        return _gameState;
     }
 }

@@ -1,5 +1,6 @@
 
 using MonopolyClone.Sockets;
+using NLog;
 namespace MonopolyClone.Events;
 
 
@@ -8,9 +9,10 @@ public static class SampleTestEvent
     [SocketEvent("sampleEvent")]
     public static async Task Run(UserSocket user, ServerSocketHandler handler, string payload)
     {
-        Console.WriteLine($"Received Event from {user.Username} with payload {payload}");
+        var _logger = LogManager.GetCurrentClassLogger();
+        _logger.Debug($"Received Event from {user.Username} with payload {payload}");
 
-        await user.SendEvent("testEvent", "Hello World from Server!");
+        await user.Emit("testEvent", "Hello World from Server!");
     }
 
 }

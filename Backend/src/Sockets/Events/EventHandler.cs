@@ -28,7 +28,7 @@ public static class SocketsEventHandler
         _onConnectionLostEvents = new List<OnSocketConnectionLostEvent>();
     }
 
-    public static void HandleEvent(string EventID, UserSocket userSocket, string payload, ServerSocketHandler socketHandler)
+    public static async void HandleEvent(string EventID, UserSocket userSocket, string payload, ServerSocketHandler socketHandler)
     {
         if (!_registeredEvents.ContainsKey(EventID))
         {
@@ -51,7 +51,7 @@ public static class SocketsEventHandler
             if (payloadIn == null)
                 throw new ArgumentException("Invalid Signature.");
         }
-        catch
+        catch (Exception)
         {
             _logger.Debug("Received corrupted event payload: " + payload);
         }
@@ -61,7 +61,12 @@ public static class SocketsEventHandler
         {
             try
             {
-                _registeredEvents[EventID].Invoke(null, new object[] { userSocket, socketHandler, payloadIn });
+                var handlertask = (Task?)_registeredEvents[EventID].Invoke(null, new object[] { userSocket, socketHandler, payloadIn });
+                if (handlertask != null) // this is typecheck, but this should never happen.
+                {
+                    await handlertask;
+                }
+
             }
             catch (TargetInvocationException ex)
             {
@@ -73,6 +78,10 @@ public static class SocketsEventHandler
                 {
                     throw ex;
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Debug("other error happened here see: ", ex.ToString());
             }
         }
     }
@@ -109,7 +118,8 @@ public static class SocketsEventHandler
                     throw new ArgumentException("Payload type must be serializable!");
 
                 if (method.GetParameters()[0].ParameterType != typeof(UserSocket) ||
-                    method.GetParameters()[1].ParameterType != typeof(ServerSocketHandler)
+                    method.GetParameters()[1].ParameterType != typeof(ServerSocketHandler) ||
+                    method.ReturnType != typeof(Task)
                 )
                     throw new ArgumentException("Invalid Signature"); // invalid
 

@@ -22,16 +22,17 @@ export function Gamepage() {
   const cameraController = useRef<CameraRefObject>(null);
   const userSocket = useUserSocketInitialize();
 
+  useSocketEvent("state-update", (payload) => {
+    console.log("Update!: ", payload)
+  });
+
   useSocketEvent("testEvent", (payload) => {
     console.log("Received test event:!", payload)
   })
 
-  const testPing = async () => {
-    userSocket.emit("sampleEvent", "sample payload");
-  }
-
   useOnKeyDown("r", () => {
-    testPing();
+    console.log("emitting requesting state update")
+    userSocket.emit("request-state-update", "")
   })
 
   if (playerHandler.playerLocations.size === 0) {
