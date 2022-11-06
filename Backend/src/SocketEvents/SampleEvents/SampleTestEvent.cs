@@ -6,6 +6,7 @@ namespace MonopolyClone.Events;
 
 public static class SampleTestEvent
 {
+    [SocketEventLabel(EventLabel.Lobby)]
     [SocketEvent("sampleEvent")]
     public static async Task Run(UserSocket user, ServerSocketHandler handler, string payload)
     {
