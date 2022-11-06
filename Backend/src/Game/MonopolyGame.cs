@@ -1,11 +1,19 @@
 using MonopolyClone.Common;
 using MonopolyClone.Database.Models;
+using MonopolyClone.Events;
 using NLog;
 
 namespace MonopolyClone.Game;
 
 public class MonopolyGame
 {
+    /// <summary>
+    /// Defines which events will be listened to and which will be ignored.
+    /// </summary>
+    private EventLabel _listeningEventLabel = EventLabel.Default;
+
+    public EventLabel ListeningEventLabel => _listeningEventLabel;
+
     public static void InitializeGameInstance() { _instance = new MonopolyGame(); }
     // Singleton
     private static MonopolyGame? _instance = null;
@@ -47,6 +55,16 @@ public class MonopolyGame
         return null;
     }
 
+
+    /// <summary>
+    /// Sets the game into Lobby state.
+    /// Makes it listen for lobby connections, and basic game events will be ignored.
+    /// </summary>
+    public void SetLobbyState()
+    {
+        _listeningEventLabel = EventLabel.Lobby;
+    }
+
     // Someone needs to call this to start a game.
     // Ideally an admin or something.
     // To start a game, we need to know, who's gonna play (Names)
@@ -54,7 +72,8 @@ public class MonopolyGame
     // and the order of the players (this matters!)
     public void InitializeGame()
     {
-        _logger.Debug("Initialized monopolygame!");
+        _listeningEventLabel = EventLabel.Default; // Make it listen to default events instead of lobby ones.
+
         var PlayerOrder = new string[] { "string", "bizangel" };
         var Characters = new Character[] { Character.Car, Character.Hat };
 
@@ -81,6 +100,7 @@ public class MonopolyGame
             _gameState.players[i].name = PlayerOrder[i];
             _gameState.players[i].properties = new Property[0];
         }
+        _logger.Debug("Initialized MonopolyGame!");
     }
 
     /// <summary>

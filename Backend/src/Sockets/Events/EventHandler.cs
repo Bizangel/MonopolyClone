@@ -17,6 +17,7 @@ public delegate Task OnSocketConnectEvent(UserSocket user, ServerSocketHandler h
 public static class SocketsEventHandler
 {
     private static readonly Logger _logger;
+
     private static Dictionary<string, MethodInfo> _registeredEvents;
     private static Dictionary<string, Type> _registeredEventTypes;
     private static List<OnSocketConnectionLostEvent> _onConnectionLostEvents;

@@ -8,22 +8,21 @@ import { PlayerModelHandler } from './Player/PlayerModelHandler';
 import { UI } from './UI/UI';
 import { GameDiceHandler } from "./Board/GameDiceHandler";
 import { boardYLocation } from "common/boardConstants";
-import { useUserSocketInitialize } from "hooks/socketProvider";
+import { useUserSocket } from "hooks/socketProvider";
 import { useOnKeyDown } from "hooks/onKeydown";
 import { useSocketEvent } from "hooks/useSocketEvent";
 import { useGameState } from "gameState/gameState";
 import produce from "immer";
 
 
+/**
+ * Main gamepage containing all game display 3d stuff.
+ * Including monopoly board etc
+ */
 export function Gamepage() {
   const cameraController = useRef<CameraRefObject>(null);
-  const userSocket = useUserSocketInitialize();
+  const userSocket = useUserSocket();
   const updateNewState = useGameState(e => e.updateNewState)
-
-  useSocketEvent("state-update", (payload) => {
-    console.log("Update!: ", payload)
-    updateNewState(payload)
-  });
 
   useSocketEvent("testEvent", (payload) => {
     console.log("Received test event:!", payload)

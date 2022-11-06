@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react"
 
-import { LoginFormPage, RegisterFormPage } from "../login";
-import { Gamepage } from "./GamePage";
+import { LoginFormPage, RegisterFormPage } from "components/login";
 import { readCookie } from "common/common";
+import { LobbyHandler } from "./LobbyHandler";
 
 export enum DisplayState {
-  Game,
+  LobbyGame,
   Login,
   Register,
 }
@@ -15,11 +15,14 @@ function cookieCheckGoToGame(stateChanger: React.Dispatch<React.SetStateAction<D
   var userCookie = readCookie("Auth-User");
   if (userCookie !== null) {
     // no need for auth, create usersocket right away
-    stateChanger(DisplayState.Game);
+    stateChanger(DisplayState.LobbyGame);
   }
 }
 
-export function GameAuthHandler() {
+/**
+ * Handles the redirection to the main pages, such as lobby and others.
+ */
+export function GameEntryHandler() {
 
   const [currentDisplay, setDisplayState] = useState(DisplayState.Login);
 
@@ -42,8 +45,8 @@ export function GameAuthHandler() {
   /* Rendering */
   var display;
   switch (currentDisplay) {
-    case DisplayState.Game:
-      display = <Gamepage />
+    case DisplayState.LobbyGame:
+      display = <LobbyHandler />
       break;
 
     case DisplayState.Login:

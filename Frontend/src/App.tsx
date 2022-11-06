@@ -1,6 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { GameAuthHandler } from 'components/game/GameAuthHandler';
+import { GameEntryHandler } from 'components/GameEntryHandler';
 import { userSocketContext, useUserSocketProvider } from 'hooks/socketProvider';
 
 
@@ -12,7 +12,7 @@ function App() {
     <React.StrictMode>
       <div className="App">
         <userSocketContext.Provider value={socketval}>
-          <GameAuthHandler />
+          <GameEntryHandler />
         </userSocketContext.Provider>
       </div>
     </React.StrictMode>

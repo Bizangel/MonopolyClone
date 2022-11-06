@@ -9,9 +9,12 @@ public static class OnConnectStateUpdate
     [OnSocketConnect]
     public static async Task SampleConnectionEventRun(UserSocket user, ServerSocketHandler handler)
     {
-        // TODO verify that the game is actually started i.e not in lobby, before broadcasting update
+        // if for ex in lobby, don't give state update
+        if (MonopolyGame.Instance.ListeningEventLabel != EventLabel.Default)
+            return;
+
         var gameState = MonopolyGame.Instance.GetStateUpdate();
-        Console.WriteLine($"User connected: {user.Username} with latest state");
+        Console.WriteLine($"User connected: {user.Username}, updating him with latest state");
 
         await user.Emit("state-update", gameState);
     }
