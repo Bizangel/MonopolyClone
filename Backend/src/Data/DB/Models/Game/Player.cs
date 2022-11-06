@@ -1,3 +1,5 @@
+using MonopolyClone.Common;
+
 namespace MonopolyClone.Database.Models;
 
 /// <summary>

@@ -1,5 +1,5 @@
 
-namespace MonopolyClone.Database.Models;
+namespace MonopolyClone.Common;
 
 public enum Character
 {

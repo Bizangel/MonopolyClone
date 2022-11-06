@@ -14,9 +14,12 @@ public class MonopolyGame
 
     public EventLabel ListeningEventLabel => _listeningEventLabel;
 
-    public static void InitializeGameInstance() { _instance = new MonopolyGame(); }
-    // Singleton
-    private static MonopolyGame? _instance = null;
+    private static readonly MonopolyGame _instance = new MonopolyGame();
+    public static MonopolyGame Instance => _instance;
+
+    // public static void InitializeGameInstance() { _instance = new MonopolyGame(); }
+    // // Singleton
+    // private static MonopolyGame? _instance = null;
     private MonopolyGame()
     {
         _logger = LogManager.GetCurrentClassLogger();
@@ -24,18 +27,18 @@ public class MonopolyGame
 
     private readonly Logger _logger;
 
-    public static MonopolyGame Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                throw new InvalidOperationException("Attempted to access MonopolyGame Instance and wasn't initialized!");
-            }
+    // public static MonopolyGame Instance
+    // {
+    //     get
+    //     {
+    //         if (_instance == null)
+    //         {
+    //             throw new InvalidOperationException("Attempted to access MonopolyGame Instance and wasn't initialized!");
+    //         }
 
-            return _instance;
-        }
-    }
+    //         return _instance;
+    //     }
+    // }
 
     private GameState _gameState = new GameState();
     private TurnPhase _currentTurnPhase = TurnPhase.Standby;
