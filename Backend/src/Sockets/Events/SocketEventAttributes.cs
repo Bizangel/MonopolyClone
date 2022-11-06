@@ -20,3 +20,11 @@ public class OnSocketConnectionLostAttribute : Attribute
     {
     }
 }
+
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+public class OnSocketConnectAttribute : Attribute
+{
+    public OnSocketConnectAttribute()
+    {
+    }
+}

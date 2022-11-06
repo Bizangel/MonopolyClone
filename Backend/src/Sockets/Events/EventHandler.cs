@@ -12,6 +12,7 @@ class InvalidPayloadException : Exception
 };
 
 public delegate void OnSocketConnectionLostEvent(string dc_user);
+public delegate Task OnSocketConnectEvent(UserSocket user, ServerSocketHandler handler);
 
 public static class SocketsEventHandler
 {
@@ -19,12 +20,14 @@ public static class SocketsEventHandler
     private static Dictionary<string, MethodInfo> _registeredEvents;
     private static Dictionary<string, Type> _registeredEventTypes;
     private static List<OnSocketConnectionLostEvent> _onConnectionLostEvents;
+    private static List<OnSocketConnectEvent> _onConnectionEvents;
 
     static SocketsEventHandler()
     {
         _logger = LogManager.GetCurrentClassLogger();
         _registeredEvents = new Dictionary<string, MethodInfo>();
         _registeredEventTypes = new Dictionary<string, Type>();
+        _onConnectionEvents = new List<OnSocketConnectEvent>();
         _onConnectionLostEvents = new List<OnSocketConnectionLostEvent>();
     }
 
@@ -146,12 +149,23 @@ public static class SocketsEventHandler
 
         }
 
+        // Register on connect events
+        RegisterOnConnectEvents();
         // Register on connection lost events!
         RegisterOnConnectionLostEvents();
+
 
         _logger.Info("---- Registered all SocketEvents! ----");
     }
 
+
+    public static async Task NotifyNewConnection(UserSocket new_user, ServerSocketHandler handler)
+    {
+        foreach (var eventHandler in _onConnectionEvents)
+        {
+            await eventHandler.Invoke(new_user, handler);
+        }
+    }
 
     public static void NotifyOnConnectionLost(string dc_user)
     {
@@ -194,6 +208,41 @@ public static class SocketsEventHandler
             }
 
 
+        }
+    }
+
+
+    private static void RegisterOnConnectEvents()
+    {
+        var methods = Assembly.GetExecutingAssembly().GetTypes()
+                      .SelectMany(t => t.GetMethods())
+                      .Where(m => m.IsDefined(typeof(OnSocketConnectAttribute), false))
+                      .ToArray();
+
+        foreach (var method in methods)
+        {
+            if (!method.IsStatic)
+            {
+                _logger.Warn("Registered onSocketConnect event method: " + method.Name + " must be used on static method! Omitting.");
+                continue;
+            }
+
+            try
+            {
+                OnSocketConnectEvent newEvent = ((OnSocketConnectEvent)
+                    Delegate.CreateDelegate(typeof(OnSocketConnectEvent), method));
+
+
+                _onConnectionEvents.Add(newEvent);
+                _logger.Info("Registered OnSocketConnectEvent: " + method.Name);
+
+            }
+            catch (ArgumentException)
+            {
+                _logger.Warn("Registered OnSocketConnectEvent method : " + method.Name +
+                " does not match OnSocketConnectEvent signature. Omitting");
+                continue;
+            }
         }
     }
 }

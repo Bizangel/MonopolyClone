@@ -97,6 +97,8 @@ public class WebSocketController : ControllerBase
                 _socketHandler.RegisterSocket(userSocket);
             }
 
+            // notify new connection
+            await SocketsEventHandler.NotifyNewConnection(userSocket, _socketHandler);
 
             await HandleSocketRequest(userSocket); // Then handle events information, etc
         }
