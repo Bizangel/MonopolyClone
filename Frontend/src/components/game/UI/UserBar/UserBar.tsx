@@ -4,13 +4,14 @@ import moneyimg from "assets/moneysprite_small.png"
 import { characterToSprite } from "common/characterSprites";
 import { PlayerCharacter } from "common/characterModelConstants";
 import { MiniPropertyDisplay } from "./MiniPropertyDisplay";
+import { useGameState } from "gameState/gameState";
 
 export type UserBarProps = {
   username: string,
   character: PlayerCharacter
   money: string,
   ownedProperties: number[],
-  isPlayerTurn?: true,
+  isPlayerTurn?: boolean,
 };
 
 export function UserBar(props: UserBarProps) {
@@ -56,9 +57,20 @@ export function UserBar(props: UserBarProps) {
 }
 
 export function MultipleUserBars() {
+
+  const players = useGameState(e => e.players);
+  const currentTurn = useGameState(e => e.currentTurn);
+
   return (
     <ListGroup>
-      <UserBar username="bizangel" money="100"
+      {
+        players.map((player, i) =>
+          <UserBar username={player.name} money={player.money.toString()}
+            isPlayerTurn={i === currentTurn}
+            character={player.character} ownedProperties={[]} key={player.name} />
+        )
+      }
+      {/* <UserBar username="bizangel" money="100"
         character={PlayerCharacter.Car} ownedProperties={[19, 21, 22, 23, 24, 25, 26]} />
       <UserBar username="AAAAAAAAAAAAA 😋😋😋😋 😋😋😋" money="1500"
         character={PlayerCharacter.Hat} ownedProperties={[15, 16, 17, 18]} />
@@ -69,7 +81,7 @@ export function MultipleUserBars() {
       <UserBar username="jugberius" money="800" character={PlayerCharacter.Wheelcart}
         ownedProperties={[0, 1, 21]} />
       <UserBar username="elgranteton" money="400" character={PlayerCharacter.Thimble}
-        ownedProperties={[2, 7, 8, 9, 10, 13, 20, 27]} />
+        ownedProperties={[2, 7, 8, 9, 10, 13, 20, 27]} /> */}
     </ListGroup>
   )
 }

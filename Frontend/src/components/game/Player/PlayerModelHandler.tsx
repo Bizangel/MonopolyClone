@@ -3,44 +3,47 @@ import { Vector3 } from "three"
 import * as bc from 'common/boardConstants'
 import { getInwardDirection, tileToWorldLocation } from "utils/boardHelpers"
 import { CharacterModel } from "./CharacterModel"
-import { PlayerCharacter } from "common/characterModelConstants"
+import { useGameState } from "gameState/gameState"
 
-type PlayerLocationHandlerProps = {
-  locations: Map<PlayerCharacter, number>,
-}
+// type PlayerLocationHandlerProps = {
+//   locations: Map<PlayerCharacter, number>,
+// }
+
+
 
 // Only manages logic of multiple characters meshes and locations (not actual playability, just display)
-export function PlayerModelHandler(props: PlayerLocationHandlerProps) {
+export function PlayerModelHandler() {
+  const players = useGameState(e => e.players)
   var models: JSX.Element[] = []
 
   var locationStackedPlayers = new Map<number, number>();
   var locations_taken = new Map<number, number>();
 
   // Count how many players are in the same square
-  props.locations.forEach((location, character) => {
-    var count = locationStackedPlayers.get(location);
-    locations_taken.set(location, 0);
+  players.forEach((player) => {
+    var count = locationStackedPlayers.get(player.location);
+    locations_taken.set(player.location, 0);
     if (count === undefined)
-      locationStackedPlayers.set(location, 1);
+      locationStackedPlayers.set(player.location, 1);
     else
-      locationStackedPlayers.set(location, count + 1)
+      locationStackedPlayers.set(player.location, count + 1)
   })
 
-  props.locations.forEach((location, character) => {
+  players.forEach((player) => {
     var onStopLocation: Vector3 | undefined = undefined;
-    var stackedPlayers = locationStackedPlayers.get(location);
+    var stackedPlayers = locationStackedPlayers.get(player.location);
     if (stackedPlayers !== undefined && stackedPlayers > 1) {
-      var resolvedPosPlayers = locations_taken.get(location);
+      var resolvedPosPlayers = locations_taken.get(player.location);
 
       if (resolvedPosPlayers === undefined)
         throw new Error("Locations_taken not properly initialized!");
 
-      var loc = tileToWorldLocation(location);
+      var loc = tileToWorldLocation(player.location);
       var topmidpoint = new Vector3()
       topmidpoint.addVectors(loc.topleft, loc.topright);
       topmidpoint.divideScalar(2);
 
-      var sepDir = getInwardDirection(location);
+      var sepDir = getInwardDirection(player.location);
       sepDir.multiplyScalar(-1);
 
       topmidpoint.add(sepDir.clone().multiplyScalar(bc.housebarHeight)); // offset by housebar
@@ -49,11 +52,11 @@ export function PlayerModelHandler(props: PlayerLocationHandlerProps) {
 
       onStopLocation = topmidpoint;
 
-      locations_taken.set(location, resolvedPosPlayers + 1)
+      locations_taken.set(player.location, resolvedPosPlayers + 1)
     }
 
     models.push(
-      <CharacterModel currentTile={location} baseRotation={[Math.PI / 2, 0, 0]} yoffset={0.12} character={character} key={character}
+      <CharacterModel currentTile={player.location} baseRotation={[Math.PI / 2, 0, 0]} yoffset={0.12} character={player.character} key={player.character}
         onStopLocation={onStopLocation} />
     )
   })

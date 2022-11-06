@@ -1,10 +1,24 @@
+import { PlayerCharacter } from 'common/characterModelConstants'
 import create from 'zustand'
 
 type GameState = {
-  players: number,
+  currentTurn: 0,
+  players: Player[],
+
+  updateNewState: (newState: GameState) => void,
+}
+
+type Player = {
+  name: string,
+  location: number,
+  money: number,
+  character: PlayerCharacter,
 }
 
 export const useGameState = create<GameState>()((set) => ({
-  players: 10,
+  players: [],
+  currentTurn: 0,
 
+
+  updateNewState: (newState: GameState) => { set(newState); }
 }))

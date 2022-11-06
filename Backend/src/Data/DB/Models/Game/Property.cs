@@ -1,6 +1,6 @@
 
 public class Property
 {
-    public string Name { get; set; } = "";
-    public string DisplaySprite { get; set; } = "";
+    public string name { get; set; } = "";
+    public string displaySprite { get; set; } = "";
 }

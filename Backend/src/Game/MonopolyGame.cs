@@ -39,9 +39,9 @@ public class MonopolyGame
     /// <returns>The requested Player or Null if it is not found</returns>
     private Player? FindPlayer(string playername)
     {
-        foreach (var player in _gameState.Players)
+        foreach (var player in _gameState.players)
         {
-            if (player.Name == playername)
+            if (player.name == playername)
                 return player;
         }
         return null;
@@ -66,20 +66,20 @@ public class MonopolyGame
         // TODO once everything is added validate, that everything is set to default
         // For example, gameboard unpurchased properties and similar should be resetted
         // Reset everything to ZERO.
-        _gameState.CurrentTurn = 0;
+        _gameState.currentTurn = 0;
         var nPlayers = Characters.Count();
 
-        _gameState.Players = new Player[nPlayers];
+        _gameState.players = new Player[nPlayers];
 
 
         for (int i = 0; i < nPlayers; i++)
         {
-            _gameState.Players[i] = new Player();
-            _gameState.Players[i].Location = 0; // all start in position 0
-            _gameState.Players[i].Money = BoardConstants.StartingPlayerMoney;
-            _gameState.Players[i].character = Characters[i];
-            _gameState.Players[i].Name = PlayerOrder[i];
-            _gameState.Players[i].Properties = new Property[0];
+            _gameState.players[i] = new Player();
+            _gameState.players[i].location = 0; // all start in position 0
+            _gameState.players[i].money = BoardConstants.StartingPlayerMoney;
+            _gameState.players[i].character = Characters[i];
+            _gameState.players[i].name = PlayerOrder[i];
+            _gameState.players[i].properties = new Property[0];
         }
     }
 
@@ -98,7 +98,7 @@ public class MonopolyGame
             _logger.Warn(String.Format("Attempted to set non-existent player position: {0}", playername));
             return;
         }
-        player.Location = playerPosition;
+        player.location = playerPosition;
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public class MonopolyGame
             _logger.Warn(String.Format("Attempted to move non-existent player: {0}", playername));
             return;
         }
-        player.Location += diceResult % BoardConstants.BoardSquares;
+        player.location += diceResult % BoardConstants.BoardSquares;
     }
 
     /// <summary>
@@ -126,9 +126,9 @@ public class MonopolyGame
     /// <returns>True, if it is that player turn. False otherwise</returns>
     public bool IsPlayerTurn(string playername)
     {
-        for (int i = 0; i < _gameState.Players.Count(); i++)
+        for (int i = 0; i < _gameState.players.Count(); i++)
         {
-            if (_gameState.Players[i].Name == playername && i == _gameState.CurrentTurn)
+            if (_gameState.players[i].name == playername && i == _gameState.currentTurn)
                 return true;
         }
         return false;

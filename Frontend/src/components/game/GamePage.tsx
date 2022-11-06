@@ -1,29 +1,28 @@
 import React from "react";
-import { useContext, useRef } from 'react';
+import { useRef } from 'react';
 import { Canvas, } from '@react-three/fiber'
 import { CameraController, CameraRefObject } from "components/game/Board/CameraController";
 import { Physics } from '@react-three/cannon'
 import { GameBoard, InvisiblePlane } from "./Board/Gameboard";
 import { PlayerModelHandler } from './Player/PlayerModelHandler';
-import { playerHandlerContext } from '../../gamehandlers/PlayerHandler';
-import { PlayerCharacter } from 'common/characterModelConstants';
-import { useRenderTrigger } from 'hooks';
 import { UI } from './UI/UI';
 import { GameDiceHandler } from "./Board/GameDiceHandler";
 import { boardYLocation } from "common/boardConstants";
 import { useUserSocketInitialize } from "hooks/socketProvider";
 import { useOnKeyDown } from "hooks/onKeydown";
 import { useSocketEvent } from "hooks/useSocketEvent";
+import { useGameState } from "gameState/gameState";
+import produce from "immer";
 
 
 export function Gamepage() {
-  const playerHandler = useContext(playerHandlerContext);
-  const triggerRender = useRenderTrigger();
   const cameraController = useRef<CameraRefObject>(null);
   const userSocket = useUserSocketInitialize();
+  const updateNewState = useGameState(e => e.updateNewState)
 
   useSocketEvent("state-update", (payload) => {
     console.log("Update!: ", payload)
+    updateNewState(payload)
   });
 
   useSocketEvent("testEvent", (payload) => {
@@ -35,26 +34,17 @@ export function Gamepage() {
     userSocket.emit("request-state-update", "")
   })
 
-  if (playerHandler.playerLocations.size === 0) {
-    playerHandler.registerPlayer([
-      {
-        username: "carplayer",
-        character: PlayerCharacter.Car,
-      },
-      {
-        username: "shipplayer",
-        character: PlayerCharacter.Ship,
-      },
-    ]);
-  }
-
+  useOnKeyDown("z", () => {
+    const oldState = useGameState.getState();
+    updateNewState(produce(oldState, (draft) => {
+      draft.players.forEach((player) => {
+        player.location += 1;
+      })
+    }))
+  })
 
   const onTileClick = (tileIndex: number) => {
-    playerHandler.updatePlayersLocations([
-      { character: PlayerCharacter.Car, location: tileIndex },
-      { character: PlayerCharacter.Ship, location: tileIndex },
-    ]);
-    triggerRender();
+    console.log("clicked tile:", tileIndex)
   }
 
   return (
@@ -69,7 +59,7 @@ export function Gamepage() {
 
 
         <Physics>
-          <PlayerModelHandler locations={playerHandler.playerLocations} />
+          <PlayerModelHandler />
 
           <GameBoard color="blue" onTileClicked={onTileClick} />
 

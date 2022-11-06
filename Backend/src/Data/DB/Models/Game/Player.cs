@@ -9,18 +9,18 @@ public class Player
     /// The display name of this player.
     /// Uniquely identifiable.
     /// </summary>
-    public string Name { get; set; } = "";
+    public string name { get; set; } = "";
 
     /// <summary>
     /// Current Location of player in board.
     /// Represented as an integer from 0 to 39
     /// </summary>
-    public int Location { get; set; }
+    public int location { get; set; }
 
     /// <summary>
     /// Current Money of the player.
     /// </summary>
-    public int Money { get; set; }
+    public int money { get; set; }
 
     /// <summary>
     /// Current Character of the player.
@@ -31,5 +31,5 @@ public class Player
     /// <summary>
     /// The properties owned by the player.
     /// </summary>
-    public Property[] Properties { get; set; } = new Property[0];
+    public Property[] properties { get; set; } = new Property[0];
 }
