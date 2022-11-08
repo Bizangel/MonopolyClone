@@ -51,7 +51,7 @@ class InvalidPayloadException : Exception
     public InvalidPayloadException(string name) : base(String.Format("Invalid payload: {0}", name)) { }
 };
 
-public delegate void OnSocketConnectionLostEvent(string dc_user);
+public delegate Task OnSocketConnectionLostEvent(string dc_user, ServerSocketHandler handler);
 public delegate Task OnSocketConnectEvent(UserSocket user, ServerSocketHandler handler);
 
 public static class SocketsEventHandler
@@ -107,6 +107,7 @@ public static class SocketsEventHandler
         }
         catch (Exception)
         {
+            // if this happens in prod, event is discarded.
             _logger.Debug("Received corrupted event payload: " + payload);
         }
 
@@ -133,16 +134,12 @@ public static class SocketsEventHandler
                     throw ex;
                 }
             }
-            catch (Exception ex)
-            {
-                _logger.Debug("other error happened here see: ", ex.ToString());
-            }
         }
     }
 
     public static void RegisterAllEvents()
     {
-        _logger.Info("------- Registering SocketEvents --------");
+        _logger.Debug("------- Registering SocketEvents --------");
         // initialize an empty dict for ALL enum labels.
         foreach (EventLabel label in Enum.GetValues(typeof(EventLabel)))
         {
@@ -202,7 +199,7 @@ public static class SocketsEventHandler
                     _registeredEventsIDs.Add(attr.EventID);
                     thisLabelHandler.Add(attr.EventID, method);
                     _registeredEventTypes.Add(attr.EventID, payloadType);
-                    _logger.Info("Registered SocketEvent: " + attr.EventID);
+                    _logger.Debug("Registered SocketEvent: " + attr.EventID);
                 }
             }
             catch (ArgumentException ex)
@@ -234,11 +231,11 @@ public static class SocketsEventHandler
         }
     }
 
-    public static void NotifyOnConnectionLost(string dc_user)
+    public static void NotifyOnConnectionLost(string dc_user, ServerSocketHandler handler)
     {
         foreach (var eventHandler in _onConnectionLostEvents)
         {
-            eventHandler.Invoke(dc_user);
+            eventHandler.Invoke(dc_user, handler);
         }
     }
 
@@ -264,7 +261,7 @@ public static class SocketsEventHandler
 
 
                 _onConnectionLostEvents.Add(newEvent);
-                _logger.Info("Registered OnSocketConnectionLostEvent: " + method.Name);
+                _logger.Debug("Registered OnSocketConnectionLostEvent: " + method.Name);
 
             }
             catch (ArgumentException)
@@ -301,7 +298,7 @@ public static class SocketsEventHandler
 
 
                 _onConnectionEvents.Add(newEvent);
-                _logger.Info("Registered OnSocketConnectEvent: " + method.Name);
+                _logger.Debug("Registered OnSocketConnectEvent: " + method.Name);
 
             }
             catch (ArgumentException)

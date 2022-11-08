@@ -143,7 +143,7 @@ public class WebSocketController : ControllerBase
             _logger.Info($"----------- User {socket.Username} closed connection!");
         else
             _logger.Info($"----------- Closed Authenticated Websocket Connection of user: {socket.Username} ---- ");
-        SocketsEventHandler.NotifyOnConnectionLost(socket.Username);
+        SocketsEventHandler.NotifyOnConnectionLost(socket.Username, _socketHandler);
         _socketHandler.UnregisterSocket(socket);
     }
 

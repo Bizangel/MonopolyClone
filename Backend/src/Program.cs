@@ -135,6 +135,9 @@ MonopolyClone.Game.MonopolyGame.Instance.SetLobbyState();
 // ListeningEventLabel
 // MonopolyClone.Game.MonopolyGame.Instance.InitializeGame(); // manually initialize agme
 
+var pass = MonopolyClone.Lobby.LobbyHandler.Instance.GetLobbyPass();
+logger.Info("Generated Lobby password is: " + pass);
+
 // Register SocketEvents
 MonopolyClone.Events.SocketsEventHandler.RegisterAllEvents();
 

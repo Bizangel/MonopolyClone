@@ -12,7 +12,6 @@ public class MonopolyHandler
     private MonopolyHandler()
     {
         _logger = LogManager.GetCurrentClassLogger();
-        _logger.Debug("class was initialized? lmao");
     }
 
     private readonly Logger _logger;

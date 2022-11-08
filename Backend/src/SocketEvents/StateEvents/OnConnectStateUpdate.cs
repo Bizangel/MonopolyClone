@@ -7,7 +7,7 @@ namespace MonopolyClone.Events;
 public static class OnConnectStateUpdate
 {
     [OnSocketConnect]
-    public static async Task SampleConnectionEventRun(UserSocket user, ServerSocketHandler handler)
+    public static async Task OnConnectStateUpdateRun(UserSocket user, ServerSocketHandler handler)
     {
         // if for ex in lobby, don't give state update
         if (MonopolyGame.Instance.ListeningEventLabel != EventLabel.Default)

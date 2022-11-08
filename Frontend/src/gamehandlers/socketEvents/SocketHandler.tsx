@@ -138,6 +138,7 @@ export class UserSocket {
           this.unauthorizedCallback() // call event, but no point in trying so leave.
           return;
       }
+      sleep(this.reconnectionDelay) // retry
     }
   }
 

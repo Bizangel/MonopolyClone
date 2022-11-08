@@ -178,7 +178,7 @@ export function GameDice(diceprops: gameDiceProps) {
       api.rotation.set(...diceprops.throwingState.standbyTransform.rotation)
     }
   }, [
-    api.position, api.rotation,
+    api,
     diceprops.throwingState.standbyTransform,
     diceprops.throwingState.isRolling])
   // Render
