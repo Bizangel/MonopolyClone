@@ -28,7 +28,6 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     Args = args
 });
 
-
 // Add Development CORS for localhost
 builder.Services.AddCors(options =>
 {
@@ -53,6 +52,7 @@ builder.Services.AddCors(options =>
 
 // add cookie-based authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+builder.Services.AddHostedService<LifetimeHandlerService>();
 
 
 
@@ -70,7 +70,6 @@ if (useSwaggerAPIEndpoint)
 
 // Add services to the container.
 builder.Services.AddControllers();
-
 
 
 var app = builder.Build();
