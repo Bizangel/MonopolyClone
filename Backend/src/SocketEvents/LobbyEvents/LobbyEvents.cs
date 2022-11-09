@@ -61,6 +61,18 @@ public static class LobbyEventHandler
         if (!success)
             return; // don't emit update
 
-        await user.Emit("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
+        await handler.BroadcastMessage("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
+    }
+
+    [SocketEvent("lobby-unlock")]
+    [SocketEventLabel(EventLabel.Lobby)]
+    public static async Task LobbyOnUserUnlock(UserSocket user, ServerSocketHandler handler, string payload)
+    {
+        var success = LobbyHandler.Instance.AttemptDeselect(user.Username);
+
+        if (!success)
+            return; // don't emit update
+
+        await handler.BroadcastMessage("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
     }
 }

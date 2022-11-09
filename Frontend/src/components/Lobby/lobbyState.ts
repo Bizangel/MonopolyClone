@@ -3,7 +3,7 @@ import create from 'zustand'
 
 type Player = {
   name: string,
-  character: PlayerCharacter | null,
+  chosenCharacter: PlayerCharacter | null,
 }
 
 export type LobbyState = {

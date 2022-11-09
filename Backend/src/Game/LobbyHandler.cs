@@ -41,7 +41,25 @@ public class LobbyHandler
                     e.chosenCharacter = chosenCharacter;
             });
         }
-        return false;
+        return true;
+    }
+
+    public bool AttemptDeselect(String playername)
+    {
+        var found = false;
+        lock (_synclock)
+        {
+            _currentState.players.ForEach(e =>
+            {
+                if (e.name == playername)
+                {
+                    e.chosenCharacter = null;
+                    found = true;
+                }
+
+            });
+        }
+        return found;
     }
 
     public void OnLobbyJoin(String playername)

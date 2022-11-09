@@ -19,10 +19,11 @@ function LobbyCharacterCard(props: {
   var isSelected = selectedCharacter === props.character;
 
   lobbyPlayers.forEach((e => {
-    if (e.character === props.character) {
+    if (e.chosenCharacter === props.character) {
       playerLock = e.name;
     }
   }))
+
   var isLocked = playerLock !== "";
   var color = isLocked ? "lightgreen" : undefined;
 
@@ -52,6 +53,7 @@ function LobbyCharacterCard(props: {
 
 function LobbyPlayerDisplay() {
   const lobbyPlayers = useLobbyState(e => e.players);
+
   return (
     <Card style={{ position: "fixed", top: "10vh", left: "5vw", width: "20vw", height: "70vh" }}>
       <Card.Header>
@@ -62,7 +64,7 @@ function LobbyPlayerDisplay() {
           <>
             {lobbyPlayers.map(e =>
               <ListGroupItem key={e.name} style={
-                { backgroundColor: e.character ? "lightgreen" : undefined }
+                { backgroundColor: e.chosenCharacter !== null ? "lightgreen" : undefined }
               }>
                 {e.name}
               </ListGroupItem>
@@ -75,21 +77,44 @@ function LobbyPlayerDisplay() {
 };
 
 function LobbyUI() {
-  const selectedUser = useTemporaryLocalLobby(e => e.selected);
+  const selectedCharacter = useTemporaryLocalLobby(e => e.selected);
+  const players = useLobbyState(e => e.players);
   const userSocket = useUserSocket();
 
-  const onLock = () => {
-    userSocket.emit("lobby-lock", selectedUser);
+  var unlockdisplay = players.find(
+    (e => e.name === userSocket.Username && e.chosenCharacter !== null)
+  );
+
+  var unlock = unlockdisplay && selectedCharacter === unlockdisplay.chosenCharacter;
+  var locktext = "Lock"
+  var lockvariant = "success"
+  if (unlock) {
+    locktext = "Unlock"
+    lockvariant = "danger"
   };
+
+  const onLock = () => {
+    userSocket.emit("lobby-lock", selectedCharacter);
+  };
+
+  const onUnlock = () => {
+    userSocket.emit("lobby-unlock", "")
+  }
+
 
   return (
     <>
       <LobbyPlayerDisplay />
 
-      <Button variant="success"
-        onClick={onLock}
+      <Button variant={lockvariant}
+        onClick={() => {
+          if (unlock)
+            onUnlock()
+          else
+            onLock()
+        }}
         style={{ position: "fixed", bottom: "25px", right: "25px" }}>
-        Lock!
+        {locktext}
       </Button>
 
       <Container style={{ position: "fixed", top: "10vh", right: "10vw", width: "25vw", height: "70vh" }}>
