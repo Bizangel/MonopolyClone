@@ -54,6 +54,11 @@ function LobbyCharacterCard(props: {
 function LobbyPlayerDisplay() {
   const lobbyPlayers = useLobbyState(e => e.players);
 
+  var footerMessage = "Game will start as soon as all players have locked";
+
+  if (lobbyPlayers.length < 2) {
+    footerMessage = "Need at least 2 players to start the game";
+  }
   return (
     <Card style={{ position: "fixed", top: "10vh", left: "5vw", width: "20vw", height: "70vh" }}>
       <Card.Header>
@@ -72,6 +77,7 @@ function LobbyPlayerDisplay() {
           </>
         </ListGroup>
       </Card.Body>
+      <Card.Footer>{footerMessage}</Card.Footer>
     </Card >
   )
 };

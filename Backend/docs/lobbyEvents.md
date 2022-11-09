@@ -34,6 +34,17 @@ If it is successful, it will be reflected in a lobby updated.
 }
 ```
 
+## Unlock Event
+
+In this event the player attempts to unlocks his current selection.
+
+```ts
+{
+  event: "lobby-unlock",
+  payload: string // will be ignored
+}
+```
+
 ## Lobby Update Event
 
 This updates all connected players the status of the lobby.

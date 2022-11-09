@@ -73,7 +73,7 @@ public class MonopolyGame
     // To start a game, we need to know, who's gonna play (Names)
     // and the characters of those players (car, thimble, etc)
     // and the order of the players (this matters!)
-    public void InitializeGame()
+    public void InitializeGame(MonopolyClone.Lobby.LobbyState state)
     {
         _listeningEventLabel = EventLabel.Default; // Make it listen to default events instead of lobby ones.
 

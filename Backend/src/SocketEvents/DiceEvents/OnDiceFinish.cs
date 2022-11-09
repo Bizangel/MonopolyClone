@@ -33,7 +33,7 @@ public static class OnDiceThrownEvent
         Console.WriteLine("Received throw dice finish event from: " + user.Username);
 
         // await handler
-        await serversocket.BroadcastMessage("throw-dice-finish", payload, user.Username);
+        await serversocket.Broadcast("throw-dice-finish", payload, user.Username);
 
         await MonopolyHandler.Instance.BroadcastGameStateUpdate(serversocket);
     }

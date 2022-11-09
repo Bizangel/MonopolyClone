@@ -31,7 +31,7 @@ public class ServerSocketHandler
         return _sockets.Keys.ToList();
     }
 
-    public async Task BroadcastMessage(string eventID, dynamic payload, string? exclude = null)
+    public async Task Broadcast(string eventID, dynamic payload, string? exclude = null)
     {
         foreach (var socket in _sockets)
         {

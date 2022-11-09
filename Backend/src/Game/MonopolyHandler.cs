@@ -25,7 +25,7 @@ public class MonopolyHandler
     public async Task BroadcastGameStateUpdate(ServerSocketHandler serversocket)
     {
         var state = MonopolyGame.Instance.GetStateUpdate();
-        await serversocket.BroadcastMessage("state-update", state);
+        await serversocket.Broadcast("state-update", state);
     }
 
 }

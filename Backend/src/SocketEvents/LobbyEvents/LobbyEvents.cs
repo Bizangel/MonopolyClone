@@ -28,7 +28,7 @@ public static class LobbyEventHandler
 
         LobbyHandler.Instance.OnLobbyJoin(user.Username);
 
-        await handler.BroadcastMessage("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
+        await handler.Broadcast("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
     }
 
     [OnSocketConnectionLost]
@@ -39,7 +39,7 @@ public static class LobbyEventHandler
 
         LobbyHandler.Instance.OnLobbyLeave(dc_user);
 
-        await handler.BroadcastMessage("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
+        await handler.Broadcast("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
     }
 
     [OnSocketConnect]
@@ -61,7 +61,16 @@ public static class LobbyEventHandler
         if (!success)
             return; // don't emit update
 
-        await handler.BroadcastMessage("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
+        var update = LobbyHandler.Instance.GetLobbyUpdate();
+        await handler.Broadcast("lobby-update", update);
+        // if all players are ready, start the game.
+        if (update.players.All(e => e.chosenCharacter != null))
+        {
+            MonopolyGame.Instance.InitializeGame(update); // initialize game
+            await handler.Broadcast("state-update", MonopolyGame.Instance.GetStateUpdate()); // notify of initialized game
+        }
+
+
     }
 
     [SocketEvent("lobby-unlock")]
@@ -73,6 +82,6 @@ public static class LobbyEventHandler
         if (!success)
             return; // don't emit update
 
-        await handler.BroadcastMessage("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
+        await handler.Broadcast("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
     }
 }

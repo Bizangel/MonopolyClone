@@ -31,7 +31,7 @@ public static class OnDiceFinishEvent
         Console.WriteLine("Received throw dice start event from: " + user.Username);
 
         // await handler
-        await serversocket.BroadcastMessage("throw-dice-start", payload, user.Username);
+        await serversocket.Broadcast("throw-dice-start", payload, user.Username);
 
     }
 
