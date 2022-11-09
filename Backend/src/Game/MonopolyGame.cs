@@ -125,7 +125,11 @@ public class MonopolyGame
             return;
         }
         player.location += diceResult % BoardConstants.BoardSquares;
+
+        // TODO REMOVE THIS
+        FinishNextTurn();
     }
+
 
     /// <summary>
     /// Determines whether it is that player turn or not.
@@ -162,6 +166,16 @@ public class MonopolyGame
                 _logger.Warn("Tried to proceed to next phase after being in Purchaseby phase (final phase)");
                 break;
         }
+    }
+
+
+    /// <summary>
+    /// Finishes the current turn, and goes on to the next person.
+    /// </summary>
+    public void FinishNextTurn()
+    {
+        _gameState.currentTurn += 1;
+        _gameState.currentTurn %= _gameState.players.Count();
     }
 
 

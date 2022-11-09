@@ -25,7 +25,7 @@ public static class OnDiceThrownEvent
     public static async Task Run(UserSocket user, ServerSocketHandler serversocket, DiceFinishEvent payload)
     {
         // not allowed to roll dice
-        if (!MonopolyGame.Instance.IsPlayerTurn(user.Username) || MonopolyGame.Instance.CurrentTurnPhase != TurnPhase.Rollby)
+        if (!MonopolyGame.Instance.IsPlayerTurn(user.Username) || MonopolyGame.Instance.CurrentTurnPhase != TurnPhase.Standby)
             return;
 
         if (payload.diceLanded.Length != 2 || payload.dicesStop.Length != 2)
