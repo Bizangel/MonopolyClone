@@ -1,3 +1,4 @@
+using MonopolyClone.Common;
 using MonopolyClone.Game;
 using MonopolyClone.Lobby;
 using MonopolyClone.Sockets;
@@ -48,6 +49,18 @@ public static class LobbyEventHandler
             return;
 
         Console.WriteLine($"User connected: {user.Username}, updating him with latest lobby state");
+        await user.Emit("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
+    }
+
+    [SocketEvent("lobby-lock")]
+    [SocketEventLabel(EventLabel.Lobby)]
+    public static async Task LobbyOnUserLock(UserSocket user, ServerSocketHandler handler, Character payload)
+    {
+        var success = LobbyHandler.Instance.AttemptSelect(user.Username, payload);
+
+        if (!success)
+            return; // don't emit update
+
         await user.Emit("lobby-update", LobbyHandler.Instance.GetLobbyUpdate());
     }
 }

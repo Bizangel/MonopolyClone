@@ -1,4 +1,4 @@
-import { characterMaterial, characterToPath, PlayerCharacter } from 'common/characterModelConstants';
+import { characterMaterial, characterScales, characterToPath, PlayerCharacter } from 'common/characterModelConstants';
 import React, { useRef } from 'react'
 import { useFrame, useLoader } from '@react-three/fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -24,10 +24,14 @@ export function LobbyCharacterModelPreview(props: LobbyCharacterModelPreviewProp
       ref.current.rotation.z += 0.005;
   })
 
+  var scale = characterScales.get(props.character)
+  if (scale === undefined)
+    throw new Error("Player Character Scale is undefined!");
+
   return (
     <mesh ref={ref}
-      scale={0.01}
-      position={[0, -0.1, 0]}
+      scale={scale * 6}
+      position={[-0.2, -1.5, 0.2]}
       rotation={[Math.PI / 2, 0, 0]}
       castShadow
       receiveShadow

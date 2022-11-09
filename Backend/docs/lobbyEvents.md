@@ -22,6 +22,17 @@ and it fails. Either because of game started or because invalid password.
 }
 ```
 
+## Lock Event
+
+In this event the player attempts to locks the player notifying the server.
+If it is successful, it will be reflected in a lobby updated.
+
+```ts
+{
+  event: "lobby-lock",
+  payload: Character // character index from 0-5 as enum-defined
+}
+```
 
 ## Lobby Update Event
 

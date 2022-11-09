@@ -27,8 +27,20 @@ public class LobbyHandler
     }
 
 
-    public bool AttemptSelect(String playername, Character ChosenCharacter)
+    public bool AttemptSelect(String playername, Character chosenCharacter)
     {
+        lock (_synclock)
+        {
+            // verify not overriding someone else's choice.
+            if (_currentState.players.Exists(e => e.chosenCharacter == chosenCharacter))
+                return false;
+
+            _currentState.players.ForEach(e =>
+            {
+                if (e.name == playername)
+                    e.chosenCharacter = chosenCharacter;
+            });
+        }
         return false;
     }
 
