@@ -108,11 +108,9 @@ export function GameDiceHandler() {
     diceCatches.setLocalDice(false);
     const recv = payload as { throwValues: DiceThrowValues[] }
     throwAllDices(recv.throwValues);
-    console.log("Start: ", payload)
   });
 
   useSocketEvent("throw-dice-finish", (payload) => {
-    console.log("Finish: ", payload)
     // payload.dicesStop.forEach((e: any) => { e.rotation.push("XYZ") })
     payload.dicesStop.forEach((transform: any, i: number) => {
       multiDispatcher({ action: { action: "fake-dice", standbyTransform: transform }, targetIndex: i })

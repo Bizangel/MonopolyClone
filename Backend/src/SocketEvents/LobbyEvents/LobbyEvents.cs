@@ -64,7 +64,7 @@ public static class LobbyEventHandler
         var update = LobbyHandler.Instance.GetLobbyUpdate();
         await handler.Broadcast("lobby-update", update);
         // if all players are ready, start the game.
-        if (update.players.All(e => e.chosenCharacter != null))
+        if (update.players.Count() >= 2 && update.players.All(e => e.chosenCharacter != null))
         {
             MonopolyGame.Instance.InitializeGame(update); // initialize game
             await handler.Broadcast("state-update", MonopolyGame.Instance.GetStateUpdate()); // notify of initialized game

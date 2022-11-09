@@ -3,6 +3,8 @@ using MonopolyClone.Database.Models;
 using MonopolyClone.Events;
 using NLog;
 
+
+
 namespace MonopolyClone.Game;
 
 public class MonopolyGame
@@ -17,9 +19,6 @@ public class MonopolyGame
     private static readonly MonopolyGame _instance = new MonopolyGame();
     public static MonopolyGame Instance => _instance;
 
-    // public static void InitializeGameInstance() { _instance = new MonopolyGame(); }
-    // // Singleton
-    // private static MonopolyGame? _instance = null;
     private MonopolyGame()
     {
         _logger = LogManager.GetCurrentClassLogger();
@@ -27,22 +26,10 @@ public class MonopolyGame
 
     private readonly Logger _logger;
 
-    // public static MonopolyGame Instance
-    // {
-    //     get
-    //     {
-    //         if (_instance == null)
-    //         {
-    //             throw new InvalidOperationException("Attempted to access MonopolyGame Instance and wasn't initialized!");
-    //         }
-
-    //         return _instance;
-    //     }
-    // }
-
     private GameState _gameState = new GameState();
     private TurnPhase _currentTurnPhase = TurnPhase.Standby;
 
+    public TurnPhase CurrentTurnPhase => _currentTurnPhase;
     /// <summary>
     /// Searches for the player with the specified name. Returns null if it doesn't exist.
     /// </summary>
@@ -63,7 +50,7 @@ public class MonopolyGame
     /// Sets the game into Lobby state.
     /// Makes it listen for lobby connections, and basic game events will be ignored.
     /// </summary>
-    public void SetLobbyState()
+    public void GoToLobby()
     {
         _listeningEventLabel = EventLabel.Lobby;
     }
@@ -75,32 +62,31 @@ public class MonopolyGame
     // and the order of the players (this matters!)
     public void InitializeGame(MonopolyClone.Lobby.LobbyState state)
     {
+        state.players.Shuffle(); // shuffle players
         _listeningEventLabel = EventLabel.Default; // Make it listen to default events instead of lobby ones.
-
-        var PlayerOrder = new string[] { "string", "bizangel" };
-        var Characters = new Character[] { Character.Car, Character.Hat };
-
-        // TODO VALIDATE INPUT
-        // NO DUPLICATE PLAYERS AS WELL AS NO DUPLICATE CHARACTERS.
-
         _currentTurnPhase = TurnPhase.Standby;
 
         // TODO once everything is added validate, that everything is set to default
         // For example, gameboard unpurchased properties and similar should be resetted
         // Reset everything to ZERO.
+
         _gameState.currentTurn = 0;
-        var nPlayers = Characters.Count();
+        var nPlayers = state.players.Count();
 
         _gameState.players = new Player[nPlayers];
 
-
         for (int i = 0; i < nPlayers; i++)
         {
+            var player = state.players[i];
+
+            if (player.chosenCharacter == null)
+                return;
+
             _gameState.players[i] = new Player();
             _gameState.players[i].location = 0; // all start in position 0
             _gameState.players[i].money = BoardConstants.StartingPlayerMoney;
-            _gameState.players[i].character = Characters[i];
-            _gameState.players[i].name = PlayerOrder[i];
+            _gameState.players[i].character = (Character)player.chosenCharacter;
+            _gameState.players[i].name = player.name;
             _gameState.players[i].properties = new Property[0];
         }
         _logger.Debug("Initialized MonopolyGame!");
@@ -186,5 +172,10 @@ public class MonopolyGame
     public GameState GetStateUpdate()
     {
         return _gameState;
+    }
+
+    public async Task BroadcastStateUpdate(MonopolyClone.Sockets.ServerSocketHandler handler)
+    {
+        await handler.Broadcast("state-update", _gameState);
     }
 }

@@ -1,5 +1,5 @@
+using MonopolyClone.Common;
 using MonopolyClone.Game;
-using MonopolyClone.Handler;
 using MonopolyClone.Sockets;
 
 namespace MonopolyClone.Events;
@@ -24,7 +24,8 @@ public static class OnDiceThrownEvent
     [SocketEvent("throw-dice-finish")]
     public static async Task Run(UserSocket user, ServerSocketHandler serversocket, DiceFinishEvent payload)
     {
-        if (!MonopolyGame.Instance.IsPlayerTurn(user.Username)) // not allowed to roll dice
+        // not allowed to roll dice
+        if (!MonopolyGame.Instance.IsPlayerTurn(user.Username) || MonopolyGame.Instance.CurrentTurnPhase != TurnPhase.Rollby)
             return;
 
         if (payload.diceLanded.Length != 2 || payload.dicesStop.Length != 2)
@@ -35,7 +36,10 @@ public static class OnDiceThrownEvent
         // await handler
         await serversocket.Broadcast("throw-dice-finish", payload, user.Username);
 
-        await MonopolyHandler.Instance.BroadcastGameStateUpdate(serversocket);
+        // perform move
+        MonopolyGame.Instance.MovePlayerPosition(user.Username, payload.diceLanded.Sum());
+
+        await MonopolyGame.Instance.BroadcastStateUpdate(serversocket);
     }
 
 }
