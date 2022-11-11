@@ -130,8 +130,6 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.MapControllers();
 
-MonopolyClone.Game.MonopolyGame.Instance.GoToLobby();
-
 var pass = MonopolyClone.Lobby.LobbyHandler.Instance.GetLobbyPass();
 logger.Info("Generated Lobby password is: " + pass);
 

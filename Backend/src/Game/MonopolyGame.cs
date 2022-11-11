@@ -188,6 +188,19 @@ public class MonopolyGame
         return _gameState;
     }
 
+    /// <summary>
+    /// Loads an existing game state.
+    /// </summary>
+    /// <param name="toLoad">The game state to load</param>
+    public void LoadSavedGame(GameState toLoad)
+    {
+        _gameState = toLoad;
+        if (_gameState.players.Length < 2)
+            throw new ArgumentException("Game state with invalid players given!");
+        _listeningEventLabel = EventLabel.Default;
+
+    }
+
     public async Task BroadcastStateUpdate(MonopolyClone.Sockets.ServerSocketHandler handler)
     {
         await handler.Broadcast("state-update", _gameState);

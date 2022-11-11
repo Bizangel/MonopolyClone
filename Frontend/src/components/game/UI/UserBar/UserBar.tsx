@@ -70,18 +70,6 @@ export function MultipleUserBars() {
             character={player.character} ownedProperties={[]} key={player.name} />
         )
       }
-      {/* <UserBar username="bizangel" money="100"
-        character={PlayerCharacter.Car} ownedProperties={[19, 21, 22, 23, 24, 25, 26]} />
-      <UserBar username="AAAAAAAAAAAAA 😋😋😋😋 😋😋😋" money="1500"
-        character={PlayerCharacter.Hat} ownedProperties={[15, 16, 17, 18]} />
-      <UserBar username="royalguti" money="1300" character={PlayerCharacter.Iron}
-        ownedProperties={[6, 11, 12, 14]} />
-      <UserBar username="Ironicfox" money="100" character={PlayerCharacter.Ship}
-        ownedProperties={[3, 4, 5]} isPlayerTurn={true} />
-      <UserBar username="jugberius" money="800" character={PlayerCharacter.Wheelcart}
-        ownedProperties={[0, 1, 21]} />
-      <UserBar username="elgranteton" money="400" character={PlayerCharacter.Thimble}
-        ownedProperties={[2, 7, 8, 9, 10, 13, 20, 27]} /> */}
     </ListGroup>
   )
 }

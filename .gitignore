@@ -3,7 +3,7 @@
 
 monopolyclone.db
 monopolyclone-log.db
-
+monopolystate.json
 
 ## code workspace
 *.code-workspace
