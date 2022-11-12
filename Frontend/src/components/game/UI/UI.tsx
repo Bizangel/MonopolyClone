@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useInternalEvent } from "hooks/internalEvent";
 import { Button, Row } from "react-bootstrap";
 import { DiceDisplay } from "./DiceDisplay";
@@ -9,10 +10,17 @@ import { useUserSocket } from "hooks/socketProvider";
 
 export function UI() {
   const userSocket = useUserSocket();
+
+  const UIState = useGameState(e => e.uiState);
   const currentTurn = useGameState(e => e.currentTurn);
   const currentPlayers = useGameState(e => e.players);
+  const [diceFocused, setDiceFocus] = useState(false);
   var isCurrentTurn = userSocket.Username === currentPlayers[currentTurn].name;
 
+  useEffect(() => {
+    if (isCurrentTurn)
+      setDiceFocus(true); // every time that dices change
+  }, [UIState.displayDices, isCurrentTurn])
   const throwDice = useInternalEvent("perform-internal-dice-throw");
 
   var colorDisplayText = isCurrentTurn ? "text-primary" : "text-secondary";
@@ -31,12 +39,32 @@ export function UI() {
         <MultipleUserBars />
       </div>
 
-      <div style={{ position: "absolute", right: "20px", top: "2vh", zIndex: 1, opacity: 0.7 }}>
+      <motion.div
+        onClick={() => { setDiceFocus(e => !e) }}
+        style={
+          { position: "absolute", zIndex: 1, opacity: 0.7 }
+        }
+        initial={{
+          top: "2vw",
+          right: "2vw",
+          scale: 1,
+          opacity: 0.8,
+        }}
+        animate={{
+          top: !diceFocused ? "2vw" : "45vh",
+          right: !diceFocused ? "2vw" : "45vw",
+          scale: !diceFocused ? 1 : 3,
+          opacity: !diceFocused ? 0.8 : 1,
+        }}
+        transition={{
+          type: "tween"
+        }}
+      >
         <Row>
-          <DiceDisplay number={5} />
-          <DiceDisplay number={2} />
+          <DiceDisplay number={UIState.displayDices[0]} />
+          <DiceDisplay number={UIState.displayDices[1]} />
         </Row>
-      </div>
+      </motion.div>
 
       <div style={{
         zIndex: 1,

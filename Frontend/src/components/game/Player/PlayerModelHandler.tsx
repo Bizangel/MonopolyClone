@@ -5,11 +5,6 @@ import { getInwardDirection, tileToWorldLocation } from "utils/boardHelpers"
 import { CharacterModel } from "./CharacterModel"
 import { useGameState } from "gameState/gameState"
 
-// type PlayerLocationHandlerProps = {
-//   locations: Map<PlayerCharacter, number>,
-// }
-
-
 
 // Only manages logic of multiple characters meshes and locations (not actual playability, just display)
 export function PlayerModelHandler() {

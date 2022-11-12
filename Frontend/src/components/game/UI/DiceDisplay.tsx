@@ -28,13 +28,13 @@ function DiceImg(props: { diceNumber: number }) {
     case 6:
       return <Dice6 style={style} />
     default:
-      throw new Error("Request to render invalid dice number!");
+      throw new Error(`Request to render invalid dice number ${props.diceNumber}!`);
   }
 }
 
 export function DiceDisplay(props: DiceDisplayProps) {
   return (
-    <div style={{ width: "10vw", height: "10vh", maxWidth: "80px", maxHeight: "80px" }}>
+    <div style={{ width: "5vw", height: "5vw" }}>
       <DiceImg diceNumber={props.number} />
     </div>
   )

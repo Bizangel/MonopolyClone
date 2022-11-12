@@ -37,7 +37,7 @@ public static class OnDiceThrownEvent
         await serversocket.Broadcast("throw-dice-finish", payload, user.Username);
 
         // perform move
-        MonopolyGame.Instance.MovePlayerPosition(user.Username, payload.diceLanded.Sum());
+        MonopolyGame.Instance.MovePlayerPosition(user.Username, payload.diceLanded);
 
         await MonopolyGame.Instance.BroadcastStateUpdate(serversocket);
     }

@@ -2,10 +2,10 @@
 import { useEffect } from "react"
 
 
-const StoredEventListeners = new Map<string, () => void>();
+const StoredEventListeners = new Map<string, (payload: any) => void>();
 
 
-export function useAwaitInternalEvent(eventID: string, callback: () => void) {
+export function useAwaitInternalEvent(eventID: string, callback: (payload: any) => void) {
   useEffect(
     () => {
       var hasprevid = StoredEventListeners.get(eventID);
@@ -22,10 +22,10 @@ export function useAwaitInternalEvent(eventID: string, callback: () => void) {
 }
 
 export function useInternalEvent(internalEventID: string) {
-  return () => {
+  return (payload: any = undefined) => {
     var callback = StoredEventListeners.get(internalEventID);
     if (callback)
-      callback();
+      callback(payload);
     else
       console.warn(`Emitted unawaited event: ${internalEventID}`);
   }

@@ -48,3 +48,5 @@ export const characterRotationOffset = new Map<number, number>([
 
 // Material for characters
 export const characterMaterial = new MeshStandardMaterial({ color: 0x959595, metalness: 0.3, roughness: 0.2 })
+// export const goldenCharacterMaterial = new MeshStandardMaterial({ color: 0xedda5f, metalness: 0.3, roughness: 0.37 })
+// export const blueCharacterMaterial = new MeshStandardMaterial({ color: 0x7162f5, metalness: 0.3, roughness: 0.3 })

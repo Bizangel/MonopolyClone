@@ -117,7 +117,7 @@ public class MonopolyGame
     /// </summary>
     /// <param name="playername">The name of the player to move</param>
     /// <param name="diceResult">The result of the dice, the amount of spaces to move the player</param>
-    public void MovePlayerPosition(string playername, int diceResult)
+    public void MovePlayerPosition(string playername, int[] diceResult)
     {
         var player = FindPlayer(playername);
         if (player == null)
@@ -125,12 +125,20 @@ public class MonopolyGame
             _logger.Warn(String.Format("Attempted to move non-existent player: {0}", playername));
             return;
         }
-        player.location += diceResult;
+        player.location += diceResult.Sum();
         player.location %= BoardConstants.BoardSquares;
 
+        // Update UI state.
+        _gameState.uiState.displayDices = diceResult;
         // TODO REMOVE THIS
-        FinishNextTurn();
+        // FinishNextTurn();
     }
+
+
+    // public void MoveIntoNextPhase(string playername, int[] diceResult)
+    // {
+
+    // };
 
 
     /// <summary>

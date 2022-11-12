@@ -14,4 +14,7 @@ public class GameState
     /// </summary>
     public Player[] players { get; set; } = new Player[0];
 
+
+    public UIState uiState { get; set; } = new UIState();
+
 }
