@@ -15,8 +15,18 @@ export function UI() {
 
   const throwDice = useInternalEvent("perform-internal-dice-throw");
 
+  var colorDisplayText = isCurrentTurn ? "text-primary" : "text-secondary";
+
   return (
     <>
+      <div style={{
+        position: "absolute", left: "0px", top: "0px", zIndex: 0.5,
+        width: "100vw", justifyItems: "center", textAlign: "center",
+        fontSize: "3vw"
+      }}
+        className={colorDisplayText}>
+      </div>
+
       <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1 }}>
         <MultipleUserBars />
       </div>
@@ -28,34 +38,28 @@ export function UI() {
         </Row>
       </div>
 
-
-      {/*  actual button */}
-
-
-      <AnimatePresence>
-        {
-          isCurrentTurn &&
-          <motion.div
-            // whileHover={{ scale: 1.2 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div style={{
-              position: "absolute", left: "45vw", bottom: "5vh", width: "10vw", height: "10vh", zIndex: 1,
-              alignItems: "center", textAlign: "center", display: "inline-block"
-            }}>
-              <motion.div
-                whileHover={{ scale: 1.2 }}
-              >
-                <Button onClick={() => { throwDice() }} variant="primary">
-                  Roll Dice!
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
-        }
-      </AnimatePresence>
+      <div style={{
+        zIndex: 1,
+        position: "absolute", left: "45vw", bottom: "5vh", width: "10vw", height: "10vh",
+        alignItems: "center", textAlign: "center", display: "inline-block"
+      }}>
+        <AnimatePresence>
+          {
+            isCurrentTurn &&
+            <motion.div
+              style={{ zIndex: 1 }}
+              whileHover={{ scale: 1.2 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <Button onClick={() => { throwDice() }} variant="primary" style={{ zIndex: 1 }}>
+                Roll Dice!
+              </Button>
+            </motion.div>
+          }
+        </AnimatePresence>
+      </div>
     </>
   )
 }

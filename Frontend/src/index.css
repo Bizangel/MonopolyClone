@@ -32,3 +32,14 @@ code {
   align-items: center;
   justify-content: center;
 }
+
+.ui-container {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+
+  /*  allow see through clicks */
+  /* pointer-events: none; */
+}

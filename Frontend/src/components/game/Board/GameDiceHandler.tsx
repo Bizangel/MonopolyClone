@@ -1,5 +1,4 @@
 import { MaxDiceOffsetPos, MaxDiceThrowVelocity, DiceThrowValues, dicePositions, Transform } from "common/diceConstants";
-import { useOnKeyDown } from "hooks/onKeydown";
 import { useReducer, useEffect } from "react";
 import { GameDice, DiceThrowState, diceReducer, DiceReducerAction } from "./GameDice";
 import create from 'zustand'
@@ -139,10 +138,6 @@ export function GameDiceHandler() {
 
   // Whenever something requests a change in dice,
   // it will be reflected here.
-  useOnKeyDown("f", () => {
-    performDiceLocally();
-  });
-
   useAwaitInternalEvent("perform-internal-dice-throw", () => {
     performDiceLocally();
   });

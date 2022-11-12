@@ -48,10 +48,8 @@ export function Gamepage() {
 
   return (
 
-    < div id="canvas-container" style={{ width: "100vw", height: "100vh" }}>
-
-      <UI />
-      <Canvas>
+    < div id="canvas-container" style={{ width: "100vw", height: "100vh", userSelect: "none" }} >
+      <Canvas style={{ zIndex: 0, position: "absolute" }}>
         <ambientLight intensity={0.4} color="white" />
         <directionalLight color="white" position={[30, 30, 0]} intensity={0.2} />
         <CameraController ref={cameraController} initialLookatLocation={[0, 0, 0]} initialPos={[0, 5, 5]} />
@@ -68,6 +66,8 @@ export function Gamepage() {
           <InvisiblePlane position={[0, boardYLocation, 0]} />
         </Physics>
       </Canvas>
+
+      <UI />
     </div>
   )
 }

@@ -1,5 +1,6 @@
+import React from "react";
 import { Card, Col, Container, ListGroup, Row } from "react-bootstrap";
-
+import { motion } from "framer-motion"
 import moneyimg from "assets/moneysprite_small.png"
 import { characterToSprite } from "common/characterSprites";
 import { PlayerCharacter } from "common/characterModelConstants";
@@ -14,15 +15,23 @@ export type UserBarProps = {
   isPlayerTurn?: boolean,
 };
 
+const MotionCard = motion(Card);
+
 export function UserBar(props: UserBarProps) {
   const color = props.isPlayerTurn ? "#f1d397" : undefined
-  const outwardTurnClass = props.isPlayerTurn ? "mx-3" : undefined
+  const outwardTurnClass = props.isPlayerTurn ? "20px" : "0px"
   return (
-    <Card style={{
-      opacity: 0.7, width: "300px", height: "7vh",
-      backgroundColor: color,
-    }} className={`opacity-100-hover ${outwardTurnClass}`}>
-      <Container className="mw-100 mh-100 m-0 p-0">
+    <MotionCard
+      whileHover={{ opacity: 1 }}
+      style={{ width: "300px", height: "7vh", opacity: 0.8 }}
+      transition={{
+      }}
+      animate={{
+        backgroundColor: color,
+        marginLeft: outwardTurnClass
+      }}
+    >
+      <Container className="mw-100 mh-100 m-0 p-0" >
         <Row className="w-100 h-100 m-0 p-0">
           {/* Image display */}
           <Col className="h-100 me-0 pe-0" xs="3">
@@ -52,7 +61,7 @@ export function UserBar(props: UserBarProps) {
           </Col>
         </Row>
       </Container>
-    </Card>
+    </MotionCard>
   )
 }
 
