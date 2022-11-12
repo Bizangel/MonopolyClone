@@ -108,6 +108,7 @@ public class MonopolyGame
             return;
         }
         player.location = playerPosition;
+        player.location %= BoardConstants.BoardSquares;
     }
 
     /// <summary>
@@ -124,7 +125,8 @@ public class MonopolyGame
             _logger.Warn(String.Format("Attempted to move non-existent player: {0}", playername));
             return;
         }
-        player.location += diceResult % BoardConstants.BoardSquares;
+        player.location += diceResult;
+        player.location %= BoardConstants.BoardSquares;
 
         // TODO REMOVE THIS
         FinishNextTurn();

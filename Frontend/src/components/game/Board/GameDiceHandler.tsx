@@ -6,6 +6,7 @@ import create from 'zustand'
 import { produce } from "immer"
 import { useUserSocket } from "hooks/socketProvider";
 import { useSocketEvent } from "hooks/useSocketEvent";
+import { useAwaitInternalEvent } from "hooks/internalEvent";
 
 // =======================
 // Throwing Dices Reducer
@@ -90,8 +91,6 @@ const useDiceCatch = create<DiceCatchedState>()((set) => ({
 }))
 
 
-// const mystaticthrowval = generateThrowValues();
-
 export function GameDiceHandler() {
   const n_dices = 2;
   const n_array = Array(n_dices).fill(undefined);
@@ -138,7 +137,13 @@ export function GameDiceHandler() {
     throwAllDices(throwVals);
   }
 
+  // Whenever something requests a change in dice,
+  // it will be reflected here.
   useOnKeyDown("f", () => {
+    performDiceLocally();
+  });
+
+  useAwaitInternalEvent("perform-internal-dice-throw", () => {
     performDiceLocally();
   });
 
