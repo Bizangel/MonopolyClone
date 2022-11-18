@@ -5,7 +5,7 @@ import create from 'zustand'
 import { produce } from "immer"
 import { useUserSocket } from "hooks/socketProvider";
 import { useSocketEvent } from "hooks/useSocketEvent";
-import { useAwaitInternalEvent } from "hooks/internalEvent";
+import { useAwaitInternalEvent, useInternalEvent } from "hooks/internalEvent";
 
 // =======================
 // Throwing Dices Reducer
@@ -95,6 +95,7 @@ export function GameDiceHandler() {
   const n_array = Array(n_dices).fill(undefined);
   const diceCatches = useDiceCatch();
   const userSocket = useUserSocket()
+  const setDiceFocus = useInternalEvent("dice-set-focus");
   const [diceStates, multiDispatcher] = useReducer(diceMultiReducer, n_array.map(e => diceInit))
 
   const onDiceLand = (diceIndexLand: number, diceLandNumber: number, transf: Transform) => {
@@ -159,8 +160,10 @@ export function GameDiceHandler() {
           dicesStop: transforms,
         }
       )
+
+      setDiceFocus(true);
     }
-  }, [diceCatches, userSocket])
+  }, [diceCatches, userSocket, setDiceFocus])
 
   const dices = n_array.map((e, i) =>
     <GameDice

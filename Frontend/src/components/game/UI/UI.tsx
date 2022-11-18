@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useInternalEvent } from "hooks/internalEvent";
 import { Button, Row } from "react-bootstrap";
 import { DiceDisplay } from "./DiceDisplay";
@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { MultipleUserBars } from "./UserBar/UserBar"
 import { useGameState } from "gameState/gameState";
 import { useUserSocket } from "hooks/socketProvider";
-
+import { useAwaitInternalEvent } from "hooks/internalEvent";
 
 export function UI() {
   const userSocket = useUserSocket();
@@ -17,11 +17,11 @@ export function UI() {
   const [diceFocused, setDiceFocus] = useState(false);
   var isCurrentTurn = userSocket.Username === currentPlayers[currentTurn].name;
 
-  useEffect(() => {
-    if (isCurrentTurn)
-      setDiceFocus(true); // every time that dices change
-  }, [UIState.displayDices, isCurrentTurn])
   const throwDice = useInternalEvent("perform-internal-dice-throw");
+
+  useAwaitInternalEvent("dice-set-focus", (focus: boolean) => {
+    setDiceFocus(focus);
+  })
 
   var colorDisplayText = isCurrentTurn ? "text-primary" : "text-secondary";
 

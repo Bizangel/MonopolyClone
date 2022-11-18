@@ -8,11 +8,7 @@ import { PlayerModelHandler } from './Player/PlayerModelHandler';
 import { UI } from './UI/UI';
 import { GameDiceHandler } from "./Board/GameDiceHandler";
 import { boardYLocation } from "common/boardConstants";
-import { useUserSocket } from "hooks/socketProvider";
-import { useOnKeyDown } from "hooks/onKeydown";
 import { useSocketEvent } from "hooks/useSocketEvent";
-import { useGameState } from "gameState/gameState";
-import produce from "immer";
 
 
 /**
@@ -21,25 +17,9 @@ import produce from "immer";
  */
 export function Gamepage() {
   const cameraController = useRef<CameraRefObject>(null);
-  const userSocket = useUserSocket();
-  const updateNewState = useGameState(e => e.updateNewState)
 
   useSocketEvent("testEvent", (payload) => {
     console.log("Received test event:!", payload)
-  })
-
-  useOnKeyDown("r", () => {
-    console.log("emitting requesting state update")
-    userSocket.emit("request-state-update", "")
-  })
-
-  useOnKeyDown("z", () => {
-    const oldState = useGameState.getState();
-    updateNewState(produce(oldState, (draft) => {
-      draft.players.forEach((player) => {
-        player.location += 1;
-      })
-    }))
   })
 
   const onTileClick = (tileIndex: number) => {
