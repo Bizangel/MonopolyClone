@@ -5,7 +5,7 @@ namespace MonopolyClone.Database.Models;
 public class GameState
 {
     /// <summary>
-    /// Nice
+    /// The index of the active turn player
     /// </summary>
     public int currentTurn { get; set; }
 
@@ -14,6 +14,7 @@ public class GameState
     /// </summary>
     public Player[] players { get; set; } = new Player[0];
 
+    public PropertyDeed[] unpurchasedProperties { get; set; } = new PropertyDeed[0];
 
     public UIState uiState { get; set; } = new UIState();
 

@@ -33,5 +33,5 @@ public class Player
     /// <summary>
     /// The properties owned by the player.
     /// </summary>
-    public Property[] properties { get; set; } = new Property[0];
+    public PropertyDeed[] properties { get; set; } = new PropertyDeed[0];
 }

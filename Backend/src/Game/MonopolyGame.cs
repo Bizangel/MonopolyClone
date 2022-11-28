@@ -13,15 +13,16 @@ public class MonopolyGame
     /// Defines which events will be listened to and which will be ignored.
     /// </summary>
     private EventLabel _listeningEventLabel = EventLabel.Default;
-
     public EventLabel ListeningEventLabel => _listeningEventLabel;
 
+    private GameBoard _board;
     private static readonly MonopolyGame _instance = new MonopolyGame();
     public static MonopolyGame Instance => _instance;
 
     private MonopolyGame()
     {
         _logger = LogManager.GetCurrentClassLogger();
+        _board = new GameBoard();
     }
 
     private readonly Logger _logger;
@@ -87,7 +88,7 @@ public class MonopolyGame
             _gameState.players[i].money = BoardConstants.StartingPlayerMoney;
             _gameState.players[i].character = (Character)player.chosenCharacter;
             _gameState.players[i].name = player.name;
-            _gameState.players[i].properties = new Property[0];
+            _gameState.players[i].properties = new PropertyDeed[0];
         }
         _logger.Debug("Initialized MonopolyGame!");
     }
@@ -130,16 +131,7 @@ public class MonopolyGame
 
         // Update UI state.
         _gameState.uiState.displayDices = diceResult;
-        // TODO REMOVE THIS
-        // FinishNextTurn();
     }
-
-
-    // public void MoveIntoNextPhase(string playername, int[] diceResult)
-    // {
-
-    // };
-
 
     /// <summary>
     /// Determines whether it is that player turn or not.
