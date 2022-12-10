@@ -1,0 +1,17 @@
+{
+  "tiles": [
+    {
+      "effectID": 5,
+      "deductAmount": 200
+    },
+    {
+      "effectID": 0,
+      "houseCost": [
+        0,
+        10,
+        20,
+        30
+      ]
+    }
+  ]
+}

@@ -31,6 +31,8 @@ public class MonopolyGame
     private TurnPhase _currentTurnPhase = TurnPhase.Standby;
 
     public TurnPhase CurrentTurnPhase => _currentTurnPhase;
+    public GameBoard GameBoard => _board;
+
     /// <summary>
     /// Searches for the player with the specified name. Returns null if it doesn't exist.
     /// </summary>

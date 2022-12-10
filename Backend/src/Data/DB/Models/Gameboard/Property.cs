@@ -12,5 +12,9 @@ public class Property
     /// <value></value>
     public int groupID { get; set; } = 0;
 
+    /// <summary>
+    /// This property define the effect of the property as in the amount of houses available.
+    /// </summary>
+    /// <value></value>
     public int housesEffect { get; set; } = 0;
 };
