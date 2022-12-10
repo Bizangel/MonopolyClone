@@ -7,14 +7,14 @@ public class GameState
     /// <summary>
     /// The index of the active turn player
     /// </summary>
-    required public int currentTurn { get; set; }
+    public int currentTurn { get; set; }
 
     /// <summary>
     /// The current players of the game.
     /// </summary>
-    required public List<Player> players { get; set; }
+    public List<Player> players { get; set; } = new List<Player>();
 
-    required public List<PropertyDeed> unpurchasedProperties { get; set; }
+    public List<PropertyDeed> unpurchasedProperties { get; set; } = new List<PropertyDeed>();
 
-    required public UIState uiState { get; set; }
+    public UIState uiState { get; set; } = new UIState();
 }

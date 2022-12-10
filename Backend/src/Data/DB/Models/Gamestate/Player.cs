@@ -11,27 +11,27 @@ public class Player
     /// The display name of this player.
     /// Uniquely identifiable.
     /// </summary>
-    required public string name { get; set; }
+    public string name { get; set; } = "";
 
     /// <summary>
     /// Current Location of player in board.
     /// Represented as an integer from 0 to 39
     /// </summary>
-    required public int location { get; set; }
+    public int location { get; set; }
 
     /// <summary>
     /// Current Money of the player.
     /// </summary>
-    required public int money { get; set; }
+    public int money { get; set; }
 
     /// <summary>
     /// Current Character of the player.
     /// This refers to Car, Thimble, and similar.
     /// </summary>
-    required public Character character { get; set; }
+    public Character character { get; set; }
 
     /// <summary>
     /// The properties owned by the player.
     /// </summary>
-    required public List<PropertyDeed> properties { get; set; }
+    public List<PropertyDeed> properties { get; set; } = new List<PropertyDeed>();
 }

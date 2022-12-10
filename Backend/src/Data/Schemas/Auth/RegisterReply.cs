@@ -2,7 +2,7 @@ namespace MonopolyClone.Auth;
 
 public class RegisterReply
 {
-    required public bool Success { get; set; }
+    public bool Success { get; set; }
 
-    required public string Message { get; set; }
+    public string Message { get; set; } = "";
 }
