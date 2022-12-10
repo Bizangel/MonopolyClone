@@ -33,7 +33,7 @@ public class MonopolyGame
         currentTurn = 0,
         players = new List<Player>(),
         unpurchasedProperties = new List<PropertyDeed>(),
-        uiState = new UIState() { displayDices = new int[] { 0, 0 } },
+        uiState = new UIState(),
     };
 
     private TurnPhase _currentTurnPhase = TurnPhase.Standby;

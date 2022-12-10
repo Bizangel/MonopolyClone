@@ -1,6 +1,6 @@
 using System.Buffers;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace MonopolyClone.Events;
 
@@ -29,9 +29,9 @@ public class SocketEventMessage
         try
         {
             string msg = Encoding.UTF8.GetString(membytes.Memory.Slice(0, byteCount).Span);
-            return JsonSerializer.Deserialize<SocketEventMessage>(msg);
+            return JsonConvert.DeserializeObject<SocketEventMessage>(msg);
         }
-        catch (Exception)
+        catch (JsonException)
         {
             return null;
         }
@@ -39,7 +39,7 @@ public class SocketEventMessage
 
     public static string Serialize(SocketEventMessage message)
     {
-        return JsonSerializer.Serialize(message);
+        return JsonConvert.SerializeObject(message);
     }
 
 }

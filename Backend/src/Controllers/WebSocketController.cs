@@ -1,12 +1,12 @@
 using System.Buffers;
 using System.Net.WebSockets;
-using System.Text.Json;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using MonopolyClone.Auth;
 using MonopolyClone.Auth.CryptTools;
 using MonopolyClone.Events;
 using MonopolyClone.Sockets;
+using Newtonsoft.Json;
 using NLog;
 
 namespace MonopolyClone.Controllers;
@@ -52,20 +52,21 @@ public class WebSocketController : ControllerBase
             CookieHolder? holder = null;
             try
             {
-                holder = JsonSerializer.Deserialize<CookieHolder>(_aesEncryptor.Decrypt(authCookie));
+                holder = JsonConvert.DeserializeObject<CookieHolder>(_aesEncryptor.Decrypt(authCookie));
             }
-            catch (Exception)
+            catch (JsonException)
             {
                 await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
                 return;
             }
+
 
             if (holder == null)
             {
                 await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
                 return;
             }
-
+            // holder.AuthenticatedUser = "nice";
             if (!VerifyCookieTime(holder))
             {
                 await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);

@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,7 @@ using MonopolyClone.Auth;
 using MonopolyClone.Auth.CryptTools;
 using MonopolyClone.Auth.Validator;
 using MonopolyClone.Database;
+using Newtonsoft.Json;
 using NLog;
 
 namespace MonopolyClone.Controllers;
@@ -109,7 +109,8 @@ public class AuthenticationController : ControllerBase
         string? cookiestring = null;
         try
         {
-            cookiestring = _aesEncryptor.Encrypt(JsonSerializer.Serialize(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
+
+            cookiestring = _aesEncryptor.Encrypt(JsonConvert.SerializeObject(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
         }
         catch (Exception e)
         {
