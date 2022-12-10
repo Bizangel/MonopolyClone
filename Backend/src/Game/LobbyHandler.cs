@@ -17,7 +17,7 @@ public class LobbyHandler
     private LobbyHandler()
     {
         _logger = LogManager.GetCurrentClassLogger();
-        _currentState = new LobbyState();
+        _currentState = new LobbyState() { players = new List<LobbyPlayer>() };
         _lobbyPass = SecretGenerator.GetUniqueSecret(20);
     }
 

@@ -5,14 +5,13 @@ namespace MonopolyClone.Lobby;
 [Serializable]
 public class LobbyPlayer
 {
-    public string name { get; set; } = "";
+    required public string name { get; set; }
 
-    public Character? chosenCharacter { get; set; }
+    required public Character? chosenCharacter { get; set; }
 }
 
 [Serializable]
 public class LobbyState
 {
-    public List<LobbyPlayer> players { get; set; } = new List<LobbyPlayer>();
-
+    required public List<LobbyPlayer> players { get; set; } = new List<LobbyPlayer>();
 }

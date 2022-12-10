@@ -10,11 +10,11 @@ public class Property
     /// Some groups ID may be reserved to specify different than usual traits. (Transport properties etc)
     /// </summary>
     /// <value></value>
-    public int groupID { get; set; } = 0;
+    required public int groupID { get; set; }
 
     /// <summary>
     /// This property define the effect of the property as in the amount of houses available.
     /// </summary>
     /// <value></value>
-    public int housesEffect { get; set; } = 0;
+    required public int housesEffect { get; set; }
 };

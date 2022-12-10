@@ -27,7 +27,15 @@ public class MonopolyGame
 
     private readonly Logger _logger;
 
-    private GameState _gameState = new GameState();
+    // defaults
+    private GameState _gameState = new GameState()
+    {
+        currentTurn = 0,
+        players = new List<Player>(),
+        unpurchasedProperties = new List<PropertyDeed>(),
+        uiState = new UIState() { displayDices = new int[] { 0, 0 } },
+    };
+
     private TurnPhase _currentTurnPhase = TurnPhase.Standby;
 
     public TurnPhase CurrentTurnPhase => _currentTurnPhase;
@@ -76,8 +84,6 @@ public class MonopolyGame
         _gameState.currentTurn = 0;
         var nPlayers = state.players.Count();
 
-        _gameState.players = new Player[nPlayers];
-
         for (int i = 0; i < nPlayers; i++)
         {
             var player = state.players[i];
@@ -85,12 +91,15 @@ public class MonopolyGame
             if (player.chosenCharacter == null)
                 return;
 
-            _gameState.players[i] = new Player();
-            _gameState.players[i].location = 0; // all start in position 0
-            _gameState.players[i].money = BoardConstants.StartingPlayerMoney;
-            _gameState.players[i].character = (Character)player.chosenCharacter;
-            _gameState.players[i].name = player.name;
-            _gameState.players[i].properties = new PropertyDeed[0];
+            var newplayer = new Player()
+            {
+                name = player.name,
+                money = BoardConstants.StartingPlayerMoney,
+                character = (Character)player.chosenCharacter,
+                properties = new List<PropertyDeed>(),
+                location = 0,
+            };
+            _gameState.players.Add(newplayer);
         }
         _logger.Debug("Initialized MonopolyGame!");
     }
@@ -199,7 +208,7 @@ public class MonopolyGame
     public void LoadSavedGame(GameState toLoad)
     {
         _gameState = toLoad;
-        if (_gameState.players.Length < 2)
+        if (_gameState.players.Count() < 2)
             throw new ArgumentException("Game state with invalid players given!");
         _listeningEventLabel = EventLabel.Default;
 

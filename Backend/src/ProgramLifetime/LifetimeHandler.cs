@@ -41,7 +41,7 @@ public class LifetimeHandlerService : IHostedService
             if (storedstate == null)
                 throw new ArgumentException("Invalid state!");
 
-            if (storedstate.players.Length == 0)
+            if (storedstate.players.Count() == 0)
                 MonopolyGame.Instance.GoToLobby();
             else
                 MonopolyGame.Instance.LoadSavedGame(storedstate);

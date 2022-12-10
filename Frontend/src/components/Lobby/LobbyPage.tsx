@@ -35,8 +35,8 @@ function LobbyCardDiv() {
 
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Lobby Password</Form.Label>
-            <Form.Control type="username" placeholder="Enter Username"
-              name="username"
+            <Form.Control type="code" placeholder="Enter Code"
+              name="code"
               value={userLobbyPass}
               onChange={
                 (event) => { setUserLobbyPass(event.target.value) }

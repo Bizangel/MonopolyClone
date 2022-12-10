@@ -3,6 +3,6 @@ namespace MonopolyClone.Auth;
 
 public class CookieHolder
 {
-    public string AuthenticatedUser { get; set; } = "";
-    public long ExpiryTimestamp { get; set; }
+    required public string AuthenticatedUser { get; set; }
+    required public long ExpiryTimestamp { get; set; }
 }

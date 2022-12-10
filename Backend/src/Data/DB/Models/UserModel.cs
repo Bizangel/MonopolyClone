@@ -3,6 +3,6 @@ namespace MonopolyClone.Database.Models;
 
 public class User
 {
-    public string? Username { get; set; }
-    public string? PasswordHash { get; set; }
+    required public string? Username { get; set; }
+    required public string? PasswordHash { get; set; }
 }
