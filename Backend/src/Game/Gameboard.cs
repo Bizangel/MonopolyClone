@@ -1,6 +1,6 @@
 
 using MonopolyClone.Database.Models;
-using Newtonsoft.Json;
+using MonopolyClone.Json;
 using NLog;
 namespace MonopolyClone.Game;
 
@@ -20,16 +20,16 @@ public class GameBoard
 
     public GameBoard()
     {
-        _logger = LogManager.GetCurrentClassLogger();
-        _tiles = new GameTile[0];
-        // read from tiles.json
-        var jsonstring = System.IO.File.ReadAllText("gamedata/tiles.json");
-        var storedstate = JsonConvert.DeserializeObject<GameboardTileCollection>(jsonstring);
+        // _logger = LogManager.GetCurrentClassLogger();
+        // _tiles = new GameTile[0];
+        // // read from tiles.json
+        // var jsonstring = System.IO.File.ReadAllText("gamedata/tiles.json");
+        // var storedstate = JsonSerializer.Deserialize<GameboardTileCollection>(jsonstring);
 
-        if (storedstate == null)
-            throw new ArgumentException("Could not parse json, stored state is None");
+        // if (storedstate == null)
+        //     throw new ArgumentException("Could not parse json, stored state is None");
 
-        _tileCollection = storedstate;
+        // _tileCollection = storedstate;
     }
 
     public GameboardTileCollection TileCollection => _tileCollection;

@@ -1,7 +1,7 @@
 using System.Reflection;
 using MonopolyClone.Game;
+using MonopolyClone.Json;
 using MonopolyClone.Sockets;
-using Newtonsoft.Json;
 using NLog;
 namespace MonopolyClone.Events;
 
@@ -100,7 +100,7 @@ public static class SocketsEventHandler
         object? payloadIn = null;
         try
         {
-            payloadIn = JsonConvert.DeserializeObject(payload, payloadType);
+            payloadIn = JsonSerializer.Deserialize(payload, payloadType);
 
             if (payloadIn == null)
                 throw new ArgumentException("Invalid Signature.");

@@ -6,7 +6,7 @@ using MonopolyClone.Auth;
 using MonopolyClone.Auth.CryptTools;
 using MonopolyClone.Auth.Validator;
 using MonopolyClone.Database;
-using Newtonsoft.Json;
+using MonopolyClone.Json;
 using NLog;
 
 namespace MonopolyClone.Controllers;
@@ -110,7 +110,7 @@ public class AuthenticationController : ControllerBase
         try
         {
 
-            cookiestring = _aesEncryptor.Encrypt(JsonConvert.SerializeObject(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
+            cookiestring = _aesEncryptor.Encrypt(JsonSerializer.Serialize(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
         }
         catch (Exception e)
         {

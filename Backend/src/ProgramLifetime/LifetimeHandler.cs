@@ -1,6 +1,6 @@
 using MonopolyClone.Database.Models;
 using MonopolyClone.Game;
-using Newtonsoft.Json;
+using MonopolyClone.Json;
 using NLog;
 
 public class LifetimeHandlerService : IHostedService
@@ -37,7 +37,7 @@ public class LifetimeHandlerService : IHostedService
         try
         {
             var state = System.IO.File.ReadAllText(MonopolyStatePath);
-            var storedstate = JsonConvert.DeserializeObject<GameState>(state);
+            var storedstate = JsonSerializer.Deserialize<GameState>(state);
             if (storedstate == null)
                 throw new ArgumentException("Invalid state!");
 
@@ -60,7 +60,7 @@ public class LifetimeHandlerService : IHostedService
 
     private void OnStopping()
     {
-        var jsonstate = JsonConvert.SerializeObject(MonopolyGame.Instance.GetStateUpdate());
+        var jsonstate = JsonSerializer.Serialize(MonopolyGame.Instance.GetStateUpdate());
         using (StreamWriter outputFile = new StreamWriter(MonopolyStatePath))
         {
             outputFile.WriteLine(jsonstate);

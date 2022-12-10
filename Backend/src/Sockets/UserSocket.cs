@@ -3,7 +3,7 @@ using System.Buffers;
 using System.Net.WebSockets;
 using System.Text;
 using MonopolyClone.Events;
-using Newtonsoft.Json;
+using MonopolyClone.Json;
 using NLog;
 
 namespace MonopolyClone.Sockets;
@@ -34,7 +34,7 @@ public class UserSocket
         var message = new SocketEventMessage
         {
             EventIdentifier = eventID,
-            Payload = JsonConvert.SerializeObject(payload),
+            Payload = JsonSerializer.Serialize(payload),
         };
 
         var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(SocketEventMessage.Serialize(message)));

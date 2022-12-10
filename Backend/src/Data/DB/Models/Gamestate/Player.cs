@@ -3,7 +3,8 @@ using MonopolyClone.Common;
 namespace MonopolyClone.Database.Models;
 
 /// <summary>
-/// The Player Local Model. Stores the player information.
+/// The Player Local Model.
+/// Stores information about the player. It is dynamic and directly part of the state.
 /// </summary>
 public class Player
 {

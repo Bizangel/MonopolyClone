@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using MonopolyClone.Auth;
 using MonopolyClone.Auth.CryptTools;
 using MonopolyClone.Events;
+// using Newtonsoft.Json;
+using MonopolyClone.Json;
 using MonopolyClone.Sockets;
-using Newtonsoft.Json;
 using NLog;
 
 namespace MonopolyClone.Controllers;
@@ -52,7 +53,7 @@ public class WebSocketController : ControllerBase
             CookieHolder? holder = null;
             try
             {
-                holder = JsonConvert.DeserializeObject<CookieHolder>(_aesEncryptor.Decrypt(authCookie));
+                holder = JsonSerializer.Deserialize<CookieHolder>(_aesEncryptor.Decrypt(authCookie));
             }
             catch (JsonException)
             {
