@@ -1,13 +1,11 @@
 
 namespace MonopolyClone.Common;
 
-public enum OnLandEffectID
+public enum TileEffectID
 {
-    PropertyPay, // ID 0
-    TransportPay, // ID 1
-    ServicesPay, // ID 2
-    CommunityChest, // ID 3
-    Chance, // ID 4
-    DeductAmount, // ID 5
-    GoToTile, // ID 6
+    Property, // ID 0
+    CommunityChest, // ID 1
+    Chance, // ID 2
+    DeductAmount, // ID 3
+    GoToTile, // ID 4
 };

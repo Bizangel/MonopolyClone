@@ -1,3 +1,0 @@
-
-namespace MonopolyClone.Game.TileEffects;
-

@@ -41,5 +41,15 @@ class PropertyEffect : TileEffect
       Player landedPlayer, List<Player> allPlayers, int currentTileIndex, List<GameTile> gameTiles)
     {
 
+        // TODO Implement Housing Upgrades (shouldn't be too difficult)
+
+        // TODO Implement Color Scaling
+
+        // TODO Implement proper actual scaling lol
+
+        // TODO check if property owner to not reomve money to same owner.
+
+        // Because this is being executed, we know the property IS owned efectively.
+        landedPlayer.money -= 100;
     }
 }

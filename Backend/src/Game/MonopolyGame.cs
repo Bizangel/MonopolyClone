@@ -37,7 +37,7 @@ public class MonopolyGame
     };
 
     private TurnPhase _currentTurnPhase = TurnPhase.Standby;
-
+    private EffectOutput? _turn_result = null;
     public TurnPhase CurrentTurnPhase => _currentTurnPhase;
     public GameBoard GameBoard => _board;
 
@@ -56,6 +56,24 @@ public class MonopolyGame
         return null;
     }
 
+    /// <summary>
+    /// Performs necessary game checks for several things.
+    /// Mainly to see players money going below negative and then ending the game properly.
+    ///
+    /// This function will be called multiple times to perform verifications.
+    /// Do make it relatively stateless and do not rely on the fact on how many times it will be executed,
+    /// as it can and WILL be executed multiple times in a same turn.
+    /// </summary>
+    private void PerformGameChecks()
+    {
+        foreach (var player in _gameState.players)
+        {
+            if (player.money <= 0)
+            {
+                throw new Exception("Game finished! (Handle this properly of course)");
+            }
+        }
+    }
 
     /// <summary>
     /// Sets the game into Lobby state.
@@ -76,6 +94,15 @@ public class MonopolyGame
         state.players.Shuffle(); // shuffle players
         _listeningEventLabel = EventLabel.Default; // Make it listen to default events instead of lobby ones.
         _currentTurnPhase = TurnPhase.Standby;
+        _gameState.unpurchasedProperties = new List<PropertyDeed>();
+        for (int i = 0; i < BoardConstants.NProperties; i++)
+        {
+            _gameState.unpurchasedProperties.Add(new PropertyDeed()
+            {
+                propertyID = i,
+                upgradeState = 0 // no houses etc
+            });
+        };
 
         // TODO once everything is added validate, that everything is set to default
         // For example, gameboard unpurchased properties and similar should be resetted
@@ -123,6 +150,8 @@ public class MonopolyGame
         player.location %= BoardConstants.BoardSquares;
     }
 
+
+
     /// <summary>
     /// Moves player position given a dice roll.
     /// This effectively manually moves the player in a normal game and applies necessary effects.
@@ -137,11 +166,41 @@ public class MonopolyGame
             _logger.Warn(String.Format("Attempted to move non-existent player: {0}", playername));
             return;
         }
-        player.location += diceResult.Sum();
-        player.location %= BoardConstants.BoardSquares;
 
         // Update UI state.
         _gameState.uiState.displayDices = diceResult;
+
+        // Process Roll
+        _turn_result = _board.HandlePlayerBoardEffects(player, diceResult, _gameState);
+        PerformGameChecks();
+        NextPhase();
+
+        // there's something to auction. Turn isn't done.
+        // Simply yield for now as the other game events will pick up the logic
+        if (_turn_result.Value.toAuction != null)
+        {
+            // FOR NOW JUST GIVE PROPERTY FOR FREE
+            var deed = _turn_result.Value.toAuction;
+            var success = _gameState.unpurchasedProperties.Remove(deed);
+
+            if (!success)
+            {
+                throw new ArgumentException("Tried to auction already purchased property!");
+            }
+
+            player.properties.Add(deed); // add it to the player
+
+            // This is WRONG as we're skipping doubles verification.
+            AttemptFinishTurn();
+            return;
+        }
+
+        // There's nothing to auction, either finish turn or not if doubles.
+
+
+
+        // Finish the turn
+        AttemptFinishTurn();
     }
 
     /// <summary>
@@ -176,17 +235,31 @@ public class MonopolyGame
                 _currentTurnPhase = TurnPhase.Purchaseby;
                 break;
             case TurnPhase.Purchaseby:
-                _logger.Warn("Tried to proceed to next phase after being in Purchaseby phase (final phase)");
+                _currentTurnPhase = TurnPhase.Auctionby;
+                break;
+            case TurnPhase.Auctionby:
+                _logger.Warn("Tried to proceed to next phase after being in Auctionby phase (final phase)");
                 break;
         }
     }
 
 
     /// <summary>
-    /// Finishes the current turn, and goes on to the next person.
+    /// Attempts to Finish turn the current turn, and goes on to the next person.
+    /// Performs doubles result verification and if double was landed, simply resets.
     /// </summary>
-    public void FinishNextTurn()
+    public void AttemptFinishTurn()
     {
+        if (_turn_result != null && _turn_result.Value.isDoubles) //Go to standby again
+        {
+            _currentTurnPhase = TurnPhase.Standby;
+            return; // effectively yield
+        }
+
+        // TODO add handling here for jail ()
+
+        _turn_result = null;
+        _currentTurnPhase = TurnPhase.Standby;
         _gameState.currentTurn += 1;
         _gameState.currentTurn %= _gameState.players.Count();
     }

@@ -9,16 +9,16 @@ namespace MonopolyClone.TileEffects;
 
 
 [JsonConverter(
-  typeof(SubJsonSerializer<OnLandEffectID>), // specify serializer discriminator
+  typeof(SubJsonSerializer<TileEffectID>), // specify serializer discriminator
   typeof(TileEffect),// specify base type
   "effectID", // name of discriminator property, must be present in base class
-  new OnLandEffectID[] { OnLandEffectID.PropertyPay, OnLandEffectID.DeductAmount }, // specify keys
+  new TileEffectID[] { TileEffectID.Property, TileEffectID.DeductAmount }, // specify keys
   new Type[] { typeof(PropertyEffect), typeof(DeductAmountEffect) } // specify keys mapping to json types
   )
 ]
 public abstract class TileEffect
 {
-    public OnLandEffectID effectID { get; init; }
+    public TileEffectID effectID { get; init; }
 
     /// <summary>
     /// Executes the implemented effect associated with the given game tile,

@@ -5,13 +5,13 @@ import moneyimg from "assets/moneysprite_small.png"
 import { characterToSprite } from "common/characterSprites";
 import { PlayerCharacter } from "common/characterModelConstants";
 import { MiniPropertyDisplay } from "./MiniPropertyDisplay";
-import { useGameState } from "gameState/gameState";
+import { PropertyDeed, useGameState } from "gameState/gameState";
 
 export type UserBarProps = {
   username: string,
   character: PlayerCharacter
   money: string,
-  ownedProperties: number[],
+  ownedProperties: PropertyDeed[],
   isPlayerTurn?: boolean,
 };
 
@@ -57,7 +57,7 @@ export function UserBar(props: UserBarProps) {
           </Col>
           {/* User property display */}
           <Col className="h-100 m-0 p-0" xs="5">
-            <MiniPropertyDisplay ownedProperties={props.ownedProperties} />
+            <MiniPropertyDisplay ownedProperties={props.ownedProperties.map(e => e.propertyID)} />
           </Col>
         </Row>
       </Container>
@@ -76,7 +76,7 @@ export function MultipleUserBars() {
         players.map((player, i) =>
           <UserBar username={player.name} money={player.money.toString()}
             isPlayerTurn={i === currentTurn}
-            character={player.character} ownedProperties={[]} key={player.name} />
+            character={player.character} ownedProperties={player.properties} key={player.name} />
         )
       }
     </ListGroup>

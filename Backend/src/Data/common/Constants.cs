@@ -16,4 +16,10 @@ public static class BoardConstants
     /// modulus operation like moving in the board
     /// </summary>
     public const int BoardSquares = 40;
+
+    /// <summary>
+    /// The amount of properties in the game.
+    /// Also defines all of the possible property ids.
+    /// </summary>
+    public const int NProperties = 28;
 }
