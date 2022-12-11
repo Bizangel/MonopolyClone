@@ -136,8 +136,5 @@ logger.Info("Generated Lobby password is: " + pass);
 // Register SocketEvents
 MonopolyClone.Events.SocketsEventHandler.RegisterAllEvents();
 
-
-MonopolyClone.Game.MonopolyGame.Instance.GameBoard.Debug();
-
 app.Run();
 

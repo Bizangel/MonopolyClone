@@ -10,6 +10,7 @@ static class MonopolySerializer
     static private readonly JsonSerializerSettings _settings = new JsonSerializerSettings()
     {
         MissingMemberHandling = MissingMemberHandling.Error,
+        NullValueHandling = NullValueHandling.Ignore,
     };
 
     public static string Serialize(object? value)

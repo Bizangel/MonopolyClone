@@ -14,5 +14,8 @@ public class GameTile
     /// </summary>
     public int tileID { get; init; }
 
-    public OnLandEffect? effect { get; init; }
+
+    public TileEffect? effect { get; init; }
+
+    // public TilePassSpecialEffect specialEffect { get; init; }
 }

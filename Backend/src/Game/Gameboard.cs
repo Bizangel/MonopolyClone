@@ -32,12 +32,6 @@ public class GameBoard
         _tileCollection = storedstate;
     }
 
-
-    public void Debug()
-    {
-        _logger.Debug("Here in debug" + _tileCollection.tiles[0].effect);
-    }
-
     public GameboardTileCollection TileCollection => _tileCollection;
 
 

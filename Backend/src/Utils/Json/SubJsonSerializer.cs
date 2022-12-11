@@ -31,8 +31,16 @@ public class SubJsonSerializer<DiscriminatorType> : JsonConverter where Discrimi
 
     public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
+        JObject? item = null;
+        try
+        {
+            item = JObject.Load(reader);
+        }
+        catch (JsonReaderException)
+        {
+            throw new JsonReaderException("this is my exception cool huh");
+        }
 
-        JObject item = JObject.Load(reader);
         object? specifier = item[_typeDiscriminator];
         if (specifier == null)
         {
