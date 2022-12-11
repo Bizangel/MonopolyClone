@@ -1,9 +1,356 @@
 {
   "tiles": [
-    // GO Tile
+    // ===============================================
+    // ================= ROW ONE ===================
+    // ===============================================
     {
+      // GO Tile -----
       "tileID": 0,
       "effect": null
+    },
+    {
+      // Brown 1 ----
+      "tileID": 1,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 0,
+        "colorGroup": 0 // brown
+      }
+    },
+    {
+      // Communal Ark ----
+      "tileID": 2,
+      "effect": null // TODO
+    },
+    {
+      // Brown 2
+      "tileID": 3,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 1,
+        "colorGroup": 0 // brown
+      }
+    },
+    {
+      // Special Deduct Money
+      "tileID": 4,
+      "effect": null // TODO
+    },
+    {
+      // Transport 1
+      "tileID": 5,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 22,
+        "colorGroup": 8 // transport
+      }
+    },
+    {
+      // Lightblue 1
+      "tileID": 6,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 2,
+        "colorGroup": 1 // Lightblue
+      }
+    },
+    {
+      // Chance
+      "tileID": 7,
+      "effect": null // TODO
+    },
+    {
+      // Lightblue 2
+      "tileID": 8,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 3,
+        "colorGroup": 1 // Lightblue
+      }
+    },
+    {
+      // Blue 3
+      "tileID": 9,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 4,
+        "colorGroup": 1 // Blue
+      }
+    },
+    // ===============================================
+    // ================= ROW TWO ===================
+    // ===============================================
+    {
+      // Jail / Jail Standby
+      "tileID": 10,
+      "effect": null // TODO
+    },
+    {
+      // Pink 1
+      "tileID": 11,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 5,
+        "colorGroup": 2 // Pink
+      }
+    },
+    {
+      // Service 1
+      "tileID": 12,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 26,
+        "colorGroup": 9 // Services
+      }
+    },
+    {
+      // Pink 2
+      "tileID": 13,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 6,
+        "colorGroup": 2 // Pink
+      }
+    },
+    {
+      // Pink 3
+      "tileID": 14,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 7,
+        "colorGroup": 2 // Pink
+      }
+    },
+    {
+      // Transport 2
+      "tileID": 15,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 23,
+        "colorGroup": 8 // Transport
+      }
+    },
+    {
+      // Orange 1
+      "tileID": 16,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 8,
+        "colorGroup": 3 // Orange
+      }
+    },
+    {
+      // Ark Chest
+      "tileID": 17,
+      "effect": null // TODO
+    },
+    {
+      // Orange 2
+      "tileID": 18,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 9,
+        "colorGroup": 3 // Orange
+      }
+    },
+    {
+      // Orange 3
+      "tileID": 19,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 10,
+        "colorGroup": 3 // Orange
+      }
+    },
+    // ===============================================
+    // ================= ROW THREE ===================
+    // ===============================================
+    {
+      // Quite literally Standby
+      "tileID": 20,
+      "effect": null // TODO (Or is it?)
+    },
+    {
+      // Red 1
+      "tileID": 21,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 11,
+        "colorGroup": 4 // Red
+      }
+    },
+    {
+      // Chance
+      "tileID": 22,
+      "effect": null // TODO
+    },
+    {
+      // Red 2
+      "tileID": 23,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 12,
+        "colorGroup": 4 // Red
+      }
+    },
+    {
+      // Red 3
+      "tileID": 24,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 13,
+        "colorGroup": 4 // Red
+      }
+    },
+    {
+      // Transport 3
+      "tileID": 25,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 24,
+        "colorGroup": 8 // Transport
+      }
+    },
+    {
+      // Yellow 1
+      "tileID": 26,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 14,
+        "colorGroup": 5 // Yellow
+      }
+    },
+    {
+      // Yellow 2
+      "tileID": 27,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 15,
+        "colorGroup": 5 // Yellow
+      }
+    },
+    {
+      // Service 2
+      "tileID": 28,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 27,
+        "colorGroup": 9 // Services
+      }
+    },
+    {
+      // Yellow 3
+      "tileID": 29,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 16,
+        "colorGroup": 5 // Yellow
+      }
+    },
+    // ===============================================
+    // ================= ROW FOUR ===================
+    // ===============================================
+    {
+      // Go To Jail Square
+      "tileID": 30,
+      "effect": null // TODO
+    },
+    {
+      // Green 1
+      "tileID": 31,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 17,
+        "colorGroup": 6 // Green
+      }
+    },
+    {
+      // Green 2
+      "tileID": 32,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 18,
+        "colorGroup": 6 // Green
+      }
+    },
+    {
+      // ARK CHEST
+      "tileID": 33,
+      "effect": null // TODO
+    },
+    {
+      // Green 3
+      "tileID": 34,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 19,
+        "colorGroup": 6 // Green
+      }
+    },
+    {
+      // Transport 4
+      "tileID": 35,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 25,
+        "colorGroup": 8 // Transport
+      }
+    },
+    {
+      // Chance
+      "tileID": 36,
+      "effect": null // TODO
+    },
+    {
+      // Blue 1
+      "tileID": 37,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 20,
+        "colorGroup": 7 // Blue
+      }
+    },
+    {
+      // Special Deduct Weird Square
+      "tileID": 38,
+      "effect": null // TODO
+    },
+    {
+      // Blue 2
+      "tileID": 39,
+      // === PROPERTY ===
+      "effect": {
+        "effectID": 0,
+        "propertyID": 21,
+        "colorGroup": 7 // Blue
+      }
     }
   ]
 }

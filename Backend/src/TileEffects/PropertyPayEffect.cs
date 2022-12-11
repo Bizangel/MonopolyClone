@@ -13,7 +13,7 @@ class PropertyEffect : TileEffect
     /// These are in sequential order, first as their color, (according to convention defined below)
     /// Ex:
     /// 0, 1 maps to first 2 brown properties.
-    /// 1, 2, 3 maps to the following lightblue properties (Despite there being a transport in between those two colors)
+    /// 2, 3, 4 maps to the following lightblue properties (Despite there being a transport in between those two colors)
     /// 22, 23, 24, 25 maps to transport properties
     /// 26, 27 maps to services
     /// </summary>
