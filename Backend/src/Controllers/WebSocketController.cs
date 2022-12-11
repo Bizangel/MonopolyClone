@@ -53,7 +53,7 @@ public class WebSocketController : ControllerBase
             CookieHolder? holder = null;
             try
             {
-                holder = JsonSerializer.Deserialize<CookieHolder>(_aesEncryptor.Decrypt(authCookie));
+                holder = MonopolySerializer.Deserialize<CookieHolder>(_aesEncryptor.Decrypt(authCookie));
             }
             catch (JsonException)
             {

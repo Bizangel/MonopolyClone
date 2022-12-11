@@ -110,7 +110,7 @@ public class AuthenticationController : ControllerBase
         try
         {
 
-            cookiestring = _aesEncryptor.Encrypt(JsonSerializer.Serialize(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
+            cookiestring = _aesEncryptor.Encrypt(MonopolySerializer.Serialize(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
         }
         catch (Exception e)
         {

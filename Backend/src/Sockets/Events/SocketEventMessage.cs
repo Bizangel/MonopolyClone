@@ -29,7 +29,7 @@ public class SocketEventMessage
         try
         {
             string msg = Encoding.UTF8.GetString(membytes.Memory.Slice(0, byteCount).Span);
-            return JsonSerializer.Deserialize<SocketEventMessage>(msg);
+            return MonopolySerializer.Deserialize<SocketEventMessage>(msg);
         }
         catch (JsonException)
         {
@@ -39,7 +39,7 @@ public class SocketEventMessage
 
     public static string Serialize(SocketEventMessage message)
     {
-        return JsonSerializer.Serialize(message);
+        return MonopolySerializer.Serialize(message);
     }
 
 }

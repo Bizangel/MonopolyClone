@@ -1,0 +1,11 @@
+{
+  "tiles": [
+    {
+      "tileID": 0,
+      "effect": {
+        "effectID": 5, // Deduct effect
+        "deductAmount": "300"
+      }
+    }
+  ]
+}

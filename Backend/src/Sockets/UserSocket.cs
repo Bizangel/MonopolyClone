@@ -34,7 +34,7 @@ public class UserSocket
         var message = new SocketEventMessage
         {
             EventIdentifier = eventID,
-            Payload = JsonSerializer.Serialize(payload),
+            Payload = MonopolySerializer.Serialize(payload),
         };
 
         var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(SocketEventMessage.Serialize(message)));

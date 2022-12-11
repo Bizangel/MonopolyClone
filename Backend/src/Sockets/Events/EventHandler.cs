@@ -100,7 +100,7 @@ public static class SocketsEventHandler
         object? payloadIn = null;
         try
         {
-            payloadIn = JsonSerializer.Deserialize(payload, payloadType);
+            payloadIn = MonopolySerializer.Deserialize(payload, payloadType);
 
             if (payloadIn == null)
                 throw new ArgumentException("Invalid Signature.");

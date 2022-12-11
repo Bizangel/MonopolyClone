@@ -1,7 +1,7 @@
 
 namespace MonopolyClone.Common;
 
-public enum OnLandEffect
+public enum OnLandEffectID
 {
     PropertyPay, // ID 0
     TransportPay, // ID 1

@@ -37,7 +37,7 @@ public class LifetimeHandlerService : IHostedService
         try
         {
             var state = System.IO.File.ReadAllText(MonopolyStatePath);
-            var storedstate = JsonSerializer.Deserialize<GameState>(state);
+            var storedstate = MonopolySerializer.Deserialize<GameState>(state);
             if (storedstate == null)
                 throw new ArgumentException("Invalid state!");
 
@@ -60,7 +60,7 @@ public class LifetimeHandlerService : IHostedService
 
     private void OnStopping()
     {
-        var jsonstate = JsonSerializer.Serialize(MonopolyGame.Instance.GetStateUpdate());
+        var jsonstate = MonopolySerializer.Serialize(MonopolyGame.Instance.GetStateUpdate());
         using (StreamWriter outputFile = new StreamWriter(MonopolyStatePath))
         {
             outputFile.WriteLine(jsonstate);

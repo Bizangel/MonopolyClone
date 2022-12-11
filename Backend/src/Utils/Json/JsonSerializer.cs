@@ -5,7 +5,7 @@ namespace MonopolyClone.Json;
 class JsonException : Newtonsoft.Json.JsonException { };
 
 
-static class JsonSerializer
+static class MonopolySerializer
 {
     static private readonly JsonSerializerSettings _settings = new JsonSerializerSettings()
     {
