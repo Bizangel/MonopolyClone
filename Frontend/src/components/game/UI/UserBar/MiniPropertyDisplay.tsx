@@ -1,7 +1,8 @@
+import { propertyIDToImgpath } from "common/cardImages";
 import { NProperties, colorsToHex, propertyToColor } from "common/propertyConstants";
 import React from "react";
 import { Col, Container, Row } from "react-bootstrap"
-import OverlayTrigger, { OverlayTriggerProps } from 'react-bootstrap/OverlayTrigger';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 
 
@@ -19,37 +20,22 @@ for (const propID of Array(NProperties).keys()) {
   colorToCount.set(color, count + 1);
 }
 
-// export type MiniPropertyDisplayProps = {
-//   ownedProperties: number[],
-// }
-
-function CardEntry(props: { color: string | undefined, key: string }) {
-  if (props.color)
-    return <div className="rounded-1" style={{ height: "25%", backgroundColor: props.color }} onClick={() => { console.log("clicked at all?") }}></div>
+function CardEntryWithHover(props: { propID: number, color: string | undefined, idkey: string }) {
+  if (props.color === undefined)
+    return <div className="rounded-1 invisible" style={{ height: "25%" }}></div>
 
   return (
-    <div className="rounded-1 invisible" style={{ height: "25%" }}></div>
-  )
-}
-
-function CardEntryWithHover(props: { color: string | undefined, idkey: string }) {
-  return (
-    // <OverlayTrigger
-    //   onEntered={() => console.log("callback displayed...?")}
-    //   trigger={["hover", "focus", "click"]}
-    //   placement={"bottom"}
-    //   overlay={
-    //     <Popover id={`popover-positioned-top`}>
-    //       <Popover.Header as="h3">{`Popover Top}`}</Popover.Header>
-    //       <Popover.Body>
-    //         <strong>Holy guacamole!</strong> Check this info.
-    //       </Popover.Body>
-    //     </Popover>
-    //   }
-    // >
-    //   <CardEntry key={props.idkey} color={props.color} />
-    // </OverlayTrigger>
-    <CardEntry key={props.idkey} color={props.color} />
+    <OverlayTrigger
+      trigger={["hover", "focus"]}
+      placement={"bottom"}
+      overlay={
+        <Popover id={`popover-positioned-top`}>
+          <img className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.propID)} alt="PaseoPoblado" />
+        </Popover>
+      }
+    >
+      <div className="rounded-1" style={{ height: "25%", backgroundColor: props.color }}></div>
+    </OverlayTrigger>
   )
 }
 
@@ -67,6 +53,7 @@ export function MiniPropertyDisplay(props: { ownedProperties: number[] }) {
       }
       curPropID++;
       return <CardEntryWithHover color={actualDisplaycolor}
+        propID={curPropID - 1}
         idkey={"tooltip-" + curPropID.toString()} key={`card-entry-${curPropID}`} />
     })
 
