@@ -1,6 +1,8 @@
 import { NProperties, colorsToHex, propertyToColor } from "common/propertyConstants";
+import React from "react";
 import { Col, Container, Row } from "react-bootstrap"
-
+import OverlayTrigger, { OverlayTriggerProps } from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 
 
 
@@ -17,30 +19,55 @@ for (const propID of Array(NProperties).keys()) {
   colorToCount.set(color, count + 1);
 }
 
-export type MiniPropertyDisplayProps = {
-  ownedProperties: number[],
+// export type MiniPropertyDisplayProps = {
+//   ownedProperties: number[],
+// }
+
+function CardEntry(props: { color: string | undefined, key: string }) {
+  if (props.color)
+    return <div className="rounded-1" style={{ height: "25%", backgroundColor: props.color }} onClick={() => { console.log("clicked at all?") }}></div>
+
+  return (
+    <div className="rounded-1 invisible" style={{ height: "25%" }}></div>
+  )
 }
 
-export function MiniPropertyDisplay(props: MiniPropertyDisplayProps) {
+function CardEntryWithHover(props: { color: string | undefined, idkey: string }) {
+  return (
+    // <OverlayTrigger
+    //   onEntered={() => console.log("callback displayed...?")}
+    //   trigger={["hover", "focus", "click"]}
+    //   placement={"bottom"}
+    //   overlay={
+    //     <Popover id={`popover-positioned-top`}>
+    //       <Popover.Header as="h3">{`Popover Top}`}</Popover.Header>
+    //       <Popover.Body>
+    //         <strong>Holy guacamole!</strong> Check this info.
+    //       </Popover.Body>
+    //     </Popover>
+    //   }
+    // >
+    //   <CardEntry key={props.idkey} color={props.color} />
+    // </OverlayTrigger>
+    <CardEntry key={props.idkey} color={props.color} />
+  )
+}
 
-  const cardEntry = (color: string | undefined, percent: number, key: string) => {
-    if (color)
-      return <div className="rounded-1" key={key} style={{ height: `${percent}%`, backgroundColor: color }}></div>
-    return <div className="rounded-1 invisible" key={key} style={{ height: `${percent}%` }}></div>
 
-  }
 
+export function MiniPropertyDisplay(props: { ownedProperties: number[] }) {
   const sections: React.ReactNode[] = [];
 
   var curPropID = 0;
   colorToCount.forEach((count, color) => {
     var entries = Array(count).fill(undefined).map(e => {
-      if (props.ownedProperties.includes(curPropID)) {
-        curPropID++;
-        return cardEntry(color, 25, curPropID.toString())
+      var actualDisplaycolor: string | undefined = color;
+      if (!props.ownedProperties.includes(curPropID)) {
+        actualDisplaycolor = undefined;
       }
       curPropID++;
-      return cardEntry(undefined, 25, curPropID.toString());
+      return <CardEntryWithHover color={actualDisplaycolor}
+        idkey={"tooltip-" + curPropID.toString()} key={`card-entry-${curPropID}`} />
     })
 
     sections.push(
@@ -51,10 +78,6 @@ export function MiniPropertyDisplay(props: MiniPropertyDisplayProps) {
       </Col>
     )
   })
-
-
-
-
 
   return (
     <Container className="w-100 h-100 m-0 p-0">

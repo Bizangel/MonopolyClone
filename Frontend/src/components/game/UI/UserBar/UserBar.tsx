@@ -6,6 +6,7 @@ import { characterToSprite } from "common/characterSprites";
 import { PlayerCharacter } from "common/characterModelConstants";
 import { MiniPropertyDisplay } from "./MiniPropertyDisplay";
 import { PropertyDeed, useGameState } from "gameState/gameState";
+import { AnimatedNumberFramerMotion } from "components/helpers/AnimatedNumberDiv";
 
 export type UserBarProps = {
   username: string,
@@ -46,7 +47,7 @@ export function UserBar(props: UserBarProps) {
             <Row className="h-70">
               <Col className="float-right m-0 p-0" align="right" xs="5"
                 style={{ whiteSpace: "nowrap" }}>
-                {props.money}
+                <AnimatedNumberFramerMotion value={parseInt(props.money)} />
               </Col>
               <Col className="p-0 m-0 align-items-center justify-content-center" xs="6">
                 <img className="rounded float-left img-fluid mw-100 mh-100"

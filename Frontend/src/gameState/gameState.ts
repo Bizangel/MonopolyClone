@@ -1,7 +1,7 @@
 import { PlayerCharacter } from 'common/characterModelConstants'
-import internal from 'stream'
 import create from 'zustand'
 import { initialUI, UIState } from './uiState'
+import { produce } from "immer"
 
 type GameState = {
   uiState: UIState
@@ -32,3 +32,21 @@ export const useGameState = create<GameState>()((set) => ({
 
   updateNewState: (newState: GameState) => { set(newState); }
 }))
+
+// Actually helpful debugging tool
+if (process.env.NODE_ENV === 'development') {
+  function modifyGameState(modification: (mods: GameState) => void) {
+    useGameState.setState((prev => {
+      const poststate = produce(prev, modification);
+      console.log(poststate);
+      return poststate;
+    }))
+
+
+  };
+  // @ts-ignore
+  window.modifyGameState = modifyGameState;
+}
+
+
+
