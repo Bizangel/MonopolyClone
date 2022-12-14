@@ -1,11 +1,13 @@
 
 using MonopolyClone.Database.Models;
+using Newtonsoft.Json;
 
 namespace MonopolyClone.TileEffects;
 
 
 class DeductAmountEffect : TileEffect
 {
+    [JsonRequired]
     public int deductAmount { get; init; }
 
     public override void ExecuteEffect(

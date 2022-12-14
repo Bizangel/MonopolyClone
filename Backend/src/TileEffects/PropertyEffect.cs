@@ -1,4 +1,5 @@
 using MonopolyClone.Database.Models;
+using Newtonsoft.Json;
 
 namespace MonopolyClone.TileEffects;
 
@@ -18,6 +19,7 @@ class PropertyEffect : TileEffect
     /// 26, 27 maps to services
     /// </summary>
     /// <value></value>
+    [JsonRequired]
     public int propertyID { get; init; }
 
     /// <summary>
@@ -35,7 +37,17 @@ class PropertyEffect : TileEffect
     /// 9 -> Gray (Services Properties)
     /// </summary>
     /// <value></value>
+    [JsonRequired]
     public int colorGroup { get; init; }
+
+    /// <summary>
+    /// The initial cost of the property
+    /// </summary>
+    [JsonRequired]
+    public int cost { get; init; }
+
+    [JsonRequired]
+    public int[] rentCost { get; init; } = new int[0];
 
     public override void ExecuteEffect(
       Player landedPlayer, List<Player> allPlayers, int currentTileIndex, List<GameTile> gameTiles)

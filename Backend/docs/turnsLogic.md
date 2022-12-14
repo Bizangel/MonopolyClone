@@ -11,6 +11,9 @@ After the "switching" of each phase,
 an status update will be sent,
 so that players can all be synchronized.
 
+Do be noted, that each of these phases imply that a user input is required.
+Which is effectively why phases are defined. However some of these phases might be skipped.
+
 ## Phase 1 Standby
 
 This is the initial phase, in which the user has not moved.
@@ -19,25 +22,20 @@ In this phase we await the user input, for any trades or actions other than roll
 Once the dice is rolled and the finish dice roll event, reporting the result of the dice is generated.
 This phase is effectively over.
 
-## Phase 2 Rollby
+## Phase 2 Choiceby
 
-This could be considered a rather ephemeral phase,
-however this is the time in which the player character is effectively coming to it's
-target destination.
+This phase is the time in which the player is presented upon a choice to perform a turn, or not even a choice. Just awaiting input.
+(So as to generate player engagement).
 
-Consider that several things can happen here. Mainly for example,
-the user might get +200 added to his account when he passed through the go.
+For example. If a user lands on a property. While he makes a choice the game is considered to be in a state of choiceby.
 
-## Phase 3 Purchaseby
-(idk i thought it'd be cool for all phase names to be named ending on -by)
+Things like for example.
+If the user lands on another property, he still needs to click to perform the action of paying.
+While we await the action of paying, the game is in the state of choiceby.
 
-This is the final phase,
-and it's usually when the user is presented with a choice
-(which might or might not happen). For example a user might
-land on it's own property. Nothing happens.
+## Phase 3 Auctionby
 
-On the other hand the user might land on an unpurchased property,
-which means he has the option to buy or auction.
+This optional phase which not always happens, is when a property is effectively auctioned
+and players must place their bids so the property goes to the highest bidder.
 
-The auction could be considered part of this phase,
-or who knows I might change it into another phase later on.
+The property MUST be sold to someone.

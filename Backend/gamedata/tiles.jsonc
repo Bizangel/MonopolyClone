@@ -15,7 +15,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 0,
-        "colorGroup": 0 // brown
+        "colorGroup": 0, // brown
+        "cost": 60,
+        "rentCost": [
+          2,
+          10,
+          30,
+          90,
+          160,
+          250
+        ]
       }
     },
     {
@@ -30,7 +39,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 1,
-        "colorGroup": 0 // brown
+        "colorGroup": 0, // brown
+        "cost": 60,
+        "rentCost": [
+          4,
+          20,
+          60,
+          180,
+          320,
+          450
+        ]
       }
     },
     {
@@ -45,7 +63,14 @@
       "effect": {
         "effectID": 0,
         "propertyID": 22,
-        "colorGroup": 8 // transport
+        "colorGroup": 8, // transport
+        "cost": 200,
+        "rentCost": [
+          25,
+          50,
+          100,
+          200
+        ]
       }
     },
     {
@@ -55,7 +80,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 2,
-        "colorGroup": 1 // Lightblue
+        "colorGroup": 1, // Lightblue
+        "cost": 100,
+        "rentCost": [
+          6,
+          30,
+          90,
+          270,
+          400,
+          550
+        ]
       }
     },
     {
@@ -70,7 +104,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 3,
-        "colorGroup": 1 // Lightblue
+        "colorGroup": 1, // Lightblue
+        "cost": 100,
+        "rentCost": [
+          6,
+          30,
+          90,
+          270,
+          400,
+          550
+        ]
       }
     },
     {
@@ -80,7 +123,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 4,
-        "colorGroup": 1 // Blue
+        "colorGroup": 1, // Blue
+        "cost": 120,
+        "rentCost": [
+          8,
+          40,
+          100,
+          300,
+          450,
+          600
+        ]
       }
     },
     // ===============================================
@@ -98,7 +150,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 5,
-        "colorGroup": 2 // Pink
+        "colorGroup": 2, // Pink
+        "cost": 140,
+        "rentCost": [
+          10,
+          50,
+          150,
+          450,
+          625,
+          750
+        ]
       }
     },
     {
@@ -108,7 +169,12 @@
       "effect": {
         "effectID": 0,
         "propertyID": 26,
-        "colorGroup": 9 // Services
+        "colorGroup": 9, // Services
+        "cost": 150,
+        "rentCost": [ // effectively defines multipliers
+          4,
+          10
+        ]
       }
     },
     {
@@ -118,7 +184,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 6,
-        "colorGroup": 2 // Pink
+        "colorGroup": 2, // Pink
+        "cost": 140,
+        "rentCost": [
+          10,
+          50,
+          150,
+          450,
+          625,
+          750
+        ]
       }
     },
     {
@@ -128,7 +203,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 7,
-        "colorGroup": 2 // Pink
+        "colorGroup": 2, // Pink
+        "cost": 160,
+        "rentCost": [
+          12,
+          60,
+          180,
+          500,
+          700,
+          900
+        ]
       }
     },
     {
@@ -138,7 +222,14 @@
       "effect": {
         "effectID": 0,
         "propertyID": 23,
-        "colorGroup": 8 // Transport
+        "colorGroup": 8, // Transport
+        "cost": 200,
+        "rentCost": [
+          25,
+          50,
+          100,
+          200
+        ]
       }
     },
     {
@@ -148,7 +239,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 8,
-        "colorGroup": 3 // Orange
+        "colorGroup": 3, // Orange
+        "cost": 180,
+        "rentCost": [
+          14,
+          70,
+          200,
+          550,
+          750,
+          950
+        ]
       }
     },
     {
@@ -163,7 +263,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 9,
-        "colorGroup": 3 // Orange
+        "colorGroup": 3, // Orange
+        "cost": 180,
+        "rentCost": [
+          14,
+          70,
+          200,
+          550,
+          750,
+          950
+        ]
       }
     },
     {
@@ -173,7 +282,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 10,
-        "colorGroup": 3 // Orange
+        "colorGroup": 3, // Orange
+        "cost": 200,
+        "rentCost": [
+          16,
+          80,
+          220,
+          600,
+          800,
+          1000
+        ]
       }
     },
     // ===============================================
@@ -191,7 +309,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 11,
-        "colorGroup": 4 // Red
+        "colorGroup": 4, // Red
+        "cost": 220,
+        "rentCost": [
+          18,
+          90,
+          250,
+          700,
+          875,
+          1050
+        ]
       }
     },
     {
@@ -206,7 +333,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 12,
-        "colorGroup": 4 // Red
+        "colorGroup": 4, // Red
+        "cost": 220,
+        "rentCost": [
+          18,
+          90,
+          250,
+          700,
+          875,
+          1050
+        ]
       }
     },
     {
@@ -216,7 +352,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 13,
-        "colorGroup": 4 // Red
+        "colorGroup": 4, // Red
+        "cost": 240,
+        "rentCost": [
+          20,
+          100,
+          300,
+          750,
+          925,
+          1100
+        ]
       }
     },
     {
@@ -226,7 +371,14 @@
       "effect": {
         "effectID": 0,
         "propertyID": 24,
-        "colorGroup": 8 // Transport
+        "colorGroup": 8, // Transport
+        "cost": 200,
+        "rentCost": [
+          25,
+          50,
+          100,
+          200
+        ]
       }
     },
     {
@@ -236,7 +388,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 14,
-        "colorGroup": 5 // Yellow
+        "colorGroup": 5, // Yellow
+        "cost": 260,
+        "rentCost": [
+          22,
+          110,
+          330,
+          880,
+          975,
+          1150
+        ]
       }
     },
     {
@@ -246,7 +407,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 15,
-        "colorGroup": 5 // Yellow
+        "colorGroup": 5, // Yellow
+        "cost": 260,
+        "rentCost": [
+          22,
+          110,
+          330,
+          880,
+          975,
+          1150
+        ]
       }
     },
     {
@@ -256,7 +426,12 @@
       "effect": {
         "effectID": 0,
         "propertyID": 27,
-        "colorGroup": 9 // Services
+        "colorGroup": 9, // Services
+        "cost": 150,
+        "rentCost": [
+          4,
+          10
+        ]
       }
     },
     {
@@ -266,7 +441,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 16,
-        "colorGroup": 5 // Yellow
+        "colorGroup": 5, // Yellow
+        "cost": 280,
+        "rentCost": [
+          22,
+          120,
+          360,
+          850,
+          1025,
+          1200
+        ]
       }
     },
     // ===============================================
@@ -284,7 +468,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 17,
-        "colorGroup": 6 // Green
+        "colorGroup": 6, // Green
+        "cost": 300,
+        "rentCost": [
+          26,
+          130,
+          390,
+          900,
+          1100,
+          1275
+        ]
       }
     },
     {
@@ -294,7 +487,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 18,
-        "colorGroup": 6 // Green
+        "colorGroup": 6, // Green
+        "cost": 300,
+        "rentCost": [
+          26,
+          130,
+          390,
+          900,
+          1100,
+          1275
+        ]
       }
     },
     {
@@ -309,7 +511,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 19,
-        "colorGroup": 6 // Green
+        "colorGroup": 6, // Green
+        "cost": 320,
+        "rentCost": [
+          28,
+          150,
+          450,
+          1000,
+          1200,
+          1400
+        ]
       }
     },
     {
@@ -319,7 +530,14 @@
       "effect": {
         "effectID": 0,
         "propertyID": 25,
-        "colorGroup": 8 // Transport
+        "colorGroup": 8, // Transport
+        "cost": 200,
+        "rentCost": [
+          25,
+          50,
+          100,
+          200
+        ]
       }
     },
     {
@@ -334,7 +552,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 20,
-        "colorGroup": 7 // Blue
+        "colorGroup": 7, // Blue
+        "cost": 350,
+        "rentCost": [
+          35,
+          175,
+          500,
+          1100,
+          1300,
+          1500
+        ]
       }
     },
     {
@@ -349,7 +576,16 @@
       "effect": {
         "effectID": 0,
         "propertyID": 21,
-        "colorGroup": 7 // Blue
+        "colorGroup": 7, // Blue
+        "cost": 400,
+        "rentCost": [
+          50,
+          200,
+          600,
+          1400,
+          1700,
+          2000
+        ]
       }
     }
   ]

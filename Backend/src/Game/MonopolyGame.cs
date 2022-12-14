@@ -37,7 +37,7 @@ public class MonopolyGame
     };
 
     private TurnPhase _currentTurnPhase = TurnPhase.Standby;
-    private EffectOutput? _turn_result = null;
+    private RollResult? _roll_result = null;
     public TurnPhase CurrentTurnPhase => _currentTurnPhase;
     public GameBoard GameBoard => _board;
 
@@ -154,7 +154,9 @@ public class MonopolyGame
 
     /// <summary>
     /// Moves player position given a dice roll.
-    /// This effectively manually moves the player in a normal game and applies necessary effects.
+    /// This effectively manually moves the player in a normal game.
+    /// This will apply the necessary walkthrough effects.
+    /// However the actual effect to be applied on the turn, will be handled later.
     /// </summary>
     /// <param name="playername">The name of the player to move</param>
     /// <param name="diceResult">The result of the dice, the amount of spaces to move the player</param>
@@ -171,34 +173,119 @@ public class MonopolyGame
         _gameState.uiState.displayDices = diceResult;
 
         // Process Roll
-        _turn_result = _board.HandlePlayerBoardEffects(player, diceResult, _gameState);
+        _roll_result = _board.HandlePlayerDiceRoll(player, diceResult, _gameState);
         PerformGameChecks();
-        NextPhase();
 
-        // there's something to auction. Turn isn't done.
-        // Simply yield for now as the other game events will pick up the logic
-        if (_turn_result.Value.toAuction != null)
+        if (!_roll_result.Value.requiredInput) // no required input. just apply any necessary effect and finish turn
         {
-            // FOR NOW JUST GIVE PROPERTY FOR FREE
-            var deed = _turn_result.Value.toAuction;
-            var success = _gameState.unpurchasedProperties.Remove(deed);
+            if (_roll_result.Value.effectToApply != null)
+            {
+                _board.ApplyEffect(_roll_result.Value.effectToApply, player, _gameState);
+            }
+            AttemptFinishTurn();
+            return;
+        }
 
+        // there has to be at least either an effect or a possible auction.
+        if (_roll_result.Value.effectToApply == null && _roll_result.Value.possibleAuction == null)
+            throw new ArgumentException("Returned required input, despite to effect or property auction being present");
+
+        // There's some input to be acknowledged.
+        // there's something possibly to auction. Turn isn't done.
+        _currentTurnPhase = TurnPhase.Choiceby;
+        // Simply yield and await for further input
+    }
+
+
+    /// <summary>
+    /// Determines if there's a current property waiting to be decided by the player if to be purchased or auctioned.
+    /// This is intended to be called and verified before PlayerMakePropertyAuctionChoice below is called.
+    /// </summary>
+    /// <returns> True, if there's a property waiting to be bought/auctioned </returns>
+    public bool IsPropertyWaitingOnAuctionChoice()
+    {
+        return (_currentTurnPhase == TurnPhase.Choiceby)
+        && (_roll_result != null)
+        && (_roll_result.Value.possibleAuction != null);
+    }
+
+
+    /// <summary>
+    /// Makes the choice of the player of the current turn to effectively auction or purchase the property.
+    ///
+    /// This is intended to be called after verifying IsPropertyWaitingOnAuctionChoice,
+    /// as well as verifying the identity of the player.
+    /// </summary>
+    public void PlayerMakePropertyAuctionChoice(bool toAuction)
+    {
+        if (!toAuction)
+        {
+            if (_roll_result == null || _roll_result.Value.possibleAuction == null || _roll_result.Value.effectToApply == null)
+                throw new Exception("Trying to make auction choice, despite no roll result!");
+
+            // player made choice to simply buy property.
+            var deed = _roll_result.Value.possibleAuction;
+            var success = _gameState.unpurchasedProperties.Remove(deed);
             if (!success)
             {
                 throw new ArgumentException("Tried to auction already purchased property!");
             }
 
-            player.properties.Add(deed); // add it to the player
+            var player = _gameState.players[_gameState.currentTurn];
+            var property = (MonopolyClone.TileEffects.PropertyEffect)_roll_result.Value.effectToApply;
+            // Check for player money
+            if (player.money < property.cost)
+            {
+                _logger.Debug("Player attempted to buy property despite not having enough money!");
+                return; // cannot pay!
+            }
 
+            // Charge for property
+            player.money -= property.cost;
+
+            // Add title deed to properties
+            player.properties.Add(deed);
+
+            // just finish turn
             AttemptFinishTurn();
-            return;
         }
+        else
+        {   // property is auctioned!
+            _currentTurnPhase = TurnPhase.Auctionby; // move to auction await.
+        }
+    }
 
-        // There's nothing to auction, either finish turn or not if doubles.
+    /// <summary>
+    /// Determines if there's an effect waiting to be acknowledged.
+    /// This is intended to be called and verified before PlayerAcknowledgeEffect below is called.
+    /// </summary>
+    public bool IsEffectWaitingOnAcknowledge()
+    {
+        return (_currentTurnPhase == TurnPhase.Choiceby)
+        && (_roll_result != null)
+        && (_roll_result.Value.effectToApply != null);
+    }
 
-        // Finish the turn
+    /// <summary>
+    /// This effect is run so that the player acknowledges any on standby effects and the turn procedes.
+    ///
+    /// This is intended to be called externally,
+    /// once verified the authenticity of the player, as well as the turn phase to properly perform the call.
+    /// </summary>
+    public void PlayerAcknowledgeEffect()
+    {
+        if (_roll_result == null)
+            throw new ArgumentException("Attempted to acknowledge a player effect, without any turn result being available. i.e. Dice were not thrown previously");
+
+        if (_roll_result.Value.effectToApply == null)
+            throw new ArgumentException("Attempted to acknowledge effect, but effect is null!");
+
+        // actually apply the effect.
+        _board.ApplyEffect(_roll_result.Value.effectToApply, _gameState.players[_gameState.currentTurn], _gameState);
+        // finish the turn.
         AttemptFinishTurn();
     }
+
 
     /// <summary>
     /// Determines whether it is that player turn or not.
@@ -216,38 +303,13 @@ public class MonopolyGame
         return false;
     }
 
-
-    /// <summary>
-    /// Transitions the current turn phase into the next one.
-    /// </summary>
-    /// <param name="playerName"></param>
-    public void NextPhase()
-    {
-        switch (_currentTurnPhase)
-        {
-            case TurnPhase.Standby:
-                _currentTurnPhase = TurnPhase.Rollby;
-                break;
-            case TurnPhase.Rollby:
-                _currentTurnPhase = TurnPhase.Purchaseby;
-                break;
-            case TurnPhase.Purchaseby:
-                _currentTurnPhase = TurnPhase.Auctionby;
-                break;
-            case TurnPhase.Auctionby:
-                _logger.Warn("Tried to proceed to next phase after being in Auctionby phase (final phase)");
-                break;
-        }
-    }
-
-
     /// <summary>
     /// Attempts to Finish turn the current turn, and goes on to the next person.
     /// Performs doubles result verification and if double was landed, simply resets.
     /// </summary>
     public void AttemptFinishTurn()
     {
-        if (_turn_result != null && _turn_result.Value.isDoubles) //Go to standby again
+        if (_roll_result != null && _roll_result.Value.isDoubles) //Go to standby again
         {
             _currentTurnPhase = TurnPhase.Standby;
             return; // effectively yield
@@ -255,7 +317,7 @@ public class MonopolyGame
 
         // TODO add handling here for jail ()
 
-        _turn_result = null;
+        _roll_result = null;
         _currentTurnPhase = TurnPhase.Standby;
         _gameState.currentTurn += 1;
         _gameState.currentTurn %= _gameState.players.Count();

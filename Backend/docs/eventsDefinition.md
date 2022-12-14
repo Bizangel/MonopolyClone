@@ -70,3 +70,82 @@ This notifies the result of the original dice-thrower. Notifying the result obta
   }
 }
 ```
+
+## Player Effect Acknowledge
+
+This event is sent by the player acknowledgeging that the necessary contextual amount will be paid/gained.
+This event will be fired in multiple occasions:
+This event is only valid in case:
+1. There's no valid property to be possibly auctioned (in that case the event property choice must be used below)
+2. The current state of the game is choiceby
+3. Of course, it's the turn of the actual sender.
+
+-> Paying to differently owned property <-
+-> Paying to Tax or negative effect on landed square <-
+
+```ts
+{
+  event: "effect-acknowledge"
+  payload: "" // ignored
+}
+```
+
+## Player Property Choice
+
+This event is sent by the player to make a choice in regards to the current property to _possibly_ auction.
+This effectively makes the choice of the player to either buy or auction a property.
+
+If the player decides to buy the property, the turns instantly ends, with him owning the property.
+
+The option to buy will be rejected (ideally blacked out on frontend side),
+if the player does not have the money to purchase the property.
+
+```ts
+{
+  event: "property-choice"
+  payload: "buy" | "auction"
+}
+// Example Event
+{
+  event: "property-choice"
+  payload: "buy"
+}
+```
+
+# Auction Events
+
+For auctioning then we have other interesting events.
+
+## Place Bid Event
+
+This is sent by the player in order to place a bid.
+This "may" or "may not" update the property with the highest property.
+```ts
+{
+  event: "auction-place-bid"
+  payload: number
+}
+// example
+{
+  event: "auction-place-bid"
+  payload: 150 // amount to bid
+}
+```
+
+## Auction Sold Confirmation Event
+
+(This should ideally trigger some visual effect on the frontend)
+This event is fired off, to notify individuals of the winner of the auction.
+
+```ts
+{
+  event: "auction-winner",
+  payload: string
+}
+// example
+{
+  event: "auction-winner",
+  payload: "bizangel" // username of winner of auction
+}
+```
+
