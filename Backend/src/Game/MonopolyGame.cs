@@ -190,14 +190,11 @@ public class MonopolyGame
 
             player.properties.Add(deed); // add it to the player
 
-            // This is WRONG as we're skipping doubles verification.
             AttemptFinishTurn();
             return;
         }
 
         // There's nothing to auction, either finish turn or not if doubles.
-
-
 
         // Finish the turn
         AttemptFinishTurn();
