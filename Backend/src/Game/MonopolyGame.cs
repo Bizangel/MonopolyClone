@@ -3,8 +3,6 @@ using MonopolyClone.Database.Models;
 using MonopolyClone.Events;
 using NLog;
 
-
-
 namespace MonopolyClone.Game;
 
 public class MonopolyGame
@@ -309,7 +307,8 @@ public class MonopolyGame
     /// </summary>
     public void AttemptFinishTurn()
     {
-        if (_roll_result != null && _roll_result.Value.isDoubles) //Go to standby again
+        if (_roll_result != null &&
+        _roll_result.Value.diceResult[0] == _roll_result.Value.diceResult[1]) // Doubles
         {
             _currentTurnPhase = TurnPhase.Standby;
             return; // effectively yield
@@ -325,11 +324,26 @@ public class MonopolyGame
 
 
     /// <summary>
+    /// Generates, updates and store a proper UIState, before broadcasting.
+    /// </summary>
+    public void GenerateUIState()
+    {
+        var diceResult = _gameState.uiState.displayDices; // use previous by default
+        if (_roll_result != null) // if there's a new result, use that one
+        {
+            diceResult = _roll_result.Value.diceResult;
+        }
+
+        _gameState.uiState = new UIState() { turnPhase = _currentTurnPhase, displayDices = diceResult };
+    }
+
+    /// <summary>
     /// Builds and returns the current state update.
     /// </summary>
     /// <returns>The current state updated</returns>
     public GameState GetStateUpdate()
     {
+        GenerateUIState();
         return _gameState;
     }
 
@@ -348,6 +362,7 @@ public class MonopolyGame
 
     public async Task BroadcastStateUpdate(MonopolyClone.Sockets.ServerSocketHandler handler)
     {
+        GenerateUIState();
         await handler.Broadcast("state-update", _gameState);
     }
 }

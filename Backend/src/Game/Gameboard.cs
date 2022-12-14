@@ -14,7 +14,7 @@ namespace MonopolyClone.Game;
 public struct RollResult
 {
     public PropertyDeed? possibleAuction { get; init; }
-    public bool isDoubles { get; init; }
+    public int[] diceResult { get; init; }
     public bool requiredInput { get; init; }
 
     public TileEffect? effectToApply { get; init; }
@@ -138,7 +138,7 @@ public class GameBoard
             return new RollResult()
             {
                 possibleAuction = null,
-                isDoubles = (diceResult[0] == diceResult[1]),
+                diceResult = diceResult,
                 effectToApply = null,
                 requiredInput = false,
             };
@@ -151,7 +151,7 @@ public class GameBoard
             return new RollResult()
             {
                 possibleAuction = null,
-                isDoubles = (diceResult[0] == diceResult[1]),
+                diceResult = diceResult,
                 requiredInput = true,
                 effectToApply = tileEffect,
             };
@@ -175,7 +175,7 @@ public class GameBoard
             return new RollResult()
             {
                 possibleAuction = unpurchasedDeed,
-                isDoubles = (diceResult[0] == diceResult[1]),
+                diceResult = diceResult,
                 effectToApply = property,
                 requiredInput = true,
             };
@@ -186,7 +186,7 @@ public class GameBoard
         return new RollResult()
         {
             possibleAuction = null,
-            isDoubles = (diceResult[0] == diceResult[1]),
+            diceResult = diceResult,
             requiredInput = true,
             effectToApply = tileEffect,
         };
