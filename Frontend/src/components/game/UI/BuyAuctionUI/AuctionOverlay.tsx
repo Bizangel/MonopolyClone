@@ -6,39 +6,6 @@ import { Button, Card, Col, Container, Form, Row } from "react-bootstrap"
 import moneyimg from "assets/moneysprite_small.png"
 import { motion } from "framer-motion"
 
-// export function BuyOverlay() {
-//   return (
-//     <Container className="p-0 m-0 mw-100 mh-100" style={{ width: "100vw", height: "100vh" }}>
-//       <Row className="w-100 h-100 m-0 p-0">
-//         <Col className="h-100 m-0 p-0" xs="4">
-//         </Col>
-//         <Col className="h-100 m-0 p-0" xs="4">
-//           <Row className="h-25 align-items-end justify-content-center">
-//             <p className="text-justify text-center" style={{ fontSize: "3vh" }}> Price: 100</p>
-//           </Row>
-//           <Row className="h-50 w-100 p-0 m-0">
-//             <img className="rounded" style={{ width: "auto", height: "100%", maxWidth: "100%", maxHeight: "100%", margin: "auto" }} src={samplecard} alt=""></img>
-//           </Row>
-//           <Row className="mt-3 w-100 justify-content-center">
-//             <Col xs="3">
-//               <Button>Purchase Property</Button>
-//             </Col>
-//             <Col xs="3">
-//               <Button variant="warning">Auction Property </Button>
-//             </Col>
-//           </Row>
-//         </Col>
-//         <Col className="h-100 m-0 p-0" xs="4">
-//         </Col>
-//       </Row >
-
-
-//     </Container >
-
-//   )
-// }
-
-
 const MotionCard = motion(Card);
 
 function PlayerBidDisplay(props: { isHighest: boolean }) {
@@ -85,11 +52,11 @@ function PlayerBidDisplay(props: { isHighest: boolean }) {
 
 export function AuctionOverlay() {
   return (
-    <Container className="p-0 m-0 mw-100 mh-100" style={{ width: "100vw", height: "100vh" }}>
+    <Container className="p-0 m-0 mw-100 mh-100" style={{ width: "100vw", height: "100vh", pointerEvents: "none" }}>
       <Row className="w-100 h-100 m-0 p-0">
         <Col className="h-100 m-0 p-0" xs="4">
         </Col>
-        <Col className="h-100 m-0 p-0" xs="4">
+        <Col className="h-100 m-0 p-0" xs="4" style={{ pointerEvents: "auto" }}>
           <Row className="h-25 align-items-end justify-content-center">
             <div style={{ width: "100%", height: "25%" }}>
               <div>Selling to bizangel in 10.0</div>

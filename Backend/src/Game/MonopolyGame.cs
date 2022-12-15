@@ -1,6 +1,7 @@
 using MonopolyClone.Common;
 using MonopolyClone.Database.Models;
 using MonopolyClone.Events;
+using MonopolyClone.InterfaceState;
 using NLog;
 
 namespace MonopolyClone.Game;
@@ -328,13 +329,29 @@ public class MonopolyGame
     /// </summary>
     public void GenerateUIState()
     {
+        UIPropertyToBuy? propertyToBuy = null;
         var diceResult = _gameState.uiState.displayDices; // use previous by default
         if (_roll_result != null) // if there's a new result, use that one
         {
             diceResult = _roll_result.Value.diceResult;
+
+            if (IsPropertyWaitingOnAuctionChoice() && _roll_result.Value.effectToApply != null)
+            {
+                var awaitingProperty = ((MonopolyClone.TileEffects.PropertyEffect)_roll_result.Value.effectToApply);
+                propertyToBuy = new UIPropertyToBuy()
+                {
+                    propertyID = awaitingProperty.propertyID,
+                    price = awaitingProperty.cost,
+                };
+            }
         }
 
-        _gameState.uiState = new UIState() { turnPhase = _currentTurnPhase, displayDices = diceResult };
+        _gameState.uiState = new UIState()
+        {
+            turnPhase = _currentTurnPhase,
+            displayDices = diceResult,
+            propertyToBuy = propertyToBuy
+        };
     }
 
     /// <summary>

@@ -7,7 +7,9 @@ import { MultipleUserBars } from "./UserBar/UserBar"
 import { useGameState } from "gameState/gameState";
 import { useUserSocket } from "hooks/socketProvider";
 import { useAwaitInternalEvent } from "hooks/internalEvent";
-import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
+// import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
+import { BuyOverlay } from "./BuyAuctionUI/BuyOverlay";
+import { TurnPhase } from "gameState/uiState";
 
 export function UI() {
   const userSocket = useUserSocket();
@@ -24,15 +26,30 @@ export function UI() {
     setDiceFocus(focus);
   })
 
-  var colorDisplayText = isCurrentTurn ? "text-primary" : "text-secondary";
-  var displayText = isCurrentTurn ? "It's your turn" : (
-    <p>
-      It's <i> {currentPlayers[currentTurn].name}</i> turn
-    </p>
-  )
-
-  colorDisplayText = "text-info";
-  displayText = "Auction!";
+  var topDisplayColor = "";
+  var topDisplay: React.ReactNode = "";
+  switch (UIState.turnPhase) {
+    case TurnPhase.Standby:
+      topDisplay = isCurrentTurn ? "It's your turn" : (
+        <p>
+          It's <i> {currentPlayers[currentTurn].name}</i> turn
+        </p>
+      )
+      topDisplayColor = isCurrentTurn ? "text-primary" : "text-secondary";
+      break;
+    case TurnPhase.Choiceby:
+      topDisplay = isCurrentTurn ? "It's your turn" : (
+        <p>
+          It's <i> {currentPlayers[currentTurn].name}</i> turn
+        </p>
+      )
+      topDisplayColor = isCurrentTurn ? "text-primary" : "text-secondary";
+      break;
+    case TurnPhase.Auctionby:
+      topDisplayColor = "text-info";
+      topDisplay = "Auction!";
+      break;
+  }
 
   return (
     <>
@@ -41,12 +58,28 @@ export function UI() {
         width: "100vw", justifyItems: "center", textAlign: "center",
         fontSize: "2.5vw"
       }}
-        className={colorDisplayText}>
-        {displayText}
+        className={topDisplayColor}>
+        {topDisplay}
       </div>
 
-      <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1 }}>
+      {/* <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
         <AuctionOverlay />
+      </div> */}
+
+      <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
+        <AnimatePresence>
+          {
+            UIState.propertyToBuy &&
+            <motion.div
+              style={{ zIndex: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <BuyOverlay propertyID={UIState.propertyToBuy.propertyID} price={UIState.propertyToBuy.price} enabled={isCurrentTurn} />
+            </motion.div>
+          }
+        </AnimatePresence>
       </div>
 
       <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1 }}>
@@ -87,7 +120,7 @@ export function UI() {
       }} >
         <AnimatePresence>
           {
-            isCurrentTurn &&
+            isCurrentTurn && UIState.turnPhase === TurnPhase.Standby &&
             <motion.div
               style={{ zIndex: 1 }}
               whileHover={{ scale: 1.2 }}
@@ -95,7 +128,7 @@ export function UI() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <Button onClick={() => { throwDice() }} variant="primary" style={{ zIndex: 1 }}>
+              <Button onClick={() => { throwDice() }} variant="primary" style={{ zIndex: 1, pointerEvents: "auto" }}>
                 Roll Dice!
               </Button>
             </motion.div>
