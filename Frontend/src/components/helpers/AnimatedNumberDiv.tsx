@@ -1,7 +1,7 @@
 import { animate } from "framer-motion";
 import React, { useEffect, useRef } from "react";
 
-export function AnimatedNumberFramerMotion(props: { value: number }) {
+export function AnimatedNumberDiv(props: { value: number, durationSeconds?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export function AnimatedNumberFramerMotion(props: { value: number }) {
     const decreasing = currentVal < props.value;
 
     const controls = animate(currentVal, props.value, {
-      duration: 3,
+      duration: props.durationSeconds ? props.durationSeconds : 3,
       onUpdate(val) {
         node.textContent = val.toFixed(0);
         node.style.color = decreasing ? "green" : "red"
@@ -29,7 +29,7 @@ export function AnimatedNumberFramerMotion(props: { value: number }) {
       controls.stop();
       node.style.color = "";
     };
-  }, [props.value]);
+  }, [props.value, props.durationSeconds]);
 
   return <span ref={ref} />;
 }

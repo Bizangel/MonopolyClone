@@ -74,7 +74,7 @@ public static class SocketsEventHandler
         _registeredEventsIDs = new HashSet<string>();
     }
 
-    public static async void HandleEvent(string EventID, UserSocket userSocket, string payload, ServerSocketHandler socketHandler)
+    public static async Task HandleEvent(string EventID, UserSocket userSocket, string payload, ServerSocketHandler socketHandler)
     {
         if (!_registeredEventsIDs.Contains(EventID))
         {

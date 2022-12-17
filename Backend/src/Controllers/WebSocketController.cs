@@ -135,7 +135,9 @@ public class WebSocketController : ControllerBase
             }
 
             // handle event
-            SocketsEventHandler.HandleEvent(newEvent.EventIdentifier, socket, newEvent.Payload, _socketHandler);
+            await SocketsEventHandler.HandleEvent(newEvent.EventIdentifier, socket, newEvent.Payload, _socketHandler);
+            // NOTICE! ONLY ONE EVENT WILL BE HANDLED AT A TIME.
+            // This is not exactly efficient but avoids 99% of all race conditions!
         }
 
         if (socket.State == WebSocketState.Aborted)

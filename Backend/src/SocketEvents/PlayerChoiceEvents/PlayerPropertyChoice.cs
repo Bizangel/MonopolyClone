@@ -17,8 +17,8 @@ public static class PropertyChoiceEvent
 
         bool willAuction = payload == "auction";
 
-        MonopolyGame.Instance.PlayerMakePropertyAuctionChoice(willAuction); // make the choice.
-        Console.WriteLine($"received event inside: {payload}");
+        MonopolyGame.Instance.PlayerMakePropertyAuctionChoice(willAuction, serversocket); // make the choice.
+
         await MonopolyGame.Instance.BroadcastStateUpdate(serversocket); // broadcast the update after choice
     }
 

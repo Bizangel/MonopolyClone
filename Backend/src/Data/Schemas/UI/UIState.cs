@@ -13,4 +13,6 @@ public class UIState
     public UIPropertyToBuy? propertyToBuy { get; set; }
 
     public EffectToApply? effectToAcknowledge { get; set; }
+
+    public Auction? currentAuction { get; set; }
 };

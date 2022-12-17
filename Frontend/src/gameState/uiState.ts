@@ -21,9 +21,21 @@ export type EffectToAcknowledge = {
   effect: GameEffect
 };
 
+type Bid = {
+  bidder: string,
+  bidAmount: number,
+}
+
+export type Auction = {
+  bids: Bid[],
+  topBid: number,
+  currentAuctionDeadline: number,
+}
+
 export type UIState = {
   displayDices: [number, number];
   turnPhase: TurnPhase
   propertyToBuy?: UIPropertyToBuy | null,
-  effectToAcknowledge?: EffectToAcknowledge
+  effectToAcknowledge?: EffectToAcknowledge | null,
+  currentAuction?: Auction | null,
 };

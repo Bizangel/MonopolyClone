@@ -12,6 +12,7 @@ import { BuyOverlay } from "./BuyAuctionUI/BuyOverlay";
 import { TurnPhase } from "gameState/uiState";
 import { useCharacterStoppedStore } from "../Player/CharacterModel";
 import { EffectAcknowledgeOverlay } from "./BuyAuctionUI/EffectAcknowledgeOverlay";
+import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
 
 export function UI() {
   const userSocket = useUserSocket();
@@ -75,9 +76,24 @@ export function UI() {
         {topDisplay}
       </div>
 
-      {/* <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
-        <AuctionOverlay />
-      </div> */}
+      <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
+        <AnimatePresence>
+          {
+            UIState.currentAuction &&
+            <motion.div
+              style={{ zIndex: 1 }}
+
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+
+              <AuctionOverlay auction={UIState.currentAuction} />
+            </motion.div>
+          }
+        </AnimatePresence>
+      </div>
 
       <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
         <AnimatePresence>

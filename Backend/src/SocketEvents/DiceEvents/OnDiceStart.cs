@@ -28,8 +28,6 @@ public static class OnDiceFinishEvent
         if (payload.throwValues.Length != 2)
             throw new InvalidPayloadException("Dice length must be 2");
 
-        Console.WriteLine("Received throw dice start event from: " + user.Username);
-
         // await handler
         await serversocket.Broadcast("throw-dice-start", payload, user.Username);
 

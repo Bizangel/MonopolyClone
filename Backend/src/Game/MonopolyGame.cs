@@ -12,6 +12,9 @@ public class MonopolyGame
     /// Defines which events will be listened to and which will be ignored.
     /// </summary>
     private EventLabel _listeningEventLabel = EventLabel.Default;
+
+    private Auction? _runningAuction = null;
+
     public EventLabel ListeningEventLabel => _listeningEventLabel;
 
     private GameBoard _board;
@@ -208,14 +211,17 @@ public class MonopolyGame
         && (_roll_result.possibleAuction != null);
     }
 
-
     /// <summary>
     /// Makes the choice of the player of the current turn to effectively auction or purchase the property.
     ///
     /// This is intended to be called after verifying IsPropertyWaitingOnAuctionChoice,
     /// as well as verifying the identity of the player.
     /// </summary>
-    public void PlayerMakePropertyAuctionChoice(bool toAuction)
+    /// <param name="toAuction">True if the player intends to auction the property, false if it intends to buy it</param>
+    /// <param name="handler">The socket handler, to emit periodic updates should the player auction</param>
+    public void PlayerMakePropertyAuctionChoice(
+        bool toAuction,
+        MonopolyClone.Sockets.ServerSocketHandler handler)
     {
         if (!toAuction)
         {
@@ -251,7 +257,69 @@ public class MonopolyGame
         else
         {   // property is auctioned!
             _currentTurnPhase = TurnPhase.Auctionby; // move to auction await.
+
+            // initialize bids
+            List<Bid> bids = new List<Bid>();
+            var maxBids = new int[_gameState.players.Count()];
+
+            for (int i = 0; i < _gameState.players.Count(); i++)
+            {
+                bids.Add(new Bid() { bidder = _gameState.players[i].name, bidAmount = 1 });
+                maxBids[i] = _gameState.players[i].money;
+            }
+
+            _runningAuction = new Auction()
+            {
+                bids = bids,
+                topBid = _gameState.currentTurn, // dude who landed
+                currentAuctionDeadline = (DateTimeOffset.Now.ToUnixTimeMilliseconds() + (long)AuctionHandler.auctionDurationSeconds * 1000)
+            };
+
+            AuctionHandler.StartAuction(_runningAuction,
+            () =>
+            {
+                BroadcastStateUpdate(handler).Wait();
+            },
+            () =>
+            {
+                Bid winningBid = _runningAuction.bids[_runningAuction.topBid];
+                _runningAuction = null; // kill auction
+                Console.WriteLine($"Winner of auction: {winningBid.bidder} by bidding an amount of {winningBid.bidAmount}");
+
+                // sell the property to auction winner
+                Player? auctionWinner = FindPlayer(winningBid.bidder);
+
+                if (auctionWinner == null)
+                    throw new ArgumentException("Winner of auction doesn't exist?");
+
+                // Charge for property
+                auctionWinner.money -= winningBid.bidAmount;
+                if (_roll_result == null || _roll_result.possibleAuction == null)
+                    throw new ArgumentException("Just auctioned non existent property?");
+
+                var deed = _roll_result.possibleAuction;
+                var success = _gameState.unpurchasedProperties.Remove(deed);
+                if (!success)
+                    throw new ArgumentException("Tried to auction already purchased property!");
+
+                // Add title deed to properties
+                auctionWinner.properties.Add(deed);
+
+                AttemptFinishTurn();
+                BroadcastStateUpdate(handler).Wait();
+            }, maxBids);
+
         }
+    }
+
+
+    /// <summary>
+    /// Determines whether there's currently a running auction.
+    /// /// </summary>
+    /// <returns></returns>
+    public bool IsAuctionRunning()
+    {
+        return _runningAuction != null && _currentTurnPhase == TurnPhase.Auctionby;
     }
 
     /// <summary>
@@ -304,6 +372,21 @@ public class MonopolyGame
     }
 
     /// <summary>
+    /// Determines whether the current player is part of the current game.
+    /// </summary>
+    /// <param name="playername">The player name to check</param>
+    /// <returns>True, if the player is currently player. False otherwise e.g. an expectator</returns>
+    public bool IsGameCurrentPlayer(string playername)
+    {
+        for (int i = 0; i < _gameState.players.Count(); i++)
+        {
+            if (_gameState.players[i].name == playername)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Attempts to Finish turn the current turn, and goes on to the next person.
     /// Performs doubles result verification and if double was landed, simply resets.
     /// </summary>
@@ -322,6 +405,7 @@ public class MonopolyGame
         _currentTurnPhase = TurnPhase.Standby;
         _gameState.currentTurn += 1;
         _gameState.currentTurn %= _gameState.players.Count();
+        _runningAuction = null; // delete auction just in case
     }
 
 
@@ -358,7 +442,8 @@ public class MonopolyGame
             turnPhase = _currentTurnPhase,
             displayDices = diceResult,
             propertyToBuy = propertyToBuy,
-            effectToAcknowledge = awaitingEffect
+            effectToAcknowledge = awaitingEffect,
+            currentAuction = _runningAuction,
         };
     }
 
