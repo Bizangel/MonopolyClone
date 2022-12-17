@@ -1,6 +1,6 @@
 
 using MonopolyClone.Common;
-
+using MonopolyClone.Game;
 namespace MonopolyClone.InterfaceState;
 
 [Serializable]
@@ -11,4 +11,6 @@ public class UIState
     public TurnPhase turnPhase { get; set; }
 
     public UIPropertyToBuy? propertyToBuy { get; set; }
+
+    public EffectToApply? effectToAcknowledge { get; set; }
 };

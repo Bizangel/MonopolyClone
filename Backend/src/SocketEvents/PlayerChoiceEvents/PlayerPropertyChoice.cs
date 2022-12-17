@@ -12,13 +12,13 @@ public static class PropertyChoiceEvent
         if (!MonopolyGame.Instance.IsPlayerTurn(user.Username) || !MonopolyGame.Instance.IsPropertyWaitingOnAuctionChoice())
             return;
 
-        if (payload != "buy" || payload != "auction")
+        if (payload != "buy" && payload != "auction")
             return;
 
         bool willAuction = payload == "auction";
 
         MonopolyGame.Instance.PlayerMakePropertyAuctionChoice(willAuction); // make the choice.
-
+        Console.WriteLine($"received event inside: {payload}");
         await MonopolyGame.Instance.BroadcastStateUpdate(serversocket); // broadcast the update after choice
     }
 

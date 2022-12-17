@@ -10,6 +10,8 @@ import { useAwaitInternalEvent } from "hooks/internalEvent";
 // import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
 import { BuyOverlay } from "./BuyAuctionUI/BuyOverlay";
 import { TurnPhase } from "gameState/uiState";
+import { useCharacterStoppedStore } from "../Player/CharacterModel";
+import { EffectAcknowledgeOverlay } from "./BuyAuctionUI/EffectAcknowledgeOverlay";
 
 export function UI() {
   const userSocket = useUserSocket();
@@ -18,6 +20,8 @@ export function UI() {
   const currentTurn = useGameState(e => e.currentTurn);
   const currentPlayers = useGameState(e => e.players);
   const [diceFocused, setDiceFocus] = useState(false);
+  const characterToStopped = useCharacterStoppedStore(e => e.characterToStopped);
+
   var isCurrentTurn = userSocket.Username === currentPlayers[currentTurn].name;
 
   const throwDice = useInternalEvent("perform-internal-dice-throw");
@@ -62,6 +66,15 @@ export function UI() {
         {topDisplay}
       </div>
 
+      <div style={{
+        position: "absolute", left: "0px", top: "0px", zIndex: 1,
+        width: "100vw", justifyItems: "center", textAlign: "center",
+        fontSize: "2.5vw"
+      }}
+        className={topDisplayColor}>
+        {topDisplay}
+      </div>
+
       {/* <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
         <AuctionOverlay />
       </div> */}
@@ -69,14 +82,41 @@ export function UI() {
       <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
         <AnimatePresence>
           {
-            UIState.propertyToBuy &&
+            UIState.effectToAcknowledge && characterToStopped.get(currentPlayers[currentTurn].character) &&
             <motion.div
               style={{ zIndex: 1 }}
+
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ delay: 0.4 }}
             >
-              <BuyOverlay propertyID={UIState.propertyToBuy.propertyID} price={UIState.propertyToBuy.price} enabled={isCurrentTurn} />
+
+              <EffectAcknowledgeOverlay effect={UIState.effectToAcknowledge}
+                enabled={isCurrentTurn}
+              />
+            </motion.div>
+          }
+        </AnimatePresence>
+      </div>
+
+
+      <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
+        <AnimatePresence>
+          {
+            UIState.propertyToBuy && characterToStopped.get(currentPlayers[currentTurn].character) &&
+            <motion.div
+              style={{ zIndex: 1 }}
+
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <BuyOverlay propertyID={UIState.propertyToBuy.propertyID}
+                price={UIState.propertyToBuy.price}
+                canPay={currentPlayers[currentTurn].money >= UIState.propertyToBuy.price}
+                enabled={isCurrentTurn} />
             </motion.div>
           }
         </AnimatePresence>

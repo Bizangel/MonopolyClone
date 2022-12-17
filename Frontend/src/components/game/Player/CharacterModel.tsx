@@ -7,8 +7,24 @@ import * as bc from 'common/boardConstants'
 import { characterToPath, PlayerCharacter, characterScales, characterRotationOffset, characterMaterial } from "common/characterModelConstants"
 import { useLoader } from '@react-three/fiber'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import create from "zustand"
+import produce from "immer"
 
+// Helper type and store to globally notify if character is actually moving or not
+type CharacterHasStopped = {
+  characterToStopped: Map<PlayerCharacter, boolean>,
 
+  setStopped: (stopped: boolean, character: PlayerCharacter) => void,
+};
+
+export const useCharacterStoppedStore = create<CharacterHasStopped>()((set) => ({
+  characterToStopped: new Map<PlayerCharacter, boolean>(),
+  setStopped: (stopped: boolean, character: PlayerCharacter) => {
+    set((e) => produce(e, (draft) => {
+      draft.characterToStopped.set(character, stopped);
+    }))
+  }
+}))
 
 type CharacterModelProps = {
   currentTile: number,
@@ -32,6 +48,8 @@ export function CharacterModel(props: CharacterModelProps) {
     position: [bc.boardSize / 2, props.yoffset, bc.boardSize / 2], rotation: props.baseRotation, args: [bbox.x, bbox.y, bbox.z]
   }), useRef<Mesh>(null))
 
+  const setStopped = useCharacterStoppedStore(e => e.setStopped);
+
   /* When tile changes, automatically move to said tile*/
   useEffect(() => {
     // move to said tile
@@ -51,6 +69,12 @@ export function CharacterModel(props: CharacterModelProps) {
     }
 
   }, [props.currentTile, currTileInternal, setFakeTarget])
+
+  // update always to see if arrived location or not
+  useEffect(() => {
+    setStopped(props.currentTile === currTileInternal, props.character);
+  },
+    [setStopped, props.currentTile, currTileInternal, props.character])
 
   // Keep track of position at all times
   useEffect(() => {

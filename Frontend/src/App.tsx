@@ -2,7 +2,10 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { GameEntryHandler } from 'components/GameEntryHandler';
 import { userSocketContext, useUserSocketProvider } from 'hooks/socketProvider';
+// In your application's entrypoint
+import { enableMapSet } from "immer"
 
+enableMapSet()
 
 function App() {
   const socketval = useUserSocketProvider();

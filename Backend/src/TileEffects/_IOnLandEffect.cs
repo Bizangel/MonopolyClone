@@ -21,6 +21,17 @@ public abstract class TileEffect
     public TileEffectID effectID { get; init; }
 
     /// <summary>
+    /// This method must return in a human readable format, what the effect will do.
+    ///
+    /// THIS METHOD MUST NOT MODIFY ANY OF THE PLAYERS OR GAME STATE IN ANY WAY. IT IS PROVIDED FOR READONLY PURPOSES.
+    ///
+    /// e.g. -> This property is owned by <x>, string must pay 30$.
+    /// e.g. -> All players need to pay taxes, all players pay 50$.
+    /// </summary>
+    /// <returns>Human readable string describing what the effect will do when applied.</returns>
+    public abstract string DescribeEffect(Player player, List<Player> allPlayers, int currentTileIndex, List<GameTile> gameTiles);
+
+    /// <summary>
     /// Executes the implemented effect associated with the given game tile,
     /// directly modifying the game state.
     /// </summary>

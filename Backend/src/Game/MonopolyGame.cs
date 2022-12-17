@@ -175,18 +175,18 @@ public class MonopolyGame
         _roll_result = _board.HandlePlayerDiceRoll(player, diceResult, _gameState);
         PerformGameChecks();
 
-        if (!_roll_result.Value.requiredInput) // no required input. just apply any necessary effect and finish turn
+        if (!_roll_result.requiredInput) // no required input. just apply any necessary effect and finish turn
         {
-            if (_roll_result.Value.effectToApply != null)
+            if (_roll_result.effectToApply != null)
             {
-                _board.ApplyEffect(_roll_result.Value.effectToApply, player, _gameState);
+                _board.ApplyEffect(_roll_result.effectToApply.effect, player, _gameState);
             }
             AttemptFinishTurn();
             return;
         }
 
         // there has to be at least either an effect or a possible auction.
-        if (_roll_result.Value.effectToApply == null && _roll_result.Value.possibleAuction == null)
+        if (_roll_result.effectToApply == null && _roll_result.possibleAuction == null)
             throw new ArgumentException("Returned required input, despite to effect or property auction being present");
 
         // There's some input to be acknowledged.
@@ -205,7 +205,7 @@ public class MonopolyGame
     {
         return (_currentTurnPhase == TurnPhase.Choiceby)
         && (_roll_result != null)
-        && (_roll_result.Value.possibleAuction != null);
+        && (_roll_result.possibleAuction != null);
     }
 
 
@@ -219,19 +219,12 @@ public class MonopolyGame
     {
         if (!toAuction)
         {
-            if (_roll_result == null || _roll_result.Value.possibleAuction == null || _roll_result.Value.effectToApply == null)
+            if (_roll_result == null || _roll_result.possibleAuction == null || _roll_result.effectToApply == null)
                 throw new Exception("Trying to make auction choice, despite no roll result!");
 
             // player made choice to simply buy property.
-            var deed = _roll_result.Value.possibleAuction;
-            var success = _gameState.unpurchasedProperties.Remove(deed);
-            if (!success)
-            {
-                throw new ArgumentException("Tried to auction already purchased property!");
-            }
-
             var player = _gameState.players[_gameState.currentTurn];
-            var property = (MonopolyClone.TileEffects.PropertyEffect)_roll_result.Value.effectToApply;
+            var property = (MonopolyClone.TileEffects.PropertyEffect)_roll_result.effectToApply.effect;
             // Check for player money
             if (player.money < property.cost)
             {
@@ -241,6 +234,13 @@ public class MonopolyGame
 
             // Charge for property
             player.money -= property.cost;
+
+            var deed = _roll_result.possibleAuction;
+            var success = _gameState.unpurchasedProperties.Remove(deed);
+            if (!success)
+            {
+                throw new ArgumentException("Tried to auction already purchased property!");
+            }
 
             // Add title deed to properties
             player.properties.Add(deed);
@@ -262,7 +262,8 @@ public class MonopolyGame
     {
         return (_currentTurnPhase == TurnPhase.Choiceby)
         && (_roll_result != null)
-        && (_roll_result.Value.effectToApply != null);
+        && (_roll_result.effectToApply != null)
+        && (_roll_result.possibleAuction == null); // IF there's an effect, but it's not a a property to auction, then it's an effect
     }
 
     /// <summary>
@@ -276,11 +277,11 @@ public class MonopolyGame
         if (_roll_result == null)
             throw new ArgumentException("Attempted to acknowledge a player effect, without any turn result being available. i.e. Dice were not thrown previously");
 
-        if (_roll_result.Value.effectToApply == null)
+        if (_roll_result.effectToApply == null)
             throw new ArgumentException("Attempted to acknowledge effect, but effect is null!");
 
         // actually apply the effect.
-        _board.ApplyEffect(_roll_result.Value.effectToApply, _gameState.players[_gameState.currentTurn], _gameState);
+        _board.ApplyEffect(_roll_result.effectToApply.effect, _gameState.players[_gameState.currentTurn], _gameState);
         // finish the turn.
         AttemptFinishTurn();
     }
@@ -309,7 +310,7 @@ public class MonopolyGame
     public void AttemptFinishTurn()
     {
         if (_roll_result != null &&
-        _roll_result.Value.diceResult[0] == _roll_result.Value.diceResult[1]) // Doubles
+        _roll_result.diceResult[0] == _roll_result.diceResult[1]) // Doubles
         {
             _currentTurnPhase = TurnPhase.Standby;
             return; // effectively yield
@@ -330,19 +331,25 @@ public class MonopolyGame
     public void GenerateUIState()
     {
         UIPropertyToBuy? propertyToBuy = null;
+        EffectToApply? awaitingEffect = null;
         var diceResult = _gameState.uiState.displayDices; // use previous by default
         if (_roll_result != null) // if there's a new result, use that one
         {
-            diceResult = _roll_result.Value.diceResult;
+            diceResult = _roll_result.diceResult;
 
-            if (IsPropertyWaitingOnAuctionChoice() && _roll_result.Value.effectToApply != null)
+            if (IsPropertyWaitingOnAuctionChoice() && _roll_result.effectToApply != null)
             {
-                var awaitingProperty = ((MonopolyClone.TileEffects.PropertyEffect)_roll_result.Value.effectToApply);
+                var awaitingProperty = ((MonopolyClone.TileEffects.PropertyEffect)_roll_result.effectToApply.effect);
                 propertyToBuy = new UIPropertyToBuy()
                 {
                     propertyID = awaitingProperty.propertyID,
                     price = awaitingProperty.cost,
                 };
+            }
+
+            if (IsEffectWaitingOnAcknowledge())
+            {
+                awaitingEffect = _roll_result.effectToApply;
             }
         }
 
@@ -350,7 +357,8 @@ public class MonopolyGame
         {
             turnPhase = _currentTurnPhase,
             displayDices = diceResult,
-            propertyToBuy = propertyToBuy
+            propertyToBuy = propertyToBuy,
+            effectToAcknowledge = awaitingEffect
         };
     }
 

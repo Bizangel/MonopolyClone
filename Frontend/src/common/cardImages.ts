@@ -25,6 +25,7 @@ import Property23 from "assets/cards/card23.png"
 import Property24 from "assets/cards/card24.png"
 import Property25 from "assets/cards/card25.png"
 import Property26 from "assets/cards/card26.png"
+import Property27 from "assets/cards/card27.png"
 
 export const propertyIDToImgpath = new Map<number, string>([
   [0, Property0],
@@ -54,4 +55,5 @@ export const propertyIDToImgpath = new Map<number, string>([
   [24, Property24],
   [25, Property25],
   [26, Property26],
+  [27, Property27],
 ])

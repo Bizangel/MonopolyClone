@@ -1,3 +1,4 @@
+import { GameEffect } from "./effectsSchemas";
 
 export const initialUI: UIState = {
   displayDices: [3, 3],
@@ -15,8 +16,14 @@ type UIPropertyToBuy = {
   price: number,
 }
 
+export type EffectToAcknowledge = {
+  description: string,
+  effect: GameEffect
+};
+
 export type UIState = {
   displayDices: [number, number];
   turnPhase: TurnPhase
   propertyToBuy?: UIPropertyToBuy | null,
+  effectToAcknowledge?: EffectToAcknowledge
 };

@@ -7,17 +7,27 @@ using MonopolyClone.TileEffects;
 using NLog;
 namespace MonopolyClone.Game;
 
+
+/// <summary>
+/// An effect, which is waiting to be applied, but has not been applied yet.
+/// </summary>
+public class EffectToApply
+{
+    public TileEffect effect { get; init; } = new DeductAmountEffect();
+
+    public string description { get; init; } = "";
+}
+
 /// <summary>
 /// The Result of rolling a dice and moving a player character.
 /// This must be used to then apply the actual game main effects
 /// </summary>
-public struct RollResult
+public class RollResult
 {
     public PropertyDeed? possibleAuction { get; init; }
-    public int[] diceResult { get; init; }
+    public int[] diceResult { get; init; } = new int[0];
     public bool requiredInput { get; init; }
-
-    public TileEffect? effectToApply { get; init; }
+    public EffectToApply? effectToApply { get; init; }
 };
 
 
@@ -148,12 +158,14 @@ public class GameBoard
         // Simply return effect to apply. However, input is indeed required.
         if (tileEffect.GetType() != typeof(PropertyEffect))
         {
+            string effectDescription = tileEffect.DescribeEffect(player, state.players, player.location, _tileCollection.tiles);
+
             return new RollResult()
             {
                 possibleAuction = null,
                 diceResult = diceResult,
                 requiredInput = true,
-                effectToApply = tileEffect,
+                effectToApply = new EffectToApply() { effect = tileEffect, description = effectDescription },
             };
         };
 
@@ -176,19 +188,19 @@ public class GameBoard
             {
                 possibleAuction = unpurchasedDeed,
                 diceResult = diceResult,
-                effectToApply = property,
+                effectToApply = new EffectToApply() { effect = property, description = "Auction" },
                 requiredInput = true,
             };
         }
 
         // if property IS purchased, just a normal effect. Require input for acknowledgement of pay.
-
+        string description = tileEffect.DescribeEffect(player, state.players, player.location, _tileCollection.tiles);
         return new RollResult()
         {
             possibleAuction = null,
             diceResult = diceResult,
             requiredInput = true,
-            effectToApply = tileEffect,
+            effectToApply = new EffectToApply() { effect = tileEffect, description = description },
         };
     }
 
