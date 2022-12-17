@@ -268,8 +268,12 @@ public class MonopolyGame
                 maxBids[i] = _gameState.players[i].money;
             }
 
+            if (_roll_result == null || _roll_result.possibleAuction == null)
+                throw new ArgumentException("Auctioning non existant property?");
+
             _runningAuction = new Auction()
             {
+                auctionedProperty = _roll_result.possibleAuction.propertyID,
                 bids = bids,
                 topBid = _gameState.currentTurn, // dude who landed
                 currentAuctionDeadline = (DateTimeOffset.Now.ToUnixTimeMilliseconds() + (long)AuctionHandler.auctionDurationSeconds * 1000)

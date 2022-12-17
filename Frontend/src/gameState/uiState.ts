@@ -30,6 +30,7 @@ export type Auction = {
   bids: Bid[],
   topBid: number,
   currentAuctionDeadline: number,
+  auctionedProperty: number,
 }
 
 export type UIState = {

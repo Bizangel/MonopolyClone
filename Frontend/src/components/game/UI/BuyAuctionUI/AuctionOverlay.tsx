@@ -1,4 +1,3 @@
-import samplecard from "assets/cards/card1.png"
 import { PlayerCharacter } from "common/characterModelConstants"
 import { characterToSprite } from "common/characterSprites"
 import { AnimatedNumberDiv } from "components/helpers/AnimatedNumberDiv"
@@ -10,6 +9,7 @@ import { useGameState } from "gameState/gameState"
 import { useCallback, useState } from "react"
 import { useUserSocket } from "hooks/socketProvider"
 import Countdown, { CountdownRenderProps } from 'react-countdown';
+import { propertyIDToImgpath } from "common/cardImages"
 
 const MotionCard = motion(Card);
 
@@ -104,8 +104,6 @@ export function AuctionOverlay(props: { auction: Auction }) {
         </Col>
         <Col className="h-100 m-0 p-0" xs="4" style={{ pointerEvents: "auto" }}>
           <Row className="h-25 align-items-end justify-content-center">
-
-
             <Countdown date={props.auction.currentAuctionDeadline} renderer={myCountDown} intervalDelay={50} precision={3} />
             <Card style={{ width: "50%" }}>
               <p className="text-justify text-center text-primary"
@@ -118,7 +116,8 @@ export function AuctionOverlay(props: { auction: Auction }) {
             </Card>
           </Row>
           <Row className="h-50 w-100 p-0 m-0">
-            <img className="rounded" style={{ width: "auto", height: "100%", maxWidth: "100%", maxHeight: "100%", margin: "auto" }} src={samplecard} alt=""></img>
+            <img className="rounded" style={{ width: "auto", height: "100%", maxWidth: "100%", maxHeight: "100%", margin: "auto" }}
+              src={propertyIDToImgpath.get(props.auction.auctionedProperty)} alt=""></img>
           </Row>
           <Form onSubmit={placeBid}>
             <Row className="mt-3 w-100 justify-content-center">
@@ -138,7 +137,6 @@ export function AuctionOverlay(props: { auction: Auction }) {
                   }
                   value={currentBidbox}
                   type="number" placeholder={(highestBid + 1).toString()} min={highestBid} step="1" max="9999"
-                  defaultValue={highestBid + 1}
                   style={{
                     width: "50%"
                   }} />

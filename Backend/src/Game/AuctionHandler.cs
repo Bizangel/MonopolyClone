@@ -9,6 +9,8 @@ public class Auction
     public int topBid = 0; // index to highest bidder
 
     public long currentAuctionDeadline = 0; // unix timestamp until it ends
+
+    public int auctionedProperty = 0;
 };
 
 
