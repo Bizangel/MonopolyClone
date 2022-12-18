@@ -1,3 +1,5 @@
+import { MeshStandardMaterial } from "three";
+
 /* Board Global Consts */
 export const boardSize = 10; // physical board size in threejs
 export const boardYLocation = 0.1; // physical board y-coordinate
@@ -25,5 +27,9 @@ export const cornerLengthImg = 855;
 export const tileLengthImg = 520;
 export const boardImgSize = 6400;
 export const boardimg = require("assets/board_high_res.png");
-
 export const boardMaterial = "board"
+
+// house consts
+export const housePath = require("assets/models3d/house.stl") as string;
+export const houseScale = 0.03;
+export const houseMaterial = new MeshStandardMaterial({ color: 0x1ee37d, metalness: 0.3, roughness: 0.2 })

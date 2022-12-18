@@ -12,7 +12,7 @@ import { TurnPhase } from "gameState/uiState";
 import { useCharacterStoppedStore } from "../Player/CharacterModel";
 import { EffectAcknowledgeOverlay } from "./BuyAuctionUI/EffectAcknowledgeOverlay";
 import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
-import { TradeOverlay } from "./TradeUI/TradeOverlay";
+// import { TradeOverlay } from "./TradeUI/TradeOverlay";
 
 export function UI() {
   const userSocket = useUserSocket();

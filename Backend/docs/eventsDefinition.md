@@ -132,20 +132,70 @@ This "may" or "may not" update the property with the highest property.
 }
 ```
 
-## Auction Sold Confirmation Event
+## Start Trade Event
 
-(This should ideally trigger some visual effect on the frontend)
-This event is fired off, to notify individuals of the winner of the auction.
+This will be sent by the player to notify the intent to start a new trade with
+another player.
+```ts
+{
+  event: "start-trade"
+  payload: string
+}
+
+//
+{
+  event: "start-trade"
+  payload: "bizangel" // player to trade
+}
+
+```
+
+## Trade Offer Set Event
+
+This event is sent by the player to set his terms of the offer.
+The other player will do the same.
+The server is intended to verify both the origins of the messages, as well as the availability of their proposed resources.
+If these are invalid, the server will ignore the request.
 
 ```ts
 {
-  event: "auction-winner",
-  payload: string
+  event: "trade-offer-set"
+  payload: {
+    money: number,
+    properties: number[],
+  }
 }
-// example
+
 {
-  event: "auction-winner",
-  payload: "bizangel" // username of winner of auction
+  event: "trade-offer-set"
+  payload: {
+    money: 30 // offering 30 as money
+    properties: [0, 12] // offering properties 0 and 12
+  }
 }
 ```
 
+## Trade Consent Event
+
+This event is for the player to define their agreement in regards to the current trade.
+The user can either accept, reject or cancel the trade.
+Cancel outright stops the process trading, rejecting on the other side,
+simply switches the status to not accepted, in case it was already.
+
+Once any party switches any of their offers via the previous `trade-offer-set`,
+all parties must agree once again and the consent status will be reset to rejected by default.
+
+As soon as both parties register their consent, the trade will automatically go through.
+
+
+```ts
+{
+  event: "trade-consent"
+  payload: "accept" | "reject" | "cancel"
+}
+// example
+{
+  event: "trade-consent"
+  payload: "cancel"
+}
+```

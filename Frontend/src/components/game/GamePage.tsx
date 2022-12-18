@@ -9,6 +9,7 @@ import { UI } from './UI/UI';
 import { GameDiceHandler } from "./Board/GameDiceHandler";
 import { boardYLocation } from "common/boardConstants";
 import { useSocketEvent } from "hooks/useSocketEvent";
+import { GameTileHouse } from "./Board/GameTileHouse";
 
 
 /**
@@ -40,7 +41,10 @@ export function Gamepage() {
 
           <GameBoard color="blue" onTileClicked={onTileClick} />
 
-          {/* <GameDiceHandler ref={gameDiceHandler} nDices={2} /> */}
+          <GameTileHouse position={[2.8, 0, 4]} />
+          <GameTileHouse position={[3.0, 0, 4]} />
+          <GameTileHouse position={[3.2, 0, 4]} />
+          <GameTileHouse position={[3.4, 0, 4]} />
 
           <GameDiceHandler />
           <InvisiblePlane position={[0, boardYLocation, 0]} />
