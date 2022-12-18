@@ -97,6 +97,7 @@ public class MonopolyGame
         _listeningEventLabel = EventLabel.Default; // Make it listen to default events instead of lobby ones.
         _currentTurnPhase = TurnPhase.Standby;
         _gameState.unpurchasedProperties = new List<PropertyDeed>();
+
         for (int i = 0; i < BoardConstants.NProperties; i++)
         {
             _gameState.unpurchasedProperties.Add(new PropertyDeed()
