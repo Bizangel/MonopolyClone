@@ -3,7 +3,7 @@ import { BaseMiddleDisplayUI } from "./BaseMiddleDisplayUI"
 import { EffectToAcknowledge } from "gameState/uiState"
 import { propertyIDToImgpath } from "common/cardImages"
 import { Button, Card } from "react-bootstrap"
-import moneyimg from "assets/moneysprite_small.png"
+import { MoneyImgTag } from "common/common"
 
 export function EffectAcknowledgeOverlay(props: { effect: EffectToAcknowledge, enabled: boolean }) {
   const userSocket = useUserSocket()
@@ -39,9 +39,7 @@ export function EffectAcknowledgeOverlay(props: { effect: EffectToAcknowledge, e
             style={{ fontSize: "3vh" }}>{props.effect.description}
 
             {appendMoneySymbol &&
-              <img className="rounded float-left img-fluid mw-100 mh-100"
-                style={{ width: "20px", height: "10px" }}
-                src={moneyimg} alt=""></img>
+              <MoneyImgTag />
             }
           </p>
 

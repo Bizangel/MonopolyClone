@@ -2,7 +2,6 @@ import { PlayerCharacter } from "common/characterModelConstants"
 import { characterToSprite } from "common/characterSprites"
 import { AnimatedNumberDiv } from "components/helpers/AnimatedNumberDiv"
 import { Button, Card, Col, Container, Form, Row } from "react-bootstrap"
-import moneyimg from "assets/moneysprite_small.png"
 import { motion } from "framer-motion"
 import { Auction } from "gameState/uiState"
 import { useGameState } from "gameState/gameState"
@@ -10,6 +9,7 @@ import { useCallback, useState } from "react"
 import { useUserSocket } from "hooks/socketProvider"
 import Countdown, { CountdownRenderProps } from 'react-countdown';
 import { propertyIDToImgpath } from "common/cardImages"
+import { MoneyImgTag } from "common/common"
 
 const MotionCard = motion(Card);
 
@@ -46,9 +46,7 @@ function PlayerBidDisplay(props:
               </Col>
               <Col className="p-0 m-0 align-items-center justify-content-center float-left" align="left" xs="4">
                 <AnimatedNumberDiv value={props.bidAmount} durationSeconds={0.1} />
-                <img className="rounded float-left img-fluid mw-100 mh-100"
-                  style={{ width: "20px", height: "10px" }}
-                  src={moneyimg} alt=""></img>
+                <MoneyImgTag />
               </Col>
             </Row>
           </Col>
@@ -110,9 +108,7 @@ export function AuctionOverlay(props: { auction: Auction }) {
                 style={{ fontSize: "3vh" }}>Highest Bid: <AnimatedNumberDiv
                   value={highestBid} durationSeconds={0.1} />
 
-                <img className="rounded float-left img-fluid mw-100 mh-100"
-                  style={{ width: "20px", height: "10px" }}
-                  src={moneyimg} alt=""></img></p>
+                <MoneyImgTag /></p>
             </Card>
           </Row>
           <Row className="h-50 w-100 p-0 m-0">

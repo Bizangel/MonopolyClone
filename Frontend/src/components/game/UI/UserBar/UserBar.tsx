@@ -1,12 +1,12 @@
 import React from "react";
 import { Card, Col, Container, ListGroup, Row } from "react-bootstrap";
 import { motion } from "framer-motion"
-import moneyimg from "assets/moneysprite_small.png"
 import { characterToSprite } from "common/characterSprites";
 import { PlayerCharacter } from "common/characterModelConstants";
 import { MiniPropertyDisplay } from "./MiniPropertyDisplay";
 import { PropertyDeed, useGameState } from "gameState/gameState";
 import { AnimatedNumberDiv } from "components/helpers/AnimatedNumberDiv";
+import { MoneyImgTag } from "common/common";
 
 export type UserBarProps = {
   username: string,
@@ -50,9 +50,7 @@ export function UserBar(props: UserBarProps) {
                 <AnimatedNumberDiv value={parseInt(props.money)} />
               </Col>
               <Col className="p-0 m-0 align-items-center justify-content-center" xs="6">
-                <img className="rounded float-left img-fluid mw-100 mh-100"
-                  style={{ width: "20px", height: "10px" }}
-                  src={moneyimg} alt=""></img>
+                <MoneyImgTag />
               </Col>
             </Row>
           </Col>

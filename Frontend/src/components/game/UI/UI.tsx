@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useInternalEvent } from "hooks/internalEvent";
 import { Button, Row } from "react-bootstrap";
 import { DiceDisplay } from "./DiceDisplay";
@@ -13,6 +13,7 @@ import { TurnPhase } from "gameState/uiState";
 import { useCharacterStoppedStore } from "../Player/CharacterModel";
 import { EffectAcknowledgeOverlay } from "./BuyAuctionUI/EffectAcknowledgeOverlay";
 import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
+import { TradeOverlay } from "./TradeUI/TradeOverlay";
 
 export function UI() {
   const userSocket = useUserSocket();
@@ -55,6 +56,13 @@ export function UI() {
       topDisplay = "Auction!";
       break;
   }
+
+  // topDisplayColor = "text-info";
+  // topDisplay = (
+  //   <p>
+  //     <i> {currentPlayers[currentTurn].name}</i>  wants to trade with <i>string</i>
+  //   </p>
+  // )
 
   return (
     <>
@@ -116,6 +124,22 @@ export function UI() {
         </AnimatePresence>
       </div>
 
+      {/* <AnimatePresence>
+        {
+          true &&
+          <motion.div
+            style={{ zIndex: 2 }}
+
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <TradeOverlay />
+          </motion.div>
+        }
+      </AnimatePresence> */}
+
 
       <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
         <AnimatePresence>
@@ -138,9 +162,11 @@ export function UI() {
         </AnimatePresence>
       </div>
 
-      <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1 }}>
+      <motion.div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1 }}
+        whileHover={{ zIndex: 3 }}
+      >
         <MultipleUserBars />
-      </div>
+      </motion.div>
 
       <motion.div
         onClick={() => { setDiceFocus(e => !e) }}
@@ -173,7 +199,8 @@ export function UI() {
         zIndex: 1,
         position: "absolute", left: "45vw", bottom: "5vh", width: "10vw", height: "10vh",
         alignItems: "center", textAlign: "center", display: "inline-block", pointerEvents: "none",
-      }} >
+      }}
+      >
         <AnimatePresence>
           {
             isCurrentTurn && UIState.turnPhase === TurnPhase.Standby &&

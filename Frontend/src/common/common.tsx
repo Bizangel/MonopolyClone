@@ -1,3 +1,4 @@
+import moneyimg from "assets/moneysprite_small.png"
 export const isDevelopment = process.env.NODE_ENV === "development";
 
 export function HOSTURL() {
@@ -25,4 +26,13 @@ export function readCookie(name: string) {
     if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
   }
   return null;
+}
+
+export function MoneyImgTag() {
+  return (
+    <img className="rounded float-left img-fluid mw-100 mh-100"
+      style={{ width: "20px", height: "10px" }}
+      src={moneyimg} alt="" ></img>
+  )
+
 }

@@ -1,6 +1,6 @@
 import { propertyIDToImgpath } from "common/cardImages";
 import { NProperties, colorsToHex, propertyToColor } from "common/propertyConstants";
-import React from "react";
+import React, { useRef } from "react";
 import { Col, Container, Row } from "react-bootstrap"
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -19,7 +19,11 @@ for (const propID of Array(NProperties).keys()) {
   colorToCount.set(color, count + 1);
 }
 
-function CardEntryWithHover(props: { propID: number, color: string | undefined, idkey: string }) {
+function CardEntryWithHover(props: {
+  propID: number, color: string | undefined, idkey: string,
+  containerRef?: React.RefObject<HTMLElement>
+}) {
+
   if (props.color === undefined)
     return <div className="rounded-1 invisible" style={{ height: "25%" }}></div>
 
@@ -27,6 +31,7 @@ function CardEntryWithHover(props: { propID: number, color: string | undefined, 
     <OverlayTrigger
       trigger={["hover", "focus"]}
       placement={"bottom"}
+      container={props.containerRef}
       overlay={
         <Popover id={`popover-positioned-top`}>
           <img className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.propID)} alt="PaseoPoblado" />
@@ -71,10 +76,10 @@ function CardEntryWithHover(props: { propID: number, color: string | undefined, 
   )
 }
 
-
-
 export function MiniPropertyDisplay(props: { ownedProperties: number[] }) {
   const sections: React.ReactNode[] = [];
+
+  const ref = useRef<HTMLDivElement>(null);
 
   var curPropID = 0;
   colorToCount.forEach((count, color) => {
@@ -85,6 +90,7 @@ export function MiniPropertyDisplay(props: { ownedProperties: number[] }) {
       }
       curPropID++;
       return <CardEntryWithHover color={actualDisplaycolor}
+        containerRef={ref}
         propID={curPropID - 1}
         idkey={"tooltip-" + curPropID.toString()} key={`card-entry-${curPropID}`} />
     })
@@ -100,7 +106,7 @@ export function MiniPropertyDisplay(props: { ownedProperties: number[] }) {
 
   return (
     <Container className="w-100 h-100 m-0 p-0">
-      <Row className="w-100 h-100 m-0 p-0">
+      <Row className="w-100 h-100 m-0 p-0" ref={ref}>
         <>
           {sections}
         </>
