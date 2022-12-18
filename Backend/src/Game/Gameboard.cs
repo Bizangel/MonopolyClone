@@ -13,7 +13,7 @@ namespace MonopolyClone.Game;
 /// </summary>
 public class EffectToApply
 {
-    public TileEffect effect { get; init; } = new DeductAmountEffect();
+    public TileEffect effect { get; init; } = new RawSumEffect();
 
     public string description { get; init; } = "";
 }
@@ -129,11 +129,13 @@ public class GameBoard
         int manualWalk = originalLocation;
         while (manualWalk != targetLocation)
         {
-            manualWalk++;
+            manualWalk++; // see that effect is not applied to current square!
             manualWalk %= BoardConstants.BoardSquares;
 
             // TODO Implement Passthrough Effects
-            // _tileCollection.tiles[manualWalk].passtrough_effect.execute
+            var passThroughEffect = _tileCollection.tiles[manualWalk].passThroughEffect;
+            if (passThroughEffect != null)
+                passThroughEffect.ExecuteEffect(player, state.players, manualWalk, _tileCollection.tiles);
         };
 
         // Actually set location

@@ -6,7 +6,11 @@
     {
       // GO Tile -----
       "tileID": 0,
-      "effect": null
+      "effect": null,
+      "passThroughEffect": {
+        "effectID": 1, // raw sum effect
+        "sumAmount": 200
+      }
     },
     {
       // Brown 1 ----
