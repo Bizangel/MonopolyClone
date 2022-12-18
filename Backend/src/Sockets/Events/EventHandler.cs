@@ -105,7 +105,7 @@ public static class SocketsEventHandler
             if (payloadIn == null)
                 throw new ArgumentException("Invalid Signature.");
         }
-        catch (JsonException)
+        catch (Newtonsoft.Json.JsonException)
         {
             // if this happens in prod, event is discarded.
             _logger.Debug("Received corrupted event payload: " + payload);

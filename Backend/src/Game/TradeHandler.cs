@@ -3,13 +3,15 @@ using MonopolyClone.Database.Models;
 
 namespace MonopolyClone.Game;
 
+[Serializable]
 public class TradeOffer
 {
     public int money { get; set; } = 0;
 
-    public List<PropertyDeed> properties = new List<PropertyDeed>();
+    public List<int> properties = new List<int>(); // property IDs specified
 }
 
+[Serializable]
 public class TradeState
 {
     public string tradeInitiator { get; set; } = "";
@@ -53,7 +55,7 @@ public class TradeHandler
         // check that all properties are indeed in owned properties
         foreach (var property in offer.properties)
         {
-            if (!ownedProperties.Contains(property.propertyID))
+            if (!ownedProperties.Contains(property))
                 return false;
         }
 
@@ -106,12 +108,12 @@ public class TradeHandler
         // Send properties from initiator to target
         foreach (var property in _currentTrade.initiatorOffer.properties)
         {
-            TransferProperty(_initiator, _target, property.propertyID);
+            TransferProperty(_initiator, _target, property);
         }
         // Send properties from target to initiator
         foreach (var property in _currentTrade.targetOffer.properties)
         {
-            TransferProperty(_target, _initiator, property.propertyID);
+            TransferProperty(_target, _initiator, property);
         }
 
         // trade has effectively finish. CLear it up.
@@ -172,7 +174,7 @@ public class TradeHandler
     /// <returns></returns>
     public bool isActiveTrade()
     {
-        return _currentTrade == null;
+        return _currentTrade != null;
     }
 
     /// <summary>
@@ -199,6 +201,13 @@ public class TradeHandler
             _currentTrade.initiatorOffer = newOffer;
         else if (player == TradePartaker.Target && VerifyOffer(_target, newOffer))
             _currentTrade.targetOffer = newOffer;
+
+        if (player != null)
+        {  // there was a change, so consent must be reapproved
+            _currentTrade.initiatorConsent = false;
+            _currentTrade.targetConsent = false;
+        }
+
     }
 
     /// <summary>
@@ -224,5 +233,10 @@ public class TradeHandler
             // finish and perform trade
             PerformTrade();
         };
+    }
+
+    public bool isTradeRecipient(string player)
+    {
+        return findTradePlayerWithName(player) != null;
     }
 };

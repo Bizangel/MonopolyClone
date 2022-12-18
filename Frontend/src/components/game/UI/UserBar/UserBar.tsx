@@ -8,6 +8,7 @@ import { PropertyDeed, useGameState } from "gameState/gameState";
 import { AnimatedNumberDiv } from "components/helpers/AnimatedNumberDiv";
 import { MoneyImgTag } from "common/common";
 import { ContextMenu } from "./CustomContextMenu";
+import { useUserSocket } from "hooks/socketProvider";
 
 export type UserBarProps = {
   username: string,
@@ -31,13 +32,17 @@ export function UserBar(props: UserBarProps) {
   const color = props.isPlayerTurn ? "#f1d397" : undefined
   const outwardTurnClass = props.isPlayerTurn ? "20px" : "0px"
 
+  const userSocket = useUserSocket();
+
+  var displayTrade = userSocket.Username !== props.username; // cannot trade with itself
+
   const startTrade = () => {
-    console.log("trade was clicked")
+    userSocket.emit("start-trade", props.username);
   };
 
 
   return (
-    <ContextMenu elements={[{ text: "Trade", onClick: startTrade }]}>
+    <ContextMenu elements={displayTrade ? [{ text: "Trade", onClick: startTrade }] : []}>
       <MotionCard
         whileHover={{ opacity: 1 }}
         style={{ width: "300px", height: "7vh", opacity: 0.8 }}

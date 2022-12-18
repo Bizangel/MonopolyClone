@@ -15,4 +15,6 @@ public class UIState
     public EffectToApply? effectToAcknowledge { get; set; }
 
     public Auction? currentAuction { get; set; }
+
+    public TradeState? currentTrade { get; set; }
 };

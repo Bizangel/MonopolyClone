@@ -12,7 +12,7 @@ public class MonopolyGame
     /// Defines which events will be listened to and which will be ignored.
     /// </summary>
     private EventLabel _listeningEventLabel = EventLabel.Default;
-
+    private TradeHandler _tradeHandler;
     private Auction? _runningAuction = null;
 
     public EventLabel ListeningEventLabel => _listeningEventLabel;
@@ -23,6 +23,7 @@ public class MonopolyGame
 
     private MonopolyGame()
     {
+        _tradeHandler = new TradeHandler();
         _logger = LogManager.GetCurrentClassLogger();
         _board = new GameBoard();
     }
@@ -449,6 +450,7 @@ public class MonopolyGame
             propertyToBuy = propertyToBuy,
             effectToAcknowledge = awaitingEffect,
             currentAuction = _runningAuction,
+            currentTrade = _tradeHandler.GetCurrentTrade()
         };
     }
 
@@ -480,4 +482,71 @@ public class MonopolyGame
         GenerateUIState();
         await handler.Broadcast("state-update", _gameState);
     }
+
+    /// <summary>
+    /// Returns whether there's a current active trade
+    /// </summary>
+    /// <returns>True if there's an active trade, false otherwise</returns>
+    public bool IsActiveTrade()
+    {
+        return _tradeHandler.isActiveTrade();
+    }
+
+    /// <summary>
+    /// Initiates a trade between two players.
+    /// </summary>
+    /// <param name="source">The initiator of the trade</param>
+    /// <param name="target">The player to trade with</param>
+    public void StartTrade(string source, string target)
+    {
+        var initiator = FindPlayer(source);
+        var tradeTarget = FindPlayer(target);
+
+        if (initiator == null || tradeTarget == null)
+            return;
+
+        _tradeHandler.StartNewTrade(initiator, tradeTarget);
+    }
+
+    /// <summary>
+    /// Sets the trade offer for an ongoing trade
+    /// </summary>
+    /// <param name="player">The player offer's to modify</param>
+    /// <param name="newOffer">The new offer to set</param>
+    public void SetTradeOffer(string player, TradeOffer newOffer)
+    {
+        _tradeHandler.SetOffer(player, newOffer);
+    }
+
+    /// <summary>
+    /// Sets the player consent for the trade.
+    /// Which can be true, in which case the player accepts the current terms of the trade
+    /// </summary>
+    /// <param name="player">The player consenting</param>
+    /// <param name="newConsent">His new consent status</param>
+    public void SetTradeConsent(string player, bool newConsent)
+    {
+        _tradeHandler.SetConsent(player, newConsent);
+    }
+
+
+    /// <summary>
+    /// Determines if the given player is part of a current active trade
+    /// </summary>
+    /// <param name="player">The players name</param>
+    /// <returns>Whether the player is currently participating in an active trade</returns>
+    public bool isTradeRecipient(string player)
+    {
+        return _tradeHandler.isTradeRecipient(player);
+    }
+
+
+    /// <summary>
+    /// Cancels an ongoing trade, should there be one
+    /// </summary>
+    public void CancelTrade()
+    {
+        _tradeHandler.CancelCurrentTrade();
+    }
+
 }

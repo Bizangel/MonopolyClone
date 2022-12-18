@@ -48,7 +48,7 @@ public class LifetimeHandlerService : IHostedService
         }
         catch (Exception ex) when (
             ex is FileNotFoundException ||
-            ex is JsonException ||
+            ex is Newtonsoft.Json.JsonException ||
             ex is ArgumentException
             )
         {

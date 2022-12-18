@@ -33,10 +33,28 @@ export type Auction = {
   auctionedProperty: number,
 }
 
+export type TradeOffer = {
+  properties: number[],
+  money: number,
+}
+
+export type TradeState = {
+  tradeInitiator: string,
+  tradeTarget: string,
+
+  initiatorConsent: boolean,
+  targetConsent: boolean,
+
+  initiatorOffer: TradeOffer,
+  targetOffer: TradeOffer,
+}
+
+
 export type UIState = {
   displayDices: [number, number];
   turnPhase: TurnPhase
   propertyToBuy?: UIPropertyToBuy | null,
   effectToAcknowledge?: EffectToAcknowledge | null,
   currentAuction?: Auction | null,
+  currentTrade?: TradeState | null,
 };

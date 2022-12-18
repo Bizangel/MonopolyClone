@@ -2,8 +2,6 @@ using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 namespace MonopolyClone.Json;
 
-class JsonException : Newtonsoft.Json.JsonException { };
-
 
 static class MonopolySerializer
 {

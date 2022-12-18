@@ -31,7 +31,7 @@ public class SocketEventMessage
             string msg = Encoding.UTF8.GetString(membytes.Memory.Slice(0, byteCount).Span);
             return MonopolySerializer.Deserialize<SocketEventMessage>(msg);
         }
-        catch (JsonException)
+        catch (Newtonsoft.Json.JsonException)
         {
             return null;
         }

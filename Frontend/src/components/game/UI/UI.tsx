@@ -12,7 +12,7 @@ import { TurnPhase } from "gameState/uiState";
 import { useCharacterStoppedStore } from "../Player/CharacterModel";
 import { EffectAcknowledgeOverlay } from "./BuyAuctionUI/EffectAcknowledgeOverlay";
 import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
-// import { TradeOverlay } from "./TradeUI/TradeOverlay";
+import { TradeOverlay } from "./TradeUI/TradeOverlay";
 
 export function UI() {
   const userSocket = useUserSocket();
@@ -56,12 +56,15 @@ export function UI() {
       break;
   }
 
-  // topDisplayColor = "text-info";
-  // topDisplay = (
-  //   <p>
-  //     <i> {currentPlayers[currentTurn].name}</i>  wants to trade with <i>string</i>
-  //   </p>
-  // )
+  if (UIState.currentTrade) {
+    topDisplayColor = "text-info";
+    topDisplay = (
+      <p>
+        <i> {UIState.currentTrade.tradeInitiator}</i>  wants to trade with <i>{UIState.currentTrade.tradeTarget}</i>
+      </p>
+    )
+
+  }
 
   return (
     <>
@@ -69,7 +72,7 @@ export function UI() {
         position: "absolute", left: "0px", top: "0px", zIndex: 1,
         width: "100vw", justifyItems: "center", textAlign: "center",
         fontSize: "2.5vw"
-      }}
+      }} onContextMenu={(e) => { e.preventDefault() }}
         className={topDisplayColor}>
         {topDisplay}
       </div>
@@ -79,6 +82,7 @@ export function UI() {
         width: "100vw", justifyItems: "center", textAlign: "center",
         fontSize: "2.5vw"
       }}
+        onContextMenu={(e) => { e.preventDefault() }}
         className={topDisplayColor}>
         {topDisplay}
       </div>
@@ -88,6 +92,7 @@ export function UI() {
           {
             UIState.currentAuction &&
             <motion.div
+              onContextMenu={(e) => { e.preventDefault() }}
               style={{ zIndex: 1 }}
 
               initial={{ opacity: 0 }}
@@ -107,6 +112,7 @@ export function UI() {
           {
             UIState.effectToAcknowledge && characterToStopped.get(currentPlayers[currentTurn].character) &&
             <motion.div
+              onContextMenu={(e) => { e.preventDefault() }}
               style={{ zIndex: 1 }}
 
               initial={{ opacity: 0 }}
@@ -114,7 +120,6 @@ export function UI() {
               exit={{ opacity: 0 }}
               transition={{ delay: 0.4 }}
             >
-
               <EffectAcknowledgeOverlay effect={UIState.effectToAcknowledge}
                 enabled={isCurrentTurn}
               />
@@ -123,21 +128,20 @@ export function UI() {
         </AnimatePresence>
       </div>
 
-      {/* <AnimatePresence>
+      <AnimatePresence>
         {
-          true &&
+          UIState.currentTrade &&
           <motion.div
             style={{ zIndex: 2 }}
 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ delay: 0.4 }}
           >
-            <TradeOverlay />
+            <TradeOverlay state={UIState} />
           </motion.div>
         }
-      </AnimatePresence> */}
+      </AnimatePresence>
 
 
       <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
@@ -145,6 +149,7 @@ export function UI() {
           {
             UIState.propertyToBuy && characterToStopped.get(currentPlayers[currentTurn].character) &&
             <motion.div
+              onContextMenu={(e) => { e.preventDefault() }}
               style={{ zIndex: 1 }}
 
               initial={{ opacity: 0 }}
@@ -168,6 +173,7 @@ export function UI() {
       </motion.div>
 
       <motion.div
+        onContextMenu={(e) => { e.preventDefault() }}
         onClick={() => { setDiceFocus(e => !e) }}
         style={
           { position: "absolute", zIndex: 1, opacity: 0.7 }
@@ -202,7 +208,7 @@ export function UI() {
       >
         <AnimatePresence>
           {
-            isCurrentTurn && UIState.turnPhase === TurnPhase.Standby &&
+            isCurrentTurn && UIState.turnPhase === TurnPhase.Standby && !UIState.currentTrade &&
             <motion.div
               style={{ zIndex: 1 }}
               whileHover={{ scale: 1.2 }}

@@ -55,7 +55,7 @@ public class WebSocketController : ControllerBase
             {
                 holder = MonopolySerializer.Deserialize<CookieHolder>(_aesEncryptor.Decrypt(authCookie));
             }
-            catch (JsonException)
+            catch (Newtonsoft.Json.JsonException)
             {
                 await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
                 return;

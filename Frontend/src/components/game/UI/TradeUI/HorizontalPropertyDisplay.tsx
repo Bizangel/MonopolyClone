@@ -14,7 +14,7 @@ const CardWithHover = forwardRef(
     placement?: "bottom" | "top",
     propertyID: number
     containerRef?: React.RefObject<HTMLElement>,
-    onClick?: () => void,
+    onClick?: (propertyID: number) => void,
     basePrice: number,
   }, ref: React.Ref<CardWithHoverRef>) => {
     const [isShown, setShown] = useState(false);
@@ -30,7 +30,7 @@ const CardWithHover = forwardRef(
       if (e.type === 'click') {
         setShown(false);
         if (props.onClick)
-          props.onClick();
+          props.onClick(props.propertyID);
       } else if (e.type === 'contextmenu') {
         setShown(e => !e);
         e.preventDefault()
@@ -58,13 +58,13 @@ const CardWithHover = forwardRef(
   });
 
 export function HorizontalPropertyWindow(props: {
-  scrollRef?: React.RefObject<HTMLElement>,
   hoverPlacement?: "bottom" | "top"
-  reverse?: boolean
+  reverse?: boolean,
+  properties: number[], // id of properties to display
+  onPropertyClick?: (propertyID: number) => void,
 }) {
 
-  // const sampleCards = [0, 2, 3, 4, 15, 27, 16, 18];
-  const sampleCards = [0, 2, 3];
+  const internalScrollRef = useRef<HTMLElement>(null);
 
   const cardRefs = useRef<Map<number, CardWithHoverRef> | null>(null);
 
@@ -85,8 +85,8 @@ export function HorizontalPropertyWindow(props: {
   }
 
   const onScroll: WheelEventHandler<HTMLDivElement> = (e: React.WheelEvent<HTMLDivElement>) => {
-    if (props.scrollRef && props.scrollRef.current) {
-      props.scrollRef.current.scrollLeft += e.deltaY;
+    if (internalScrollRef.current) {
+      internalScrollRef.current.scrollLeft += e.deltaY;
       getCardRefsmaps().forEach(e => e.removeHover());
     }
   };
@@ -97,11 +97,11 @@ export function HorizontalPropertyWindow(props: {
   return (
     <div className="h-100 w-100" onWheel={onScroll}>
       <Card className="h-100 w-100">
-        <Row className={`d-flex ${reversedClass} flex-nowrap h-100`} >
+        <Row className={`d-flex ${reversedClass} flex-nowrap h-100`} style={{ overflowX: "auto" }} ref={internalScrollRef}>
           {
-            sampleCards.map((e) =>
+            props.properties.map((e) =>
               <CardWithHover placement={props.hoverPlacement} propertyID={e} key={e} ref={(node) => { getCardRef(node, e) }}
-                basePrice={200}
+                basePrice={200} onClick={props.onPropertyClick}
               />
             )
           }
