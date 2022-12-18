@@ -199,3 +199,27 @@ As soon as both parties register their consent, the trade will automatically go 
   payload: "cancel"
 }
 ```
+
+## Upgrade Event
+
+This event is sent by the players to notify the desire to upgrade a property.
+
+The server will check if they can upgrade said property should the following three criteria be met:
+
+1. The player has all the properties of the same color, and owns the property to upgrade.
+2. The player has not upgraded any property in that turn
+3. The player has the money to upgrade the property.
+
+Should it be successful it will be notified in the next UIState broadcast.
+The act of upgrading properties can only be performed during the initial turnphase of
+```ts
+{
+  event: "upgrade-property"
+  payload: int, // property id
+}
+// example
+{
+  event: "upgrade-property"
+  payload: 2, // upgrade property
+}
+```

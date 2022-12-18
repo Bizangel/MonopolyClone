@@ -22,4 +22,6 @@ public static class BoardConstants
     /// Also defines all of the possible property ids.
     /// </summary>
     public const int NProperties = 28;
+
+    public static readonly int[] UpgradePrices = new int[] { 50, 100, 150, 200 };
 }

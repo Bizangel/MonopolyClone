@@ -1,7 +1,7 @@
 import { HouseImgTag, MoneyImgTag, TransportImgTag } from "common/common";
 import { useUserSocket } from "hooks/socketProvider";
 import { BaseMiddleDisplayUI } from "./BaseMiddleDisplayUI"
-import { Button, Card, Col } from "react-bootstrap";
+import { Button, Card, Col, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { propertyIDToImgpath } from "common/cardImages";
 import { propertyIDToPrice } from "common/propertiesMapping";
 import { propertyToColor } from "common/propertyConstants";
@@ -22,7 +22,7 @@ export function PropertyDetailsOverlay(props: {
   const players = useGameState(e => e.players);
 
   const purchaseHouseUpgrade = () => {
-    console.log("attempting upgrade");
+    userSocket.emit("upgrade-property", props.propertyID)
   };
 
   var thisOwned: PropertyDeed | null = null;
@@ -127,7 +127,18 @@ export function PropertyDetailsOverlay(props: {
       below={
         <>
           <Col xs="3">
-            <Button disabled={!props.enabled} onClick={purchaseHouseUpgrade}>Purchase Upgrade</Button>
+            <OverlayTrigger
+              placement="left"
+              trigger={["focus", "hover"]}
+              overlay={
+                <></>
+                // <Tooltip>
+                //   yes plz
+                // </Tooltip>
+              }
+            >
+              <Button disabled={!props.enabled} onClick={purchaseHouseUpgrade}>Purchase Upgrade</Button>
+            </OverlayTrigger>
           </Col>
           <Col xs="3">
             <Button disabled={!props.enabled} variant="secondary" onClick={props.onHide}>Close </Button>

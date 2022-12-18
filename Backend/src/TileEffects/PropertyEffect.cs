@@ -60,7 +60,7 @@ class PropertyEffect : TileEffect
     /// <param name="player">The player to count the owned categories of</param>
     /// <param name="gameTiles">The list of all the game tiles to check (ideally all 40)</param>
     /// <returns>How many of the same category properties are owned by the player, in the given gametiles </returns>
-    private int countOwnedCategories(int category, Player player, List<GameTile> gameTiles)
+    public static int countOwnedCategories(int category, Player player, List<GameTile> gameTiles)
     {
         var ownedSameColorCounter = 0;
 

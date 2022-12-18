@@ -2,6 +2,7 @@ using MonopolyClone.Common;
 using MonopolyClone.Database.Models;
 using MonopolyClone.Events;
 using MonopolyClone.InterfaceState;
+
 using NLog;
 
 namespace MonopolyClone.Game;
@@ -21,6 +22,7 @@ public class MonopolyGame
     private static readonly MonopolyGame _instance = new MonopolyGame();
     public static MonopolyGame Instance => _instance;
 
+    private bool _hasUpgradedPropertyThisTurn = false;
     private MonopolyGame()
     {
         _tradeHandler = new TradeHandler();
@@ -398,20 +400,22 @@ public class MonopolyGame
     /// </summary>
     public void AttemptFinishTurn()
     {
-        if (_roll_result != null &&
-        _roll_result.diceResult[0] == _roll_result.diceResult[1]) // Doubles
-        {
-            _currentTurnPhase = TurnPhase.Standby;
-            return; // effectively yield
-        }
+        bool wasDoubles = false;
+        if (_roll_result != null)
+            wasDoubles = _roll_result.diceResult[0] == _roll_result.diceResult[1];
 
         // TODO add handling here for jail ()
 
         _roll_result = null;
         _currentTurnPhase = TurnPhase.Standby;
-        _gameState.currentTurn += 1;
-        _gameState.currentTurn %= _gameState.players.Count();
         _runningAuction = null; // delete auction just in case
+        _hasUpgradedPropertyThisTurn = false;
+
+        if (!wasDoubles) // Don't switch to next player
+        {
+            _gameState.currentTurn += 1;
+            _gameState.currentTurn %= _gameState.players.Count();
+        }
     }
 
 
@@ -450,7 +454,8 @@ public class MonopolyGame
             propertyToBuy = propertyToBuy,
             effectToAcknowledge = awaitingEffect,
             currentAuction = _runningAuction,
-            currentTrade = _tradeHandler.GetCurrentTrade()
+            currentTrade = _tradeHandler.GetCurrentTrade(),
+            hasPurchasedUpgrade = _hasUpgradedPropertyThisTurn,
         };
     }
 
@@ -547,6 +552,99 @@ public class MonopolyGame
     public void CancelTrade()
     {
         _tradeHandler.CancelCurrentTrade();
+    }
+
+
+    /// <summary>
+    /// Attempts to upgrade the given property.
+    ///
+    /// Verifies that the upgrade is valid, else will fail.
+    /// This implies, the player must own the property, has all of same color, has money, etc
+    /// </summary>
+    /// <param name="playername">The name of the player upgrading the property</param>
+    /// <param name="propertyID">The property to upgrade</param>
+    /// <returns>Whether the upgrade was successful</returns>
+    public bool UpgradeProperty(string playername, int propertyID)
+    {
+        Player? player = FindPlayer(playername);
+        if (player == null)
+            return false;
+
+        if (propertyID < 0 || propertyID > (BoardConstants.NProperties - 1))
+            return false;
+
+        MonopolyClone.TileEffects.PropertyEffect? property = null;
+        // find actual property
+        foreach (var tile in _board.Tiles)
+        {
+            if (tile.effect != null && tile.effect.effectID == 0)
+            {
+                property = (MonopolyClone.TileEffects.PropertyEffect)tile.effect;
+                if (property.propertyID == propertyID)
+                {
+                    break;
+                }
+                else
+                {
+                    property = null;
+                }
+            }
+        }
+
+        if (property == null)
+            throw new ArgumentException($"Could not find property to upgrade with ID {propertyID}");
+
+        // verify that property is even upgradable
+        if (property.colorGroup == 8 || property.colorGroup == 9) // transport and service cannot be upgraded.
+            return false;
+
+        // verify that he owns the property.
+        var foundIndex = player.properties.FindIndex(e => e.propertyID == property.propertyID);
+        if (foundIndex == -1)
+            return false; // doesn't own the property
+
+        // verify that has not reached max already
+        if (player.properties[foundIndex].upgradeState == 5) // 5 is hotel, and max
+            return false;
+
+        // verify that he owns ALL of the same color.
+        var colorCount = MonopolyClone.TileEffects.PropertyEffect.countOwnedCategories(property.colorGroup, player, _board.Tiles);
+
+        bool ownsAll = false;
+        if (property.colorGroup == 0 || property.colorGroup == 7)
+        {
+            ownsAll = colorCount == 2; // only 2 for brown and blue
+        }
+        else
+        {
+            ownsAll = colorCount == 3; //3 for rest
+        }
+
+        if (!ownsAll) // doesn't own all properties
+            return false;
+
+        // verify if he has upgraded in this same turn
+        if (_hasUpgradedPropertyThisTurn)
+            return false;
+
+        int costOfUpgrade;
+        if (property.colorGroup < 8)
+        {
+            costOfUpgrade = BoardConstants.UpgradePrices[property.colorGroup / 2];
+        }
+        else
+        {
+            throw new ArgumentException("Received invalid property to calculate cost of upgrade");
+        }
+
+        if (player.money < costOfUpgrade) // not enough money
+            return false;
+
+        // passed all checks, upgrade
+        player.money -= costOfUpgrade;
+        player.properties[foundIndex].upgradeState++;
+        _hasUpgradedPropertyThisTurn = true;
+        return true;
     }
 
 }

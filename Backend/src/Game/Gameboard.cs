@@ -215,5 +215,11 @@ public class GameBoard
     {
         effect.ExecuteEffect(player, state.players, player.location, _tileCollection.tiles);
     }
+
+    /// <summary>
+    /// Gets a reference to the tiles.
+    /// NOT TO BE MODIFIED (although compiler should prevent you from doing it)
+    /// </summary>
+    public List<GameTile> Tiles => _tileCollection.tiles;
 }
 

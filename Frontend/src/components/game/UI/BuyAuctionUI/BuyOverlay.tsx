@@ -1,10 +1,8 @@
-import { Button, Card, Col } from "react-bootstrap"
+import { Button, Card, Col, OverlayTrigger, Tooltip } from "react-bootstrap"
 import { propertyIDToImgpath } from "common/cardImages"
 import { useUserSocket } from "hooks/socketProvider"
 import { BaseMiddleDisplayUI } from "./BaseMiddleDisplayUI"
 import { MoneyImgTag } from "common/common"
-
-
 
 export function BuyOverlay(props: { price: number, propertyID: number, enabled: boolean, canPay: boolean }) {
   const userSocket = useUserSocket()
@@ -16,6 +14,8 @@ export function BuyOverlay(props: { price: number, propertyID: number, enabled: 
   const auctionProperty = () => {
     userSocket.emit("property-choice", "auction"); // auction
   };
+
+  var hideTooltip = props.canPay ? "invisible" : "";
 
   return (
     <BaseMiddleDisplayUI
@@ -34,7 +34,21 @@ export function BuyOverlay(props: { price: number, propertyID: number, enabled: 
       below={
         <>
           <Col xs="3">
-            <Button disabled={!props.enabled || !props.canPay} onClick={purchaseProperty}>Purchase Property</Button>
+            <OverlayTrigger
+              placement="left"
+              trigger={["focus", "hover"]}
+              overlay={
+                <Tooltip className={hideTooltip}>
+                  {!props.canPay &&
+                    <i>Not Enough Money</i>
+                  }
+                </Tooltip>
+              }
+            >
+              <span>
+                <Button disabled={!props.enabled || !props.canPay} onClick={purchaseProperty}>Purchase Property</Button>
+              </span>
+            </OverlayTrigger>
           </Col>
           <Col xs="3">
             <Button disabled={!props.enabled} onClick={auctionProperty} variant="warning">Auction Property </Button>
