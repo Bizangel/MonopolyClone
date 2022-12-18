@@ -11,7 +11,7 @@ type GameState = {
   updateNewState: (newState: GameState) => void,
 }
 
-type Player = {
+export type Player = {
   name: string,
   location: number,
   money: number,

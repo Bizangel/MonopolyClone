@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useInternalEvent } from "hooks/internalEvent";
 import { Button, Row } from "react-bootstrap";
 import { DiceDisplay } from "./DiceDisplay";
@@ -13,10 +13,28 @@ import { useCharacterStoppedStore } from "../Player/CharacterModel";
 import { EffectAcknowledgeOverlay } from "./BuyAuctionUI/EffectAcknowledgeOverlay";
 import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
 import { TradeOverlay } from "./TradeUI/TradeOverlay";
+import { PropertyDetailsOverlay } from "./BuyAuctionUI/PropertyDetailsUpgrade";
 
-export function UI() {
+/**
+ * The UI is one big div that effectively dispalys all user UI.
+ *
+ * It is composed by the following overlays, which not always are displayed at all times:
+ *
+ * TopDisplay -> Atop Display that shows turns, trade, auction, etc
+ * DiceDisplay -> Displays last dice roll
+ * UserBarsOverlay -> Effectively top left corner display of all users and their money
+ * EffectAcknowledge -> Overlay shown to accept and acknowledge effects, like paying or negative effects.
+ * PropertyDetails -> The Details property overlay shown when a user clicks a property. This is an unsynced UI overlay as of the moment.
+ * BuyOverlay -> The overlay to display when the player should make the choice of buying or auctioning
+ * TradeOverlay -> The overlay to display when there's a currently active trade.
+ * RollDiceButton -> Effectively the dice button, which should be clicked to roll the dice and proceed the turn.
+ *
+ * */
+export function UI(props: {
+  shouldAllowDetails: boolean, setShouldAllowDetails: React.Dispatch<React.SetStateAction<boolean>>
+  displayDetailProperty: number | null, hideDetail: () => void
+}) {
   const userSocket = useUserSocket();
-
   const UIState = useGameState(e => e.uiState);
   const currentTurn = useGameState(e => e.currentTurn);
   const currentPlayers = useGameState(e => e.players);
@@ -30,6 +48,17 @@ export function UI() {
   useAwaitInternalEvent("dice-set-focus", (focus: boolean) => {
     setDiceFocus(focus);
   })
+
+  // Hide Details Tab, and disallow it whenever big UIs pop up
+  useEffect(() => {
+    if (UIState.currentAuction || UIState.currentTrade || UIState.effectToAcknowledge || UIState.propertyToBuy) {
+      props.hideDetail(); // hide the details panel
+      props.setShouldAllowDetails(false);// disallow it
+    } else {
+      props.setShouldAllowDetails(true); // if panels are gone allow it
+    }
+  },
+    [UIState, props])
 
   var topDisplayColor = "";
   var topDisplay: React.ReactNode = "";
@@ -128,6 +157,25 @@ export function UI() {
         </AnimatePresence>
       </div>
 
+      <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}
+      >
+        <AnimatePresence>
+          {
+            props.displayDetailProperty !== null &&
+            <motion.div
+              onContextMenu={(e) => { e.preventDefault() }}
+              style={{ zIndex: 1 }}
+
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <PropertyDetailsOverlay enabled={true} propertyID={props.displayDetailProperty} onHide={() => props.hideDetail()} />
+            </motion.div>
+          }
+        </AnimatePresence>
+      </div>
+
       <AnimatePresence>
         {
           UIState.currentTrade &&
@@ -208,7 +256,7 @@ export function UI() {
       >
         <AnimatePresence>
           {
-            isCurrentTurn && UIState.turnPhase === TurnPhase.Standby && !UIState.currentTrade &&
+            isCurrentTurn && props.displayDetailProperty === null && UIState.turnPhase === TurnPhase.Standby && !UIState.currentTrade &&
             <motion.div
               style={{ zIndex: 1 }}
               whileHover={{ scale: 1.2 }}

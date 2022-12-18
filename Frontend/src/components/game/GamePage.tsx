@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRef } from 'react';
 import { Canvas, } from '@react-three/fiber'
 import { CameraController, CameraRefObject } from "components/game/Board/CameraController";
@@ -10,6 +10,7 @@ import { GameDiceHandler } from "./Board/GameDiceHandler";
 import { boardYLocation } from "common/boardConstants";
 import { useSocketEvent } from "hooks/useSocketEvent";
 import { GameTileHouse } from "./Board/GameTileHouse";
+import { tileToPropertyID } from "common/propertiesMapping";
 
 
 /**
@@ -18,6 +19,8 @@ import { GameTileHouse } from "./Board/GameTileHouse";
  */
 export function Gamepage() {
   const cameraController = useRef<CameraRefObject>(null);
+  const [displayDetail, setDisplayDetail] = useState<number | null>(null);
+  const [shouldAllowDetails, setShouldAllowDetails] = useState(false);
 
   useSocketEvent("testEvent", (payload) => {
     console.log("Received test event:!", payload)
@@ -25,10 +28,13 @@ export function Gamepage() {
 
   const onTileClick = (tileIndex: number) => {
     console.log("clicked tile:", tileIndex)
+    var tile = tileToPropertyID.get(tileIndex);
+    if (tile !== undefined && shouldAllowDetails) {
+      setDisplayDetail(tile);
+    }
   }
 
   return (
-
     < div id="canvas-container" style={{ width: "100vw", height: "100vh", userSelect: "none" }} >
       <Canvas style={{ zIndex: 0, position: "absolute" }}>
         <ambientLight intensity={0.4} color="white" />
@@ -51,7 +57,9 @@ export function Gamepage() {
         </Physics>
       </Canvas>
 
-      <UI />
+      <UI displayDetailProperty={displayDetail}
+        shouldAllowDetails={shouldAllowDetails} setShouldAllowDetails={setShouldAllowDetails}
+        hideDetail={() => setDisplayDetail(null)} />
     </div>
   )
 }

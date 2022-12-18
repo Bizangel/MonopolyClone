@@ -1,9 +1,9 @@
 import { Col, Container, Row } from "react-bootstrap"
 
 export function BaseMiddleDisplayUI(props:
-  { upper?: React.ReactNode, middle?: React.ReactNode, below?: React.ReactNode, right?: React.ReactNode }) {
+  { upper?: React.ReactNode, middle?: React.ReactNode, below?: React.ReactNode, right?: React.ReactNode, onClick?: () => void }) {
   return (
-    <Container className="p-0 m-0 mw-100 mh-100" style={{ width: "100vw", height: "100vh" }}>
+    <Container className="p-0 m-0 mw-100 mh-100" style={{ width: "100vw", height: "100vh" }} onClick={props.onClick}>
       <Row className="w-100 h-100 m-0 p-0">
         <Col className="h-100 m-0 p-0" xs="4">
         </Col>

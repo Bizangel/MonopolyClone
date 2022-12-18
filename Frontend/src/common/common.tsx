@@ -1,4 +1,6 @@
 import moneyimg from "assets/moneysprite_small.png"
+import houseimg from "assets/character_sprites/housesprite.png";
+import transportimg from "assets/character_sprites/transportsprite.png";
 export const isDevelopment = process.env.NODE_ENV === "development";
 
 export function HOSTURL() {
@@ -34,5 +36,22 @@ export function MoneyImgTag() {
       style={{ width: "20px", height: "10px" }}
       src={moneyimg} alt="" ></img>
   )
+}
 
+
+export function HouseImgTag() {
+  return (
+    <img className="rounded float-left img-fluid mw-100 mh-100"
+      style={{ width: "20px", height: "20px" }}
+      src={houseimg} alt="" ></img>
+  )
+}
+
+
+export function TransportImgTag() {
+  return (
+    <img className="rounded float-left img-fluid mw-100 mh-100"
+      style={{ width: "20px", height: "20px" }}
+      src={transportimg} alt="" ></img>
+  )
 }
