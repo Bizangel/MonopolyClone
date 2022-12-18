@@ -7,7 +7,6 @@ import { MultipleUserBars } from "./UserBar/UserBar"
 import { useGameState } from "gameState/gameState";
 import { useUserSocket } from "hooks/socketProvider";
 import { useAwaitInternalEvent } from "hooks/internalEvent";
-// import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
 import { BuyOverlay } from "./BuyAuctionUI/BuyOverlay";
 import { TurnPhase } from "gameState/uiState";
 import { useCharacterStoppedStore } from "../Player/CharacterModel";
