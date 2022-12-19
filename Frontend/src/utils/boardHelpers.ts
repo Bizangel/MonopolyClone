@@ -219,3 +219,32 @@ export function getNextTileRotation(tileIndex: number) {
       throw new Error("Received invalid tileIndex in getNextDirection: " + tileIndex)
   }
 }
+
+export function getProperHouseRotation(tileIndex: number) {
+  var row = -1;
+  if (0 <= tileIndex && tileIndex < 10)
+    row = 1;
+  else if (10 <= tileIndex && tileIndex < 20)
+    row = 2;
+  else if (20 <= tileIndex && tileIndex < 30)
+    row = 3;
+  else
+    row = 4;
+
+  switch (row) {
+    case 1:
+      return Math.PI / 2;
+
+    case 2:
+      return 0;
+
+    case 3:
+      return 3 * Math.PI / 2;
+
+    case 4:
+      return Math.PI;
+
+    default:
+      throw new Error("Received invalid tileIndex in getNextDirection: " + tileIndex)
+  }
+}

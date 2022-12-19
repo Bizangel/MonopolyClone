@@ -33,3 +33,4 @@ export const boardMaterial = "board"
 export const housePath = require("assets/models3d/house.stl") as string;
 export const houseScale = 0.03;
 export const houseMaterial = new MeshStandardMaterial({ color: 0x1ee37d, metalness: 0.3, roughness: 0.2 })
+export const hotelMaterial = new MeshStandardMaterial({ color: 0xd42626, metalness: 0.3, roughness: 0.2 })
