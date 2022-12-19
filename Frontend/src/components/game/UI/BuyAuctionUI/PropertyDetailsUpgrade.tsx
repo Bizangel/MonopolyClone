@@ -7,6 +7,7 @@ import { propertyIDToPrice } from "common/propertiesMapping";
 import { propertyToColor } from "common/propertyConstants";
 import { Player, PropertyDeed, useGameState } from "gameState/gameState";
 import { characterToSprite } from "common/characterSprites";
+import { TurnPhase } from "gameState/uiState";
 
 /// TODO add house can pay validation to display
 
@@ -19,7 +20,10 @@ export function PropertyDetailsOverlay(props: {
 }) {
 
   const userSocket = useUserSocket();
+  const currentTurn = useGameState(e => e.currentTurn)
   const players = useGameState(e => e.players);
+  const hasPurchasedUpgrade = useGameState(e => e.uiState.hasPurchasedUpgrade)
+  const currentTurnPhase = useGameState(e => e.uiState.turnPhase);
 
   const purchaseHouseUpgrade = () => {
     userSocket.emit("upgrade-property", props.propertyID)
@@ -42,12 +46,24 @@ export function PropertyDetailsOverlay(props: {
     }
   }
 
+  var hasAllOfSameColor = false;
   var countSameColor = 0;
   if (owner) {
     owner.properties.forEach(e => {
       if (propertyToColor(e.propertyID) === thisColorGroup)
         countSameColor++;
     })
+
+
+
+    if (thisColorGroup === "brown" || thisColorGroup === "blue")
+      hasAllOfSameColor = countSameColor === 2;
+    else
+      hasAllOfSameColor = countSameColor === 3;
+
+    if (thisColorGroup === "black" || thisColorGroup === "gray")
+      hasAllOfSameColor = false;
+
   }
 
   var upgradeCost: number | null = null;
@@ -80,9 +96,36 @@ export function PropertyDetailsOverlay(props: {
     upgradeDisplay = `${countSameColor} Service${s}`
   }
 
+  var isCurrentTurn = players[currentTurn].name === userSocket.Username;
+
+  // check if can upgrade
+  var cannotUpgrade: string | undefined = undefined;
+
+  if (thisColorGroup === "black" || thisColorGroup === "gray") {
+    cannotUpgrade = "This type of property cannot be upgraded";
+  }
+  else if (thisOwned?.upgradeState === 5) {
+    cannotUpgrade = "This property is already at max upgrade level";
+  }
+  else if (!hasAllOfSameColor) {
+    cannotUpgrade = "You need all the properties of the same color to upgrade first";
+  }
+  else if (!isCurrentTurn || currentTurnPhase !== TurnPhase.Standby) {
+    cannotUpgrade = "You can only upgrade properties during the first phase of your turn";
+  }
+  else if (hasPurchasedUpgrade) {
+    cannotUpgrade = "You can only purchase an upgrade once a turn";
+  } else if (upgradeCost !== null && owner !== null && owner.money < upgradeCost) {
+    // If I'm not the owner then it won't be displayed altogether, so we're checking the money against the owner
+    cannotUpgrade = "Not enough money";
+  }
+
+
+
+  var hideTooltip = cannotUpgrade !== undefined ? "" : "invisible";
+
   return (
     <BaseMiddleDisplayUI
-
       upper={
         <Card style={{ width: "50%" }} onClick={props.onHide}>
           <p className="text-justify text-center text-primary">
@@ -126,22 +169,28 @@ export function PropertyDetailsOverlay(props: {
 
       below={
         <>
+          {
+            owner?.name === userSocket.Username &&
+            <Col xs="3">
+              <OverlayTrigger
+                placement="left"
+                trigger={["focus", "hover"]}
+                overlay={
+                  <Tooltip className={hideTooltip}>
+                    {cannotUpgrade !== undefined &&
+                      cannotUpgrade
+                    }
+                  </Tooltip>
+                }
+              >
+                <span>
+                  <Button disabled={!props.enabled || cannotUpgrade !== undefined} onClick={purchaseHouseUpgrade}>Purchase Upgrade</Button>
+                </span>
+              </OverlayTrigger>
+            </Col>
+          }
           <Col xs="3">
-            <OverlayTrigger
-              placement="left"
-              trigger={["focus", "hover"]}
-              overlay={
-                <></>
-                // <Tooltip>
-                //   yes plz
-                // </Tooltip>
-              }
-            >
-              <Button disabled={!props.enabled} onClick={purchaseHouseUpgrade}>Purchase Upgrade</Button>
-            </OverlayTrigger>
-          </Col>
-          <Col xs="3">
-            <Button disabled={!props.enabled} variant="secondary" onClick={props.onHide}>Close </Button>
+            <Button disabled={!props.enabled} variant="secondary" onClick={props.onHide}>Close</Button>
           </Col>
         </>
       }

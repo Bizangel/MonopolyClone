@@ -157,8 +157,7 @@ export function UI(props: {
         </AnimatePresence>
       </div>
 
-      <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}
-      >
+      <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
         <AnimatePresence>
           {
             props.displayDetailProperty !== null &&

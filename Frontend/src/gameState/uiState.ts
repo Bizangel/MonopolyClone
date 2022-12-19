@@ -2,7 +2,8 @@ import { GameEffect } from "./effectsSchemas";
 
 export const initialUI: UIState = {
   displayDices: [3, 3],
-  turnPhase: 0
+  turnPhase: 0,
+  hasPurchasedUpgrade: false,
 }
 
 export enum TurnPhase {
@@ -57,4 +58,6 @@ export type UIState = {
   effectToAcknowledge?: EffectToAcknowledge | null,
   currentAuction?: Auction | null,
   currentTrade?: TradeState | null,
+
+  hasPurchasedUpgrade: boolean,
 };

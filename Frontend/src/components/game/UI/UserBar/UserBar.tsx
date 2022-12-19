@@ -18,14 +18,6 @@ export type UserBarProps = {
   isPlayerTurn?: boolean,
 };
 
-// const WrappedMyComponent: React.FC = () => {
-//   return (
-//     <ContextMenu>
-//       <MyComponent />
-//     </ContextMenu>
-//   );
-// };
-
 const MotionCard = motion(Card);
 
 export function UserBar(props: UserBarProps) {
