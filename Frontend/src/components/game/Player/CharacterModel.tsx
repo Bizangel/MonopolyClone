@@ -99,6 +99,13 @@ export function CharacterModel(props: CharacterModelProps) {
 
       // check if close enough
       var distance = currLoc.distanceTo(target);
+
+      // if far enough, just tp to target
+      if (distance > bc.DistanceToTeleportThreshold) {
+        cannonapi.position.set(target.x, target.y, target.z) // teleport there, and return
+        return;
+      };
+
       if (distance < bc.DistanceArriveThreshold) {
         setTileTarget(null);
 
