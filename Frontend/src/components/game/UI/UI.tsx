@@ -84,7 +84,7 @@ export function UI(props: {
       break;
     case TurnPhase.Auctionby:
       topDisplayColor = "text-info";
-      topDisplay = "Auction!";
+      topDisplay = "Auction";
       break;
   }
 

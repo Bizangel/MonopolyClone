@@ -232,8 +232,9 @@ public class MonopolyGame
             return;
         };
 
-        await handler.Broadcast("message-display",
-            $"{player.name} Rolled a doubles!");
+        if (diceResult[0] == diceResult[1])
+            await handler.Broadcast("message-display",
+                $"{player.name} Rolled a doubles");
 
         // not in jail, so simply move
         if (player.jailCount == -1)
