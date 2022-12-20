@@ -102,7 +102,7 @@ export function CharacterModel(props: CharacterModelProps) {
 
       // if far enough, just tp to target
       if (distance > bc.DistanceToTeleportThreshold) {
-        cannonapi.position.set(target.x, target.y, target.z) // teleport there, and return
+        cannonapi.position.set(0, 0, 0) // teleport there, so it finds its path automatically
         return;
       };
 
