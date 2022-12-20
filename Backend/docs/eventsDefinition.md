@@ -223,3 +223,26 @@ The act of upgrading properties can only be performed during the initial turnpha
   payload: 2, // upgrade property
 }
 ```
+
+## Message Display Event
+
+This event is sent from the server to players to notify ephemeral displays to give the players a better game sense.
+For example this event is intended to be called:
+
+- When the user pays jail fine, to explain
+- When the user rolls a double
+- To display the winner of an auction
+
+```ts
+{
+  event: "message-display",
+  payload: string,
+}
+
+// example
+{
+  event: "message-display",
+  payload: "player rolled a doubles!"
+}
+```
+

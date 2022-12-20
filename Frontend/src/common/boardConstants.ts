@@ -1,4 +1,4 @@
-import { MeshStandardMaterial } from "three";
+import { MeshStandardMaterial, Vector3 } from "three";
 
 /* Board Global Consts */
 export const boardSize = 10; // physical board size in threejs
@@ -34,3 +34,9 @@ export const housePath = require("assets/models3d/house.stl") as string;
 export const houseScale = 0.03;
 export const houseMaterial = new MeshStandardMaterial({ color: 0x1ee37d, metalness: 0.3, roughness: 0.2 })
 export const hotelMaterial = new MeshStandardMaterial({ color: 0xd42626, metalness: 0.3, roughness: 0.2 })
+
+// cage consts
+export const cagePath = require("assets/models3d/cage.stl") as string;
+export const cageScale = 5;
+export const cageMaterial = new MeshStandardMaterial({ color: 0x786c6b, metalness: 0.4, roughness: 0.2 })
+export const jailLocation = new Vector3(-5.6, 0, 4.5);

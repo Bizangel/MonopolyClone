@@ -23,5 +23,11 @@ public static class BoardConstants
     /// </summary>
     public const int NProperties = 28;
 
+    /// <summary>
+    /// The fee the player must pay to go out of jail
+    /// </summary>
+    /// <value></value>
+    public const int JailFee = 50;
+
     public static readonly int[] UpgradePrices = new int[] { 50, 100, 150, 200 };
 }

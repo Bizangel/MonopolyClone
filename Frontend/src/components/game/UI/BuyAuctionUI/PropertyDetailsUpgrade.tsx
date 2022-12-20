@@ -9,8 +9,6 @@ import { Player, PropertyDeed, useGameState } from "gameState/gameState";
 import { characterToSprite } from "common/characterSprites";
 import { TurnPhase } from "gameState/uiState";
 
-/// TODO add house can pay validation to display
-
 export function PropertyDetailsOverlay(props: {
   enabled: boolean, propertyID: number,
   /**

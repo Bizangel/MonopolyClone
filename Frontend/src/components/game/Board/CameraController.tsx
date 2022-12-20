@@ -4,8 +4,6 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { MOUSE, Vector3 } from "three";
 import { tripletLength } from "utils/vectormath";
 import { maxCameraRadius } from "common/boardConstants";
-import { useOnKeyDown } from "hooks/onKeydown";
-
 
 export interface CameraRefObject {
   cameraLookAt: (x: number, y: number, z: number) => void,
@@ -82,8 +80,5 @@ export const CameraController = forwardRef((props: cameraProps, ref: Ref<CameraR
     }
   }, [controlsRequest.pos])
 
-  useOnKeyDown(" ", () => {
-    console.log("space pressed?")
-  })
   return null;
 });

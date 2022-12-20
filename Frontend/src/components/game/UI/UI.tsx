@@ -14,6 +14,8 @@ import { EffectAcknowledgeOverlay } from "./BuyAuctionUI/EffectAcknowledgeOverla
 import { AuctionOverlay } from "./BuyAuctionUI/AuctionOverlay";
 import { TradeOverlay } from "./TradeUI/TradeOverlay";
 import { PropertyDetailsOverlay } from "./BuyAuctionUI/PropertyDetailsUpgrade";
+import { BottomDisplayEvents } from "./BottomEventsDisplay";
+import { useIsAnyDiceRolling } from "../Board/GameDiceHandler";
 
 /**
  * The UI is one big div that effectively dispalys all user UI.
@@ -40,6 +42,7 @@ export function UI(props: {
   const currentPlayers = useGameState(e => e.players);
   const [diceFocused, setDiceFocus] = useState(false);
   const characterToStopped = useCharacterStoppedStore(e => e.characterToStopped);
+  const isAnyDiceRolling = useIsAnyDiceRolling(e => e.isAnyDiceRolling);
 
   var isCurrentTurn = userSocket.Username === currentPlayers[currentTurn].name;
 
@@ -106,15 +109,7 @@ export function UI(props: {
         {topDisplay}
       </div>
 
-      <div style={{
-        position: "absolute", left: "0px", top: "0px", zIndex: 1,
-        width: "100vw", justifyItems: "center", textAlign: "center",
-        fontSize: "2.5vw"
-      }}
-        onContextMenu={(e) => { e.preventDefault() }}
-        className={topDisplayColor}>
-        {topDisplay}
-      </div>
+      <BottomDisplayEvents />
 
       <div style={{ position: "absolute", left: "0px", top: "0px", zIndex: 1, pointerEvents: "none" }}>
         <AnimatePresence>
@@ -255,7 +250,8 @@ export function UI(props: {
       >
         <AnimatePresence>
           {
-            isCurrentTurn && props.displayDetailProperty === null && UIState.turnPhase === TurnPhase.Standby && !UIState.currentTrade &&
+            isCurrentTurn && !isAnyDiceRolling &&
+            props.displayDetailProperty === null && UIState.turnPhase === TurnPhase.Standby && !UIState.currentTrade &&
             <motion.div
               style={{ zIndex: 1 }}
               whileHover={{ scale: 1.2 }}

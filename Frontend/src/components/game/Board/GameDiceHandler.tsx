@@ -90,6 +90,20 @@ const useDiceCatch = create<DiceCatchedState>()((set) => ({
 }))
 
 
+type DiceRollingStore = {
+  isAnyDiceRolling: boolean,
+
+  setIsAnyDiceRolling: (newState: boolean) => void
+}
+
+export const useIsAnyDiceRolling = create<DiceRollingStore>()((set) => ({
+  isAnyDiceRolling: true,
+
+  setIsAnyDiceRolling: (isLocal: boolean) => {
+    set({ isAnyDiceRolling: isLocal });
+  }
+}))
+
 export function GameDiceHandler() {
   const n_dices = 2;
   const n_array = Array(n_dices).fill(undefined);
@@ -97,6 +111,13 @@ export function GameDiceHandler() {
   const userSocket = useUserSocket()
   const setDiceFocus = useInternalEvent("dice-set-focus");
   const [diceStates, multiDispatcher] = useReducer(diceMultiReducer, n_array.map(e => diceInit))
+
+  // helper global state to fetch current dice state
+  const setIsAnyDiceRolling = useIsAnyDiceRolling(e => e.setIsAnyDiceRolling);
+
+  useEffect(() => {
+    setIsAnyDiceRolling(diceStates.some(e => e.isRolling))
+  }, [setIsAnyDiceRolling, diceStates])
 
   const onDiceLand = (diceIndexLand: number, diceLandNumber: number, transf: Transform) => {
     diceCatches.diceFall(diceIndexLand, diceLandNumber, transf)

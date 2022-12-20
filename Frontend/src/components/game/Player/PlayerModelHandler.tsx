@@ -52,7 +52,7 @@ export function PlayerModelHandler() {
 
     models.push(
       <CharacterModel currentTile={player.location} baseRotation={[Math.PI / 2, 0, 0]} yoffset={0.12} character={player.character} key={player.character}
-        onStopLocation={onStopLocation} />
+        onStopLocation={onStopLocation} isJailed={player.jailCount > -1} />
     )
   })
 

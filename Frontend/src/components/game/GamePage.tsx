@@ -8,10 +8,9 @@ import { PlayerModelHandler } from './Player/PlayerModelHandler';
 import { UI } from './UI/UI';
 import { GameDiceHandler } from "./Board/GameDiceHandler";
 import { boardYLocation } from "common/boardConstants";
-import { useSocketEvent } from "hooks/useSocketEvent";
 import { tileToPropertyID } from "common/propertiesMapping";
 import { GameHouseHandler } from "./Board/GameHouseHandler";
-
+import { JailCage } from "./Board/JailCage";
 
 /**
  * Main gamepage containing all game display 3d stuff.
@@ -22,12 +21,7 @@ export function Gamepage() {
   const [displayDetail, setDisplayDetail] = useState<number | null>(null);
   const [shouldAllowDetails, setShouldAllowDetails] = useState(false);
 
-  useSocketEvent("testEvent", (payload) => {
-    console.log("Received test event:!", payload)
-  })
-
   const onTileClick = (tileIndex: number) => {
-    console.log("clicked tile:", tileIndex)
     var tile = tileToPropertyID.get(tileIndex);
     if (tile !== undefined && shouldAllowDetails) {
       setDisplayDetail(tile);
@@ -49,6 +43,9 @@ export function Gamepage() {
 
           <GameHouseHandler />
           <GameDiceHandler />
+
+          <JailCage />
+
           <InvisiblePlane position={[0, boardYLocation, 0]} />
         </Physics>
       </Canvas>

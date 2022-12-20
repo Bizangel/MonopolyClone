@@ -17,6 +17,7 @@ export type Player = {
   money: number,
   character: PlayerCharacter,
   properties: PropertyDeed[],
+  jailCount: number,
 };
 
 export type PropertyDeed = {

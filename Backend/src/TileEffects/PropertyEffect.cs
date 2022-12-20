@@ -136,11 +136,11 @@ class PropertyEffect : TileEffect
         {
             // find how many services
             var randomDiceRoll = (rnd.Next(1, 7) + rnd.Next(1, 7));
-            return randomDiceRoll * rentCost[sameOwnedCount]; // multiplier
+            return randomDiceRoll * rentCost[sameOwnedCount - 1]; // multiplier
         }
         else if (colorGroup == 8)
         { // transport
-            return rentCost[sameOwnedCount]; // return according to many properties
+            return rentCost[sameOwnedCount - 1]; // return according to many properties
         }
 
         // normal property, color scaling and housing applies
@@ -170,7 +170,7 @@ class PropertyEffect : TileEffect
         if (colorGroup == 9)
         { // if service
             var countOwned = countOwnedCategories(9, ownerAndDeed.Item1, gameTiles);
-            return $"This is {ownerAndDeed.Item1.name} property's, {player.name} must pay diceRoll x{rentCost[ownerAndDeed.Item2.upgradeState]}";
+            return $"This is {ownerAndDeed.Item1.name} property's, {player.name} must pay diceRoll x{rentCost[countOwned - 1]}";
         }
 
         int toPay = CalculateCost(player, allPlayers, gameTiles);

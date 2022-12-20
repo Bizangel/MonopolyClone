@@ -32,10 +32,10 @@ type CharacterModelProps = {
   yoffset: number,
   character: PlayerCharacter,
   onStopLocation?: Vector3,
+  isJailed: boolean,
 }
 
 export function CharacterModel(props: CharacterModelProps) {
-
   const [tileTarget, setTileTarget] = useState<Vector3 | null>(null)
   const [currTileInternal, setCurrentTileInternal] = useState(0);
   const [fakeTarget, setFakeTarget] = useState(false);
@@ -53,7 +53,7 @@ export function CharacterModel(props: CharacterModelProps) {
   /* When tile changes, automatically move to said tile*/
   useEffect(() => {
     // move to said tile
-    if (currPos.current !== null && currTileInternal !== props.currentTile) {
+    if (currPos.current !== null && currTileInternal !== props.currentTile && !props.isJailed) {
       if (Math.floor(currTileInternal / 10) !== Math.floor(props.currentTile / 10) || props.currentTile < currTileInternal) { // different row, or before
         // go first to next corner
         var nextCorner = (Math.floor(currTileInternal / 10) + 1) * 10 % 40;
@@ -68,13 +68,20 @@ export function CharacterModel(props: CharacterModelProps) {
       setFakeTarget(false);
     }
 
-  }, [props.currentTile, currTileInternal, setFakeTarget])
+  }, [props.currentTile, currTileInternal, setFakeTarget, props.isJailed])
 
+
+  useEffect(() => {
+    if (props.isJailed) {
+      setCurrentTileInternal(10); // internal tile will be 10 as that's where it is supposed to starts
+    }
+  }, [props.isJailed]);
   // update always to see if arrived location or not
   useEffect(() => {
-    setStopped(props.currentTile === currTileInternal, props.character);
+    // if jailed, just count as stopped anyways cuz not moving
+    setStopped(props.currentTile === currTileInternal || props.isJailed, props.character);
   },
-    [setStopped, props.currentTile, currTileInternal, props.character])
+    [setStopped, props.currentTile, currTileInternal, props.character, props.isJailed])
 
   // Keep track of position at all times
   useEffect(() => {
@@ -85,7 +92,7 @@ export function CharacterModel(props: CharacterModelProps) {
   }, [cannonapi])
 
   useFrame((state, delta) => {
-    if (tileTarget !== null) {
+    if (tileTarget !== null && !props.isJailed) {
       var target = tileTarget;
 
       var currLoc = new Vector3(...currPos.current)
@@ -140,6 +147,21 @@ export function CharacterModel(props: CharacterModelProps) {
       cannonapi.rotation.set(props.baseRotation[0], props.baseRotation[1], props.baseRotation[2] + angles)
 
 
+
+    }
+
+    if (props.isJailed) {
+      // go to jail square
+      var currLoc2 = new Vector3(...currPos.current);
+
+      var dir = bc.jailLocation.clone().sub(currLoc2).normalize();
+      var distanceToJail = currLoc2.distanceTo(bc.jailLocation);
+
+      if (distanceToJail < bc.DistanceArriveThreshold)
+        return;
+
+      var newLoc = currLoc2.clone().add(dir.clone().multiplyScalar(delta * bc.BaseCharacterSpeed * 2));
+      cannonapi.position.set(newLoc.x, newLoc.y, newLoc.z);
 
     }
   })

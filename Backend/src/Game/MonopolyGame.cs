@@ -41,6 +41,9 @@ public class MonopolyGame
         uiState = new UIState(),
     };
 
+    private int _jailRollsThisTurn = 0;
+    private int _doublesCounter = 0;
+
     private TurnPhase _currentTurnPhase = TurnPhase.Standby;
     private RollResult? _roll_result = null;
     public TurnPhase CurrentTurnPhase => _currentTurnPhase;
@@ -131,6 +134,7 @@ public class MonopolyGame
                 character = (Character)player.chosenCharacter,
                 properties = new List<PropertyDeed>(),
                 location = 0,
+                jailCount = -1,
             };
             _gameState.players.Add(newplayer);
         }
@@ -156,25 +160,16 @@ public class MonopolyGame
         player.location %= BoardConstants.BoardSquares;
     }
 
-
-
     /// <summary>
     /// Moves player position given a dice roll.
     /// This effectively manually moves the player in a normal game.
     /// This will apply the necessary walkthrough effects.
     /// However the actual effect to be applied on the turn, will be handled later.
     /// </summary>
-    /// <param name="playername">The name of the player to move</param>
+    /// <param name="player">The player to move</param>
     /// <param name="diceResult">The result of the dice, the amount of spaces to move the player</param>
-    public void MovePlayerPosition(string playername, int[] diceResult)
+    private void MovePlayerPosition(Player player, int[] diceResult)
     {
-        var player = FindPlayer(playername);
-        if (player == null)
-        {
-            _logger.Warn(String.Format("Attempted to move non-existent player: {0}", playername));
-            return;
-        }
-
         // Update UI state.
         _gameState.uiState.displayDices = diceResult;
 
@@ -202,6 +197,84 @@ public class MonopolyGame
         // Simply yield and await for further input
     }
 
+
+    /// <summary>
+    /// Handles the dice roll of the given player.
+    ///
+    /// This intended to be called as a normal procedure of every turn,
+    /// however it's also intended to be called so the player can roll while in prison.
+    /// </summary>
+    /// <param name="playername">The player of the roll</param>
+    /// <param name="diceResult">The result of the roll</param>
+    public async Task HandleDiceRoll(string playername,
+    int[] diceResult,
+    MonopolyClone.Sockets.ServerSocketHandler handler)
+    {
+        var player = FindPlayer(playername);
+        if (player == null)
+        {
+            _logger.Warn(String.Format("Attempted to handle non-existent player: {0}", playername));
+            return;
+        }
+
+        // check if had three doubles
+        if (_doublesCounter == 2 && diceResult[0] == diceResult[1])
+        {
+            _roll_result = new RollResult() { requiredInput = false, diceResult = diceResult }; // for display purposes
+            // this is third double, so rip
+            new MonopolyClone.TileEffects.GoToJailEffect().ExecuteEffect(player, _gameState.players, 10, _board.Tiles);
+
+            // Console.WriteLine($"Triple doubles detected, after effect: jailCount = {player.jailCount} doublesCounter = {_doublesCounter} jailRollsThisTurn = {_jailRollsThisTurn}");
+            await handler.Broadcast("message-display",
+            $"{player.name} had doubles three times in a row! Going to jail..");
+
+            AttemptFinishTurn();
+            return;
+        };
+
+        await handler.Broadcast("message-display",
+            $"{player.name} Rolled a doubles!");
+
+        // not in jail, so simply move
+        if (player.jailCount == -1)
+        {
+            MovePlayerPosition(player, diceResult);
+            return;
+        }
+
+        _jailRollsThisTurn++; // this roll is now effective counted in logic.
+        _roll_result = new RollResult() { requiredInput = false, diceResult = diceResult }; // for display purposes
+
+        // player is jailed, check if doubles was landed.
+        if (diceResult[0] == diceResult[1])
+        { // doubles, simply move and play WITHOUT
+            player.jailCount = -1; // no longer in jail
+            MovePlayerPosition(player, diceResult); // just move with same throw
+            return;
+        }
+
+        if (player.jailCount == 2 && _jailRollsThisTurn == 3)
+        {  // two turns + this roll, so just escape him with fees, he'll then figure if he loses
+            player.jailCount = -1;
+            MovePlayerPosition(player, diceResult); // just move with same throw
+            player.money -= BoardConstants.JailFee;
+            await handler.Broadcast("message-display",
+            $"{player.name} paid {BoardConstants.JailFee} to escape jail after three failed turns");
+
+            return;
+        }
+
+        if (_jailRollsThisTurn == 3)
+        // if doubles wasn't landed. well just another turn in jail
+        {  // fat luck champ, next turn
+            player.jailCount++;
+            AttemptFinishTurn();
+            return;
+        }
+
+
+        // jail rolls are being added, so if it reaches here, just yield till 3 rolls
+    }
 
     /// <summary>
     /// Determines if there's a current property waiting to be decided by the player if to be purchased or auctioned.
@@ -292,6 +365,9 @@ public class MonopolyGame
             {
                 Bid winningBid = _runningAuction.bids[_runningAuction.topBid];
                 _runningAuction = null; // kill auction
+                handler.Broadcast("message-display",
+                    $"Auction sold to: {winningBid.bidder} by winning bid of {winningBid.bidAmount}").Wait();
+
                 Console.WriteLine($"Winner of auction: {winningBid.bidder} by bidding an amount of {winningBid.bidAmount}");
 
                 // sell the property to auction winner
@@ -400,21 +476,34 @@ public class MonopolyGame
     /// </summary>
     public void AttemptFinishTurn()
     {
-        bool wasDoubles = false;
+        bool doublesPlayAgain = false;
         if (_roll_result != null)
-            wasDoubles = _roll_result.diceResult[0] == _roll_result.diceResult[1];
+            doublesPlayAgain = (
+                _roll_result.diceResult[0] == _roll_result.diceResult[1] // if got a double
+                && _gameState.players[_gameState.currentTurn].jailCount == -1 // and not in jail
+                && _jailRollsThisTurn == 0 // And wasn't previously in jail
+            ); // then doubles have the ability to play again
 
-        // TODO add handling here for jail ()
+
 
         _roll_result = null;
         _currentTurnPhase = TurnPhase.Standby;
         _runningAuction = null; // delete auction just in case
         _hasUpgradedPropertyThisTurn = false;
+        _jailRollsThisTurn = 0;
 
-        if (!wasDoubles) // Don't switch to next player
+
+        // if player got double, but performed at least one throw in jail.
+        // this means he was in jail, so his double should NOT be counted.
+        if (!doublesPlayAgain) // Don't switch to next player
         {
             _gameState.currentTurn += 1;
             _gameState.currentTurn %= _gameState.players.Count();
+            _doublesCounter = 0; // reset double counter
+        }
+        else
+        {
+            _doublesCounter++; // add one
         }
     }
 

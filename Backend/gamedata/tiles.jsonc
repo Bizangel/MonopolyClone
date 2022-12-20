@@ -143,9 +143,9 @@
     // ================= ROW TWO ===================
     // ===============================================
     {
-      // Jail / Jail Standby
+      // Jail Standby
       "tileID": 10,
-      "effect": null // TODO
+      "effect": null // jail standby effectively does nothing when passing by...
     },
     {
       // Pink 1
@@ -463,7 +463,9 @@
     {
       // Go To Jail Square
       "tileID": 30,
-      "effect": null // TODO
+      "effect": {
+        "effectID": 6 // Go To Jail Effect ID
+      }
     },
     {
       // Green 1

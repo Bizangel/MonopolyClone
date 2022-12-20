@@ -31,6 +31,13 @@ public class Player
     /// </summary>
     public Character character { get; set; }
 
+
+    /// <summary>
+    /// The number of turns the player has been in jail.
+    /// -1 means the player is NOT in jail.
+    /// </summary>
+    /// <value></value>
+    public int jailCount { get; set; }
     /// <summary>
     /// The properties owned by the player.
     /// </summary>
