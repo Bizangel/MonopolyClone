@@ -162,7 +162,7 @@ If these are invalid, the server will ignore the request.
   event: "trade-offer-set"
   payload: {
     money: number,
-    properties: number[],
+    properties: {propertyID: number, upgradeLevel: number}[],
   }
 }
 
@@ -170,7 +170,7 @@ If these are invalid, the server will ignore the request.
   event: "trade-offer-set"
   payload: {
     money: 30 // offering 30 as money
-    properties: [0, 12] // offering properties 0 and 12
+    properties: [{propertyID: 0, upgradeState: -1}, {propertyID: 1, upgradeState: 2}] // offering properties 0 and 12
   }
 }
 ```

@@ -16,3 +16,7 @@ export function generateID(length: number) {
 export function sleep(delay_ms: number) {
   return new Promise(resolve => setTimeout(resolve, delay_ms));
 }
+
+export function arrayContains<T>(array: T[], element: T): boolean {
+  return array.findIndex(e => e === element) !== -1;
+}

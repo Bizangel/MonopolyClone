@@ -8,7 +8,7 @@ public class TradeOffer
 {
     public int money { get; set; } = 0;
 
-    public List<int> properties = new List<int>(); // property IDs specified
+    public List<PropertyDeed> properties = new List<PropertyDeed>(); // property IDs specified
 }
 
 [Serializable]
@@ -55,7 +55,7 @@ public class TradeHandler
         // check that all properties are indeed in owned properties
         foreach (var property in offer.properties)
         {
-            if (!ownedProperties.Contains(property))
+            if (!ownedProperties.Contains(property.propertyID))
                 return false;
         }
 
@@ -108,12 +108,12 @@ public class TradeHandler
         // Send properties from initiator to target
         foreach (var property in _currentTrade.initiatorOffer.properties)
         {
-            TransferProperty(_initiator, _target, property);
+            TransferProperty(_initiator, _target, property.propertyID);
         }
         // Send properties from target to initiator
         foreach (var property in _currentTrade.targetOffer.properties)
         {
-            TransferProperty(_target, _initiator, property);
+            TransferProperty(_target, _initiator, property.propertyID);
         }
 
         // trade has effectively finish. CLear it up.

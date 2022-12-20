@@ -76,7 +76,7 @@ public class MonopolyGame
     {
         foreach (var player in _gameState.players)
         {
-            if (player.money <= 0)
+            if (player.money < 0)
             {
                 throw new Exception("Game finished! (Handle this properly of course)");
             }

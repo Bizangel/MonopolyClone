@@ -3,6 +3,7 @@ import { propertyIDToImgpath } from "common/cardImages"
 import { WheelEventHandler } from "react"
 import { Card, Overlay, Popover, Row } from "react-bootstrap"
 import { MoneyImgTag } from "common/common";
+import { PropertyDeed } from "gameState/gameState";
 
 
 type CardWithHoverRef = {
@@ -12,9 +13,9 @@ type CardWithHoverRef = {
 const CardWithHover = forwardRef(
   (props: {
     placement?: "bottom" | "top",
-    propertyID: number
+    property: PropertyDeed
     containerRef?: React.RefObject<HTMLElement>,
-    onClick?: (propertyID: number) => void,
+    onClick?: (property: PropertyDeed) => void,
     basePrice: number,
   }, ref: React.Ref<CardWithHoverRef>) => {
     const [isShown, setShown] = useState(false);
@@ -30,7 +31,7 @@ const CardWithHover = forwardRef(
       if (e.type === 'click') {
         setShown(false);
         if (props.onClick)
-          props.onClick(props.propertyID);
+          props.onClick(props.property);
       } else if (e.type === 'contextmenu') {
         setShown(e => !e);
         e.preventDefault()
@@ -45,14 +46,14 @@ const CardWithHover = forwardRef(
               Base Price: {props.basePrice} <MoneyImgTag />
             </p>
 
-            <img className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.propertyID)} alt="" />
+            <img className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.property.propertyID)} alt="" />
 
           </Popover>
         </Overlay>
 
         <img ref={internalOverlay} style={{ maxHeight: "100%", width: "auto", height: "auto" }}
           onClick={onClick} onContextMenu={onClick}
-          src={propertyIDToImgpath.get(props.propertyID)} alt=""></img>
+          src={propertyIDToImgpath.get(props.property.propertyID)} alt=""></img>
       </>
     );
   });
@@ -60,8 +61,8 @@ const CardWithHover = forwardRef(
 export function HorizontalPropertyWindow(props: {
   hoverPlacement?: "bottom" | "top"
   reverse?: boolean,
-  properties: number[], // id of properties to display
-  onPropertyClick?: (propertyID: number) => void,
+  properties: PropertyDeed[], // id of properties to display
+  onPropertyClick?: (property: PropertyDeed) => void,
 }) {
 
   const internalScrollRef = useRef<HTMLElement>(null);
@@ -100,7 +101,7 @@ export function HorizontalPropertyWindow(props: {
         <Row className={`d-flex ${reversedClass} flex-nowrap h-100`} style={{ overflowX: "auto" }} ref={internalScrollRef}>
           {
             props.properties.map((e) =>
-              <CardWithHover placement={props.hoverPlacement} propertyID={e} key={e} ref={(node) => { getCardRef(node, e) }}
+              <CardWithHover placement={props.hoverPlacement} property={e} key={e.propertyID} ref={(node) => { getCardRef(node, e.propertyID) }}
                 basePrice={200} onClick={props.onPropertyClick}
               />
             )

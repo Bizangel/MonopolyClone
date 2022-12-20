@@ -1,4 +1,5 @@
 import { GameEffect } from "./effectsSchemas";
+import { PropertyDeed } from "./gameState";
 
 export const initialUI: UIState = {
   displayDices: [3, 3],
@@ -35,7 +36,7 @@ export type Auction = {
 }
 
 export type TradeOffer = {
-  properties: number[],
+  properties: PropertyDeed[],
   money: number,
 }
 

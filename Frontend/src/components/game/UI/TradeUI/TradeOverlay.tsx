@@ -4,13 +4,14 @@ import { Button, Card, Col, Container, Form, Row } from "react-bootstrap"
 import { HorizontalPropertyWindow } from "./HorizontalPropertyDisplay"
 import { TradeOffer, UIState } from "gameState/uiState";
 import { useUserSocket } from "hooks/socketProvider";
-import { useGameState } from "gameState/gameState";
+import { PropertyDeed, useGameState } from "gameState/gameState";
+import { arrayContains } from "utils/funcs";
 
 
 function TradeDisplayWindowContainerless(props:
   {
     reverse?: boolean, topDisplay: string, offer: TradeOffer, agreed: boolean,
-    onPropertyClick: (propertyID: number) => void,
+    onPropertyClick: (property: PropertyDeed) => void,
   }) {
 
   var agreedFilter = props.agreed ? "grayscale(150%) sepia(150%) hue-rotate(80deg)" : ""
@@ -38,10 +39,10 @@ function TradeDisplayWindowContainerless(props:
 };
 
 function TraderPickWindow(props: {
-  properties: number[]
+  properties: PropertyDeed[]
   remainingMoney: number
   onUpdateTradeMoney: (tradeMoney: string) => void,
-  onPropertyClick: (propertyID: number) => void,
+  onPropertyClick: (propertyID: PropertyDeed) => void,
 }) {
 
   const userSocket = useUserSocket();
@@ -92,7 +93,8 @@ function TraderPickWindow(props: {
           </Card>
         </Row>
         <Row className="m-0 p-0" style={{ flexGrow: 4, maxHeight: "75%" }}>
-          <HorizontalPropertyWindow hoverPlacement={"top"} reverse={true} properties={props.properties} onPropertyClick={props.onPropertyClick} />
+          <HorizontalPropertyWindow hoverPlacement={"top"} reverse={true} properties={props.properties}
+            onPropertyClick={props.onPropertyClick} />
         </Row>
       </Col>
       <Col xs="2" className="mh-100">
@@ -123,25 +125,33 @@ export function TradeOverlay(props: { state: UIState }) {
   const myUserName = userSocket.Username;
   const players = useGameState(e => e.players);
 
-  var currentlyOfferedByMe: Set<number> | undefined = undefined;
+  var currentlyOfferedByMe: PropertyDeed[] | undefined = undefined;
   var currentlyOfferedMoneyByme: number | undefined = undefined;
+
   if (props.state.currentTrade.tradeInitiator === myUserName) {
-    currentlyOfferedByMe = new Set<number>(props.state.currentTrade.initiatorOffer.properties);
+    currentlyOfferedByMe = props.state.currentTrade.initiatorOffer.properties;
     currentlyOfferedMoneyByme = props.state.currentTrade.initiatorOffer.money;
   }
 
   if (props.state.currentTrade.tradeTarget === myUserName) {
-    currentlyOfferedByMe = new Set<number>(props.state.currentTrade.targetOffer.properties);
+    currentlyOfferedByMe = props.state.currentTrade.targetOffer.properties;
     currentlyOfferedMoneyByme = props.state.currentTrade.targetOffer.money;
   }
 
   var myIndex = players.findIndex((e) => e.name === myUserName);
 
-  var remainingProperties: number[] | undefined = undefined;
+  var remainingProperties: PropertyDeed[] | undefined = undefined;
   var remainingMoney: number | undefined = undefined;
   if (currentlyOfferedByMe !== undefined && myIndex !== -1 && currentlyOfferedMoneyByme !== undefined) {
     remainingMoney = players[myIndex].money - currentlyOfferedMoneyByme;
-    remainingProperties = players[myIndex].properties.map(e => e.propertyID).filter((e => !currentlyOfferedByMe?.has(e)))
+    remainingProperties = players[myIndex].properties.filter(
+      (e => {
+        if (currentlyOfferedByMe === undefined)
+          return false;
+        return !arrayContains(currentlyOfferedByMe.map(e => e.propertyID), e.propertyID)
+      }
+      )
+    );
   }
 
   const changeTradeMoney = useCallback((tradeMoney: string) => {
@@ -152,23 +162,23 @@ export function TradeOverlay(props: { state: UIState }) {
     userSocket.emit("trade-offer-set", newOffer);
   }, [currentlyOfferedByMe, userSocket])
 
-  const offerProperty = useCallback((propertyID: number) => {
+  const offerProperty = useCallback((property: PropertyDeed) => {
     if (currentlyOfferedMoneyByme === undefined || currentlyOfferedByMe === undefined) {
       return;
     }
 
     var newProperties = Array.from(currentlyOfferedByMe);
-    newProperties.push(propertyID);
+    newProperties.push(property);
     var newOffer = { properties: newProperties, money: currentlyOfferedMoneyByme }
     userSocket.emit("trade-offer-set", newOffer);
   }, [currentlyOfferedMoneyByme, userSocket, currentlyOfferedByMe])
 
-  const removePropertyFromOffer = useCallback((propertyID: number) => {
+  const removePropertyFromOffer = useCallback((property: PropertyDeed) => {
     if (currentlyOfferedMoneyByme === undefined || currentlyOfferedByMe === undefined) {
       return;
     }
 
-    var newProperties = Array.from(currentlyOfferedByMe).filter(e => e !== propertyID);
+    var newProperties = Array.from(currentlyOfferedByMe).filter(e => e.propertyID !== property.propertyID);
     var newOffer = { properties: newProperties, money: currentlyOfferedMoneyByme }
     userSocket.emit("trade-offer-set", newOffer);
   }, [currentlyOfferedMoneyByme, userSocket, currentlyOfferedByMe])

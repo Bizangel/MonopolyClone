@@ -69,7 +69,7 @@ export function UserBar(props: UserBarProps) {
             </Col>
             {/* User property display */}
             <Col className="h-100 m-0 p-0" xs="5">
-              <MiniPropertyDisplay ownedProperties={props.ownedProperties.map(e => e.propertyID)} />
+              <MiniPropertyDisplay ownedProperties={props.ownedProperties} />
             </Col>
           </Row>
         </Container>
