@@ -180,7 +180,17 @@ public class MonopolyGame
     /// /// </summary>
     private void FinishGame()
     {
-        Console.WriteLine("Game finished!");
+        // doesn't listen to default game event, basically freeze state.
+        _listeningEventLabel = EventLabel.GameDone;
+
+        // null these for display purposes
+        _roll_result = null;
+        _currentTurnPhase = TurnPhase.Standby;
+        _runningAuction = null; // delete auction just in case
+
+        // A reboot is expected here.
+        // When sockets are connected, because it is now gameDone, they will be auto given the game finish status.
+        // once server is shut down the json will be deleted and a fresh game can be played.
     }
 
     /// <summary>
@@ -727,7 +737,26 @@ public class MonopolyGame
     public async Task BroadcastStateUpdate(MonopolyClone.Sockets.ServerSocketHandler handler)
     {
         GenerateUIState(handler);
-        await handler.Broadcast("state-update", _gameState);
+        if (_listeningEventLabel == EventLabel.GameDone)
+            await handler.Broadcast("game-done-results", GetGameResults());
+        else
+            await handler.Broadcast("state-update", _gameState);
+    }
+
+    public GameResults GetGameResults()
+    {
+        var playersWorth = new List<int>();
+
+        _gameState.players.ForEach(e =>
+        {
+            playersWorth.Add(CalculatePlayerPropertyWorth(e));
+        });
+
+        return new GameResults()
+        {
+            players = _gameState.players,
+            netWorth = playersWorth
+        };
     }
 
     /// <summary>

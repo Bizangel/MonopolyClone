@@ -46,7 +46,7 @@ public class WebSocketController : ControllerBase
             string? authCookie = Request.Cookies["Auth"];
             if (authCookie == null)
             {
-                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
+                await SecureCloseWebsocket(webSocket, "Missing Authentication Cookie", WebSocketCloseStatus.ProtocolError);
                 return;
             }
 
@@ -57,20 +57,20 @@ public class WebSocketController : ControllerBase
             }
             catch (Newtonsoft.Json.JsonException)
             {
-                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
+                await SecureCloseWebsocket(webSocket, "Invalid Authentication Cookie Given", WebSocketCloseStatus.ProtocolError);
                 return;
             }
 
 
             if (holder == null)
             {
-                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
+                await SecureCloseWebsocket(webSocket, "Invalid Authentication Cookie Given", WebSocketCloseStatus.ProtocolError);
                 return;
             }
-            // holder.AuthenticatedUser = "nice";
+
             if (!VerifyCookieTime(holder))
             {
-                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
+                await SecureCloseWebsocket(webSocket, "Expired Authentication Cookie", WebSocketCloseStatus.ProtocolError);
                 return;
             }
 
@@ -85,7 +85,7 @@ public class WebSocketController : ControllerBase
 
             if (alreadyExists)
             {
-                await SecureCloseWebsocket(webSocket, "Unauthorized", WebSocketCloseStatus.ProtocolError);
+                await SecureCloseWebsocket(webSocket, "Duplicate Websocket Connection", WebSocketCloseStatus.ProtocolError);
                 return;
             }
 

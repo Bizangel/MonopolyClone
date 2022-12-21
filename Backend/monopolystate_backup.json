@@ -1,0 +1,166 @@
+{
+  "currentTurn": 0,
+  "players": [
+    {
+      "name": "string",
+      "location": 16,
+      "money": -82,
+      "character": 0,
+      "jailCount": -1,
+      "properties": [
+        {
+          "propertyID": 2,
+          "upgradeState": -1
+        },
+        {
+          "propertyID": 12,
+          "upgradeState": -1
+        },
+        {
+          "propertyID": 3,
+          "upgradeState": -1
+        },
+        {
+          "propertyID": 5,
+          "upgradeState": -1
+        },
+        {
+          "propertyID": 22,
+          "upgradeState": -1
+        },
+        {
+          "propertyID": 13,
+          "upgradeState": -1
+        }
+      ]
+    },
+    {
+      "name": "bizangel",
+      "location": 37,
+      "money": 194,
+      "character": 2,
+      "jailCount": -1,
+      "properties": [
+        {
+          "propertyID": 0,
+          "upgradeState": -1
+        },
+        {
+          "propertyID": 1,
+          "upgradeState": 5
+        },
+        {
+          "propertyID": 10,
+          "upgradeState": 0
+        },
+        {
+          "propertyID": 27,
+          "upgradeState": 0
+        },
+        {
+          "propertyID": 19,
+          "upgradeState": -1
+        },
+        {
+          "propertyID": 26,
+          "upgradeState": 0
+        },
+        {
+          "propertyID": 21,
+          "upgradeState": 0
+        },
+        {
+          "propertyID": 16,
+          "upgradeState": -1
+        },
+        {
+          "propertyID": 17,
+          "upgradeState": 0
+        },
+        {
+          "propertyID": 8,
+          "upgradeState": 0
+        },
+        {
+          "propertyID": 20,
+          "upgradeState": 0
+        }
+      ]
+    }
+  ],
+  "unpurchasedProperties": [
+    {
+      "propertyID": 4,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 6,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 7,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 9,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 11,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 14,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 15,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 18,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 23,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 24,
+      "upgradeState": 0
+    },
+    {
+      "propertyID": 25,
+      "upgradeState": 0
+    }
+  ],
+  "uiState": {
+    "displayDices": [
+      5,
+      1
+    ],
+    "hasPurchasedUpgrade": false,
+    "turnPhase": 1,
+    "effectToAcknowledge": {
+      "effect": {
+        "propertyID": 8,
+        "colorGroup": 3,
+        "cost": 180,
+        "rentCost": [
+          14,
+          70,
+          200,
+          550,
+          750,
+          950
+        ],
+        "effectID": 0
+      },
+      "description": "This is bizangel property's, string must pay 14"
+    },
+    "connectedUpkeep": [
+      true,
+      true
+    ]
+  }
+}

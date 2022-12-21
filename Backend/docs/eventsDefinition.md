@@ -258,3 +258,23 @@ For example this event is intended to be called:
 }
 ```
 
+## Game Results Finish Event
+
+This event will be
+```ts
+{
+  event: "game-done-results"
+  payload: {
+    players: Player[],
+    netWorth: int[],
+  }
+}
+// example
+{
+  event: "game-done-results"
+  payload: {
+    players: ..., // regular player definnition
+    netWorth: [1203, 2000, 2500], // the value of each player, the highest oner is declared the winner
+  }
+}
+```

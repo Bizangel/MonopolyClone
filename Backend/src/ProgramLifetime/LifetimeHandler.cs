@@ -60,6 +60,19 @@ public class LifetimeHandlerService : IHostedService
 
     private void OnStopping()
     {
+        if (MonopolyGame.Instance.ListeningEventLabel == MonopolyClone.Events.EventLabel.GameDone)
+        {
+            // do not write to file, instead wipe old state!
+            if (File.Exists(MonopolyStatePath))
+            {
+                // If file found, delete it
+                File.Delete(MonopolyStatePath);
+                Console.WriteLine("Old State cleared!");
+            }
+
+            return;
+        };
+
         var jsonstate = MonopolySerializer.Serialize(MonopolyGame.Instance.GameState);
         using (StreamWriter outputFile = new StreamWriter(MonopolyStatePath))
         {

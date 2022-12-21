@@ -4,10 +4,13 @@ import { useSocketEvent } from "hooks/useSocketEvent";
 import React, { useState } from "react"
 import { Gamepage } from "./game/GamePage";
 import { LobbyPage } from "./Lobby/LobbyPage";
+import { GameResultPage } from "./gameResults/gameResults";
+import { GameResult } from "gameState/gameResult";
 
 enum LobbyState {
   Lobby,
   Game,
+  GameResults,
 }
 
 /**
@@ -16,6 +19,9 @@ enum LobbyState {
  */
 export function LobbyHandler() {
   useUserSocketInitialize();
+
+  const [results, setGameResults] = useState<GameResult | null>(null);
+
   const [currentDisplay, setDisplayState] = useState(LobbyState.Lobby);
   const updateNewState = useGameState(e => e.updateNewState)
 
@@ -23,7 +29,15 @@ export function LobbyHandler() {
     console.log("Update!: ", payload)
     updateNewState(payload)
     setDisplayState(LobbyState.Game) // auto-sets to game
+    setGameResults(null) // resets any result there might be leftover or smth
   });
+
+  useSocketEvent("game-done-results", (payload: GameResult) => {
+    console.log("Received game results!: ", payload)
+    setGameResults(payload);
+    setDisplayState(LobbyState.GameResults);
+  });
+
 
   /* Rendering */
   var display;
@@ -35,6 +49,10 @@ export function LobbyHandler() {
     case LobbyState.Lobby:
       display = <LobbyPage />
       break;
+    case LobbyState.GameResults:
+      if (results === null)
+        throw new Error("Displaying game results page without results");
+      display = <GameResultPage results={results} />
   }
 
   return (
