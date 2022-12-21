@@ -20,7 +20,7 @@ export function AnimatedNumberDiv(props: { value: number, durationSeconds?: numb
         node.style.color = decreasing ? "green" : "red"
       },
       onComplete() {
-        node.style.color = "";
+        node.style.color = props.value < 0 ? "#ff0000" : "";
       }
     })
 

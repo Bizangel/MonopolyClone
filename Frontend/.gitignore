@@ -1,5 +1,7 @@
 ### Typescript/React Gitignore
 
+public/favicon.ico
+
 src/assets/
 
 .env
