@@ -18,6 +18,7 @@ export type UserBarProps = {
   ownedProperties: PropertyDeed[],
   isPlayerTurn?: boolean,
   isDced: boolean,
+  disablePropertyAnimate?: boolean,
 };
 
 const MotionCard = motion(Card);
@@ -84,7 +85,7 @@ export function UserBar(props: UserBarProps) {
             </Col>
             {/* User property display */}
             <Col className="h-100 m-0 p-0" xs="5">
-              <MiniPropertyDisplay ownedProperties={props.ownedProperties} />
+              <MiniPropertyDisplay ownedProperties={props.ownedProperties} disablePropertyAnimation={props.disablePropertyAnimate} />
             </Col>
           </Row>
         </Container>

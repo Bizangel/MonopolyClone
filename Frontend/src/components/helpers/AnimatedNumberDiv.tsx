@@ -14,7 +14,9 @@ export function AnimatedNumberDiv(props: { value: number, durationSeconds?: numb
     const decreasing = currentVal < props.value;
 
     const controls = animate(currentVal, props.value, {
+      ease: [0, .74, .3, 1], // very slow ending bezier
       duration: props.durationSeconds ? props.durationSeconds : 3,
+
       onUpdate(val) {
         node.textContent = val.toFixed(0);
         node.style.color = decreasing ? "green" : "red"

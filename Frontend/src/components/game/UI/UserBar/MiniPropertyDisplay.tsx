@@ -26,7 +26,8 @@ for (const propID of Array(NProperties).keys()) {
 function CardEntryWithHover(props: {
   propID: number, color: string | undefined, idkey: string,
   upgradeState?: number,
-  containerRef?: React.RefObject<HTMLElement>
+  containerRef?: React.RefObject<HTMLElement>,
+  disablePropertyAnimate?: boolean,
 }) {
 
   if (props.color === undefined)
@@ -37,6 +38,30 @@ function CardEntryWithHover(props: {
 
   var isMortgaged = props.upgradeState === -1;
   var mortgageFilter = isMortgaged ? "brightness(50%)" : ""
+
+
+  var initialAnimationStart = {
+    opacity: 0.8,
+    transform: "translate(40vw, 10vh)",
+    height: "500%",
+    width: "1000%",
+
+    borderWidth: "3px",
+  }
+
+  var animateTo = {
+    opacity: 1,
+    transform: "translate(0vh, 0vw)",
+    scale: 1,
+    height: "25%",
+    width: "100%",
+
+    borderWidth: "0px",
+  }
+
+  if (props.disablePropertyAnimate) {
+    initialAnimationStart = animateTo;
+  }
 
   return (
     <OverlayTrigger
@@ -76,25 +101,8 @@ function CardEntryWithHover(props: {
             default: { duration: 1.5, type: "ease-in" }
           }
         }
-        initial={{
-          opacity: 0.8,
-          transform: "translate(40vw, 10vh)",
-          height: "500%",
-          width: "1000%",
-
-          borderWidth: "3px",
-        }}
-        animate={
-          {
-            opacity: 1,
-            transform: "translate(0vh, 0vw)",
-            scale: 1,
-            height: "25%",
-            width: "100%",
-
-            borderWidth: "0px",
-          }
-        }
+        initial={initialAnimationStart}
+        animate={animateTo}
       >
         {
           props.upgradeState !== undefined && props.upgradeState === -1 &&
@@ -107,7 +115,7 @@ function CardEntryWithHover(props: {
   )
 }
 
-export function MiniPropertyDisplay(props: { ownedProperties: PropertyDeed[] }) {
+export function MiniPropertyDisplay(props: { ownedProperties: PropertyDeed[], disablePropertyAnimation?: boolean }) {
   const sections: React.ReactNode[] = [];
 
   const ref = useRef<HTMLDivElement>(null);
@@ -131,6 +139,7 @@ export function MiniPropertyDisplay(props: { ownedProperties: PropertyDeed[] }) 
 
       curPropID++;
       return <CardEntryWithHover color={actualDisplaycolor}
+        disablePropertyAnimate={props.disablePropertyAnimation}
         containerRef={ref}
         propID={curPropID - 1}
         upgradeState={upgrade}

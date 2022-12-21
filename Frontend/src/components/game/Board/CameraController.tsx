@@ -13,6 +13,7 @@ export interface CameraRefObject {
 type cameraProps = {
   initialPos: [number, number, number]
   initialLookatLocation: [number, number, number]
+  disableMovement?: boolean,
 }
 
 type cameraControls = {
@@ -34,7 +35,6 @@ export const CameraController = forwardRef((props: cameraProps, ref: Ref<CameraR
     }
   }));
 
-
   useEffect(
     () => {
       if (controlsRequest.pos !== undefined)
@@ -46,11 +46,19 @@ export const CameraController = forwardRef((props: cameraProps, ref: Ref<CameraR
 
       controls.minDistance = 3;
       controls.maxDistance = 20;
+
+
       controls.enableRotate = true;
       controls.enablePan = true;
       controls.enableZoom = true;
       controls.screenSpacePanning = false;
 
+      if (props.disableMovement) {
+        controls.enableRotate = false;
+        controls.enablePan = false;
+        controls.enableZoom = false;
+        controls.screenSpacePanning = false;
+      }
       controls.mouseButtons = {
         LEFT: MOUSE.PAN,
         RIGHT: MOUSE.PAN,
@@ -69,7 +77,7 @@ export const CameraController = forwardRef((props: cameraProps, ref: Ref<CameraR
         controls.dispose();
       };
     },
-    [camera, gl, controlsRequest]
+    [camera, gl, controlsRequest, props.disableMovement]
   );
 
   useEffect(() => {

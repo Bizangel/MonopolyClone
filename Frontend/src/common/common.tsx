@@ -30,7 +30,15 @@ export function readCookie(name: string) {
   return null;
 }
 
-export function MoneyImgTag() {
+export function MoneyImgTag(props: { scale?: number }) {
+
+  if (props.scale) {
+    return (
+      <img className="rounded float-left img-fluid mw-100 mh-100"
+        style={{ scale: props.scale }}
+        src={moneyimg} alt="" ></img>
+    )
+  }
   return (
     <img className="rounded float-left img-fluid mw-100 mh-100"
       style={{ width: "20px", height: "10px" }}

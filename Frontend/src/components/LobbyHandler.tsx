@@ -35,6 +35,7 @@ export function LobbyHandler() {
   useSocketEvent("game-done-results", (payload: GameResult) => {
     console.log("Received game results!: ", payload)
     setGameResults(payload);
+
     setDisplayState(LobbyState.GameResults);
   });
 

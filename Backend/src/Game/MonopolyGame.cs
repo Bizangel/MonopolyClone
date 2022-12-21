@@ -206,8 +206,6 @@ public class MonopolyGame
 
         foreach (var player in _gameState.players)
         {
-            Console.WriteLine($"Player {player.name} can sell ${HowMuchCanMortgage(player)}");
-
             if (player.money < 0)
             {
                 if ((player.money + HowMuchCanMortgage(player)) < 0)
@@ -749,7 +747,7 @@ public class MonopolyGame
 
         _gameState.players.ForEach(e =>
         {
-            playersWorth.Add(CalculatePlayerPropertyWorth(e));
+            playersWorth.Add(CalculatePlayerPropertyWorth(e) + e.money);
         });
 
         return new GameResults()

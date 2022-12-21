@@ -10,6 +10,7 @@ import { diceMaterial } from 'common/diceConstants';
 type gameboardProps = {
   color: string,
   onTileClicked?: (tileIndex: number) => void,
+  position?: [number, number, number],
 }
 
 export function GameBoard(props: gameboardProps) {
@@ -55,6 +56,7 @@ export function GameBoard(props: gameboardProps) {
     <mesh ref={ref}
       material={cubeMaterials}
       onClick={onBoardClick}
+      position={props.position}
     >
       <boxGeometry args={[bc.boardSize, bc.boardYLocation, bc.boardSize]} />
     </mesh>
