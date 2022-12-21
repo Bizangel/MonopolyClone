@@ -13,13 +13,13 @@ class RawSumEffect : TileEffect
     [JsonRequired]
     public string description { get; init; } = "";
 
-    public override string DescribeEffect(Player player, List<Player> allPlayers, int currentTileIndex, Game.GameBoard gameBoard)
+    public override string DescribeEffect(Player player, List<Player> allPlayers, GameState gameState, Game.GameBoard gameBoard)
     {
         return description;
     }
 
     public override void ExecuteEffect(
-      Player landedPlayer, List<Player> allPlayers, int currentTileIndex, Game.GameBoard gameBoard)
+      Player landedPlayer, List<Player> allPlayers, GameState gameState, Game.GameBoard gameBoard)
     {
         landedPlayer.money += sumAmount;
     }

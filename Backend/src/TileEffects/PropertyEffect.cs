@@ -164,7 +164,7 @@ class PropertyEffect : TileEffect
         return rentCost[ownerDeeds.upgradeState];
     }
 
-    public override string DescribeEffect(Player player, List<Player> allPlayers, int currentTileIndex, Game.GameBoard board)
+    public override string DescribeEffect(Player player, List<Player> allPlayers, GameState gameState, Game.GameBoard board)
     {
         var ownerAndDeed = FindOwnerAndDeed(allPlayers);
         if (player.name == ownerAndDeed.Item1.name)
@@ -185,7 +185,7 @@ class PropertyEffect : TileEffect
     }
 
     public override void ExecuteEffect(
-  Player landedPlayer, List<Player> allPlayers, int currentTileIndex, Game.GameBoard gameBoard)
+  Player landedPlayer, List<Player> allPlayers, GameState gameState, Game.GameBoard gameBoard)
     {
         var toDeduct = CalculateCost(landedPlayer, allPlayers, gameBoard.Tiles);
         var ownerAndDeed = FindOwnerAndDeed(allPlayers);

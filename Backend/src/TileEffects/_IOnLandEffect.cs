@@ -12,8 +12,8 @@ namespace MonopolyClone.TileEffects;
   typeof(SubJsonSerializer<TileEffectID>), // specify serializer discriminator
   typeof(TileEffect),// specify base type
   "effectID", // name of discriminator property, must be present in base class
-  new TileEffectID[] { TileEffectID.Property, TileEffectID.RawSumEffect, TileEffectID.GoToJailEffect, TileEffectID.CommunityChest, TileEffectID.Chance }, // specify keys
-  new Type[] { typeof(PropertyEffect), typeof(RawSumEffect), typeof(GoToJailEffect), typeof(CommunityChestEffect), typeof(ChanceEffect) } // specify keys mapping to json types
+  new TileEffectID[] { TileEffectID.Property, TileEffectID.RawSumEffect, TileEffectID.GoToJailEffect, TileEffectID.CommunityChest, TileEffectID.Chance, TileEffectID.GoToTile }, // specify keys
+  new Type[] { typeof(PropertyEffect), typeof(RawSumEffect), typeof(GoToJailEffect), typeof(CommunityChestEffect), typeof(ChanceEffect), typeof(GoToTileEffect) } // specify keys mapping to json types
   )
 ]
 public abstract class TileEffect
@@ -29,7 +29,7 @@ public abstract class TileEffect
     /// e.g. -> All players need to pay taxes, all players pay 50$.
     /// </summary>
     /// <returns>Human readable string describing what the effect will do when applied.</returns>
-    public abstract string DescribeEffect(Player player, List<Player> allPlayers, int currentTileIndex, Game.GameBoard board);
+    public abstract string DescribeEffect(Player player, List<Player> allPlayers, GameState gameState, Game.GameBoard board);
 
     /// <summary>
     /// Executes the implemented effect associated with the given game tile,
@@ -37,9 +37,8 @@ public abstract class TileEffect
     /// </summary>
     /// <param name="landedPlayer">The player that landed in the square</param>
     /// <param name="allPlayers">The full list of players. Beware! landed player is also included.</param>
-    /// <param name="currentTileIndex">The index of the current tile which current effect is being executed.
-    /// In some very rare cases these might not be the same tile as the player position</param>
-    /// <param name="gameTiles">The list of all 40 game tiles</param>
+    /// <param name="gameState">The current state of the game</param>
+    /// <param name="board">The board containing list of all 40 game tiles</param>
     public abstract void ExecuteEffect(
-      Player landedPlayer, List<Player> allPlayers, int currentTileIndex, Game.GameBoard board);
+      Player landedPlayer, List<Player> allPlayers, GameState gameState, Game.GameBoard board);
 };

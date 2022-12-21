@@ -16,6 +16,15 @@ public class MonopolyGame
     private TradeHandler _tradeHandler;
     private Auction? _runningAuction = null;
 
+    /// <summary>
+    /// If this flag is set to true, the turn will not be finished after acknowledging an effect.
+    /// It will be autoremoved after being used once.
+    ///
+    /// Use with caution! if this flag is used, the effect is then expected to handle the game flow of the turn.
+    /// </summary>
+    /// <value></value>
+    public bool AcknowledgeEffectPreventTurn { get; set; } = false;
+
     public EventLabel ListeningEventLabel => _listeningEventLabel;
 
     private GameBoard _board;
@@ -320,7 +329,7 @@ public class MonopolyGame
     /// </summary>
     /// <param name="player">The player to move</param>
     /// <param name="diceResult">The result of the dice, the amount of spaces to move the player</param>
-    private void MovePlayerPosition(Player player, int[] diceResult)
+    public void MovePlayerPosition(Player player, int[] diceResult)
     {
         // Update UI state.
         _gameState.uiState.displayDices = diceResult;
@@ -373,7 +382,7 @@ public class MonopolyGame
         {
             _roll_result = new RollResult() { requiredInput = false, diceResult = diceResult }; // for display purposes
             // this is third double, so rip
-            new MonopolyClone.TileEffects.GoToJailEffect().ExecuteEffect(player, _gameState.players, 10, _board);
+            new MonopolyClone.TileEffects.GoToJailEffect().ExecuteEffect(player, _gameState.players, _gameState, _board);
 
             // Console.WriteLine($"Triple doubles detected, after effect: jailCount = {player.jailCount} doublesCounter = {_doublesCounter} jailRollsThisTurn = {_jailRollsThisTurn}");
             await handler.Broadcast("message-display",
@@ -586,6 +595,13 @@ public class MonopolyGame
 
         // actually apply the effect.
         _board.ApplyEffect(_roll_result.effectToApply.effect, _gameState.players[_gameState.currentTurn], _gameState);
+
+        if (AcknowledgeEffectPreventTurn)
+        {
+            AcknowledgeEffectPreventTurn = false;
+            return;
+        }
+
         // finish the turn.
         AttemptFinishTurn();
     }
@@ -1007,5 +1023,15 @@ public class MonopolyGame
         return true;
     }
 
+    /// <summary>
+    /// Sets the roll result for this turn manually.
+    /// Be carefull and know what you're doing as this modifies directly the turn flow of the game
+    /// </summary>
+    public void SetRollResultManually(RollResult newResult)
+    {
+        _roll_result = newResult;
+    }
+
+    public RollResult? RollResult => _roll_result;
     public GameState GameState => _gameState;
 }

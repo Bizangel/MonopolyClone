@@ -136,6 +136,7 @@ export class UserSocket {
 
         case "unauthorized":
           this.unauthorizedCallback() // call event, but no point in trying so leave.
+          await sleep(this.reconnectionDelay) // await
           return;
       }
       sleep(this.reconnectionDelay) // retry
@@ -154,7 +155,7 @@ export class UserSocket {
       socket.onopen = () => { resolve("opened"); }
       socket.onerror = () => { resolve("errored"); }
       socket.onclose = (event: CloseEvent) => {
-        if (event.reason === "Unauthorized") { resolve("unauthorized") }
+        if (event.code === 1002) { resolve("unauthorized") } // 1002 protocol error
         else { throw new Error(`Websocket connection was closed. Reason: ${event.reason}`) }
       }
     })
@@ -185,6 +186,7 @@ export class UserSocket {
     this.socket.onclose = this.handleOnClose;
     this.socket.onerror = this.handleOnError;
   }
+
   /* Public Api */
 
   /**
