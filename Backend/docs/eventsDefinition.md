@@ -224,6 +224,18 @@ The act of upgrading properties can only be performed during the initial turnpha
 }
 ```
 
+## Downgrade Event
+
+Effectively very similar as the previous event. However this signifies a downgraed of the property.
+i.e. selling houses or mortgaging the property. The status of -1 means a property is mortgaged.
+
+```ts
+{
+  event: "downgrade-property"
+  payload: 2, // the property to sell a house or downgrade
+}
+```
+
 ## Message Display Event
 
 This event is sent from the server to players to notify ephemeral displays to give the players a better game sense.

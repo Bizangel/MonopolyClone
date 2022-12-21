@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { PropertyDeed } from "gameState/gameState";
 import { HouseImgTag, MoneyImgTag } from "common/common";
 import { propertyIDToPrice } from "common/propertiesMapping";
+import LockSVG from "assets/icons/lock-icon.svg"
 
 // only needs to be calculated once really
 var colorToCount = new Map<string, number>();
@@ -34,6 +35,9 @@ function CardEntryWithHover(props: {
   var color = propertyToColor(props.propID);
   var toDisplayUpgrade = color !== "black" && color !== "gray";
 
+  var isMortgaged = props.upgradeState === -1;
+  var mortgageFilter = isMortgaged ? "brightness(50%)" : ""
+
   return (
     <OverlayTrigger
       trigger={["hover", "focus"]}
@@ -43,7 +47,7 @@ function CardEntryWithHover(props: {
         <Popover id={`popover-positioned-top`}>
 
           {
-            toDisplayUpgrade &&
+            toDisplayUpgrade && !isMortgaged &&
             <p className="text-justify text-center text-primary">
               {`Upgrade: ${props.upgradeState} `} <HouseImgTag />
             </p>
@@ -52,15 +56,17 @@ function CardEntryWithHover(props: {
           <p className="text-justify text-center text-primary">Base Cost: {propertyIDToPrice.get(props.propID)}
             <MoneyImgTag />
           </p>
-          <img className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.propID)} alt="PaseoPoblado" />
+          {isMortgaged && <i>This property is mortgaged</i>}
+          <img style={{ filter: mortgageFilter }}
+            className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.propID)} alt="PaseoPoblado" />
         </Popover>
       }
     >
-      {/* <div className="rounded-1" style={{ height: "25%", backgroundColor: props.color }}></div> */}
       <motion.div className="rounded-1"
         style={{
           backgroundColor: props.color,
-
+          margin: "0 0 0 0",
+          padding: "0 0 0 0",
           borderStyle: "solid",
           borderColor: "#d7de12",
         }}
@@ -89,8 +95,15 @@ function CardEntryWithHover(props: {
             borderWidth: "0px",
           }
         }
-      />
-    </OverlayTrigger>
+      >
+        {
+          props.upgradeState !== undefined && props.upgradeState === -1 &&
+          <img src={LockSVG} style={{ width: "70%", position: "absolute", left: "15%" }} alt=""></img>
+        }
+
+      </motion.div>
+
+    </OverlayTrigger >
   )
 }
 

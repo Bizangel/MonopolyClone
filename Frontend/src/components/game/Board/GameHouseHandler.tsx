@@ -55,6 +55,9 @@ function GameHousePack(props: { propertyID: number, upgradeLevel: number }) {
     throw new Error(`Tile location for property with ID: ${props.propertyID} not found in GameHousePack`);
   }
 
+  if (props.upgradeLevel < 0)
+    return null; // no house display
+
   var range = [...Array(props.upgradeLevel).keys()];
 
   if (props.upgradeLevel === 5) {

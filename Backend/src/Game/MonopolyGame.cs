@@ -684,14 +684,32 @@ public class MonopolyGame
         if (property == null)
             throw new ArgumentException($"Could not find property to upgrade with ID {propertyID}");
 
-        // verify that property is even upgradable
-        if (property.colorGroup == 8 || property.colorGroup == 9) // transport and service cannot be upgraded.
-            return false;
-
         // verify that he owns the property.
         var foundIndex = player.properties.FindIndex(e => e.propertyID == property.propertyID);
         if (foundIndex == -1)
             return false; // doesn't own the property
+
+        // check for mortgage exception
+        if (player.properties[foundIndex].upgradeState == -1)
+        {
+            // property is mortgaged. trying to unmortgage,
+            // no more complex checks are needed, and not part of the upgrade once per turn rule
+
+            // just check for upgrade money
+            int mortgageMoney = property.cost / 2;
+            if (player.money < mortgageMoney)
+                return false;
+
+            // undo mortgage
+            player.money -= mortgageMoney;
+            player.properties[foundIndex].upgradeState = 0;
+            return true;
+        }
+
+
+        // verify that property is even upgradable
+        if (property.colorGroup == 8 || property.colorGroup == 9) // transport and service cannot be upgraded.
+            return false;
 
         // verify that has not reached max already
         if (player.properties[foundIndex].upgradeState == 5) // 5 is hotel, and max
@@ -734,6 +752,79 @@ public class MonopolyGame
         player.money -= costOfUpgrade;
         player.properties[foundIndex].upgradeState++;
         _hasUpgradedPropertyThisTurn = true;
+        return true;
+    }
+
+    /// <summary>
+    /// attempts to downgrade a given property. This is also known as selling houses/ mortgaging.
+    ///
+    /// verifies that the operation is valid and performs the necessary operations to do so.
+    /// </summary>
+    /// <param name="playername">The name of the player downgrading the property</param>
+    /// <param name="propertyID">The property to downgrade</param>
+    /// <returns>Whether the downgrade</returns>
+    public bool DowngradeProperty(string playername, int propertyID)
+    {
+        Player? player = FindPlayer(playername);
+        if (player == null)
+            return false;
+
+        if (propertyID < 0 || propertyID > (BoardConstants.NProperties - 1))
+            return false;
+
+        MonopolyClone.TileEffects.PropertyEffect? property = null;
+        // find actual property
+        foreach (var tile in _board.Tiles)
+        {
+            if (tile.effect != null && tile.effect.effectID == 0)
+            {
+                property = (MonopolyClone.TileEffects.PropertyEffect)tile.effect;
+                if (property.propertyID == propertyID)
+                {
+                    break;
+                }
+                else
+                {
+                    property = null;
+                }
+            }
+        }
+
+        if (property == null)
+            throw new ArgumentException($"Could not find property to upgrade with ID {propertyID}");
+
+        // verify that he owns the property.
+        var foundIndex = player.properties.FindIndex(e => e.propertyID == property.propertyID);
+        if (foundIndex == -1)
+            return false; // doesn't own the property
+
+        // verify that its not mortgaged / cannot downgrade further already
+        if (player.properties[foundIndex].upgradeState == -1)
+            return false;
+
+        // check if it's a mortgage or selling a house
+        if (player.properties[foundIndex].upgradeState == 0)
+        {
+            // it's a mortgage so simply, give player the money and set mortgage value
+            player.money += (int)(property.cost / 2);
+            player.properties[foundIndex].upgradeState = -1;
+            return true;
+        }
+
+        // it's a downgrade, selling house
+
+        int costOfUpgrade;
+        if (property.colorGroup < 8)
+        {
+            costOfUpgrade = BoardConstants.UpgradePrices[property.colorGroup / 2];
+        }
+        else
+        {
+            throw new ArgumentException("Received invalid property to calculate cost of upgrade");
+        }
+
+        player.money += (int)costOfUpgrade / 2; // sell back to half-price of what they were valued
+        player.properties[foundIndex].upgradeState--; // downgrade
         return true;
     }
 

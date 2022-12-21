@@ -124,6 +124,10 @@ class PropertyEffect : TileEffect
         var owner = ownerAndDeed.Item1;
         var ownerDeeds = ownerAndDeed.Item2;
 
+        // check if mortgaged
+        if (ownerDeeds.upgradeState == -1)
+            return 0; // mortgaged
+
         // if it's the same person on their own property
         if (landedPlayer.name == owner.name)
             return 0;
@@ -166,6 +170,8 @@ class PropertyEffect : TileEffect
         if (player.name == ownerAndDeed.Item1.name)
             return $"This is {player.name} property's";
 
+        if (ownerAndDeed.Item2.upgradeState == -1)
+            return "This property is mortgaged. No rent will be collected";
 
         if (colorGroup == 9)
         { // if service

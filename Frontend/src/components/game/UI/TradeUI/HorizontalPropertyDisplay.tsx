@@ -2,8 +2,9 @@ import React, { useRef, useState, forwardRef, useImperativeHandle } from "react"
 import { propertyIDToImgpath } from "common/cardImages"
 import { WheelEventHandler } from "react"
 import { Card, Overlay, Popover, Row } from "react-bootstrap"
-import { MoneyImgTag } from "common/common";
+import { HouseImgTag, MoneyImgTag } from "common/common";
 import { PropertyDeed } from "gameState/gameState";
+import { propertyToColor } from "common/propertyConstants";
 
 
 type CardWithHoverRef = {
@@ -38,6 +39,12 @@ const CardWithHover = forwardRef(
       }
     }
 
+    var isMortgaged = props.property.upgradeState === -1;
+    var mortgageFilter = isMortgaged ? "brightness(50%)" : ""
+
+    var color = propertyToColor(props.property.propertyID);
+    var toDisplayUpgrade = color !== "black" && color !== "gray";
+
     return (
       <>
         <Overlay target={internalOverlay} show={isShown} placement={props.placement ? props.placement : "bottom"}>
@@ -46,12 +53,21 @@ const CardWithHover = forwardRef(
               Base Price: {props.basePrice} <MoneyImgTag />
             </p>
 
-            <img className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.property.propertyID)} alt="" />
+            {
+              toDisplayUpgrade && !isMortgaged &&
+              <p className="text-justify text-center text-primary">
+                {`Upgrade: ${props.property.upgradeState} `} <HouseImgTag />
+              </p>
+            }
+
+            {isMortgaged && <i>This property is mortgaged</i>}
+            <img style={{ filter: mortgageFilter }}
+              className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.property.propertyID)} alt="" />
 
           </Popover>
         </Overlay>
 
-        <img ref={internalOverlay} style={{ maxHeight: "100%", width: "auto", height: "auto" }}
+        <img ref={internalOverlay} style={{ maxHeight: "100%", width: "auto", height: "auto", filter: mortgageFilter }}
           onClick={onClick} onContextMenu={onClick}
           src={propertyIDToImgpath.get(props.property.propertyID)} alt=""></img>
       </>

@@ -8,6 +8,7 @@ import { propertyToColor } from "common/propertyConstants";
 import { Player, PropertyDeed, useGameState } from "gameState/gameState";
 import { characterToSprite } from "common/characterSprites";
 import { TurnPhase } from "gameState/uiState";
+import { useEffect, useState } from "react";
 
 export function PropertyDetailsOverlay(props: {
   enabled: boolean, propertyID: number,
@@ -16,6 +17,8 @@ export function PropertyDetailsOverlay(props: {
    */
   onHide?: () => void,
 }) {
+
+  const [consciusEnabled, setConsciusDisable] = useState(false);
 
   const userSocket = useUserSocket();
   const currentTurn = useGameState(e => e.currentTurn)
@@ -26,6 +29,24 @@ export function PropertyDetailsOverlay(props: {
   const purchaseHouseUpgrade = () => {
     userSocket.emit("upgrade-property", props.propertyID)
   };
+
+  const downgradeHouse = () => {
+    userSocket.emit("downgrade-property", props.propertyID)
+  };
+
+  useEffect(() => {
+    const timeoutID = setTimeout(() => {
+      setConsciusDisable(true);
+    }, 2000); // after 3 seconds enable purchase and downgrade button to avoid misclicks
+
+    return () => {
+      clearTimeout(timeoutID);
+    }
+  }, []);
+
+  var propertyPrice = propertyIDToPrice.get(props.propertyID);
+  if (propertyPrice === undefined)
+    throw new Error("Non defined property price! for propID: " + props.propertyID)
 
   var thisOwned: PropertyDeed | null = null;
   var owner: Player | null = null;
@@ -76,6 +97,8 @@ export function PropertyDetailsOverlay(props: {
     upgradeCost = 200;
   }
 
+
+
   var upgradeDisplay: React.ReactNode = (
     <>
       {`${thisOwned?.upgradeState} `} <HouseImgTag />
@@ -118,9 +141,27 @@ export function PropertyDetailsOverlay(props: {
     cannotUpgrade = "Not enough money";
   }
 
+  var upgradeButtonTextDisplay = "Purchase Upgrade"
+  // if mortgaging, less checks
+  if (thisOwned?.upgradeState === -1) {
 
+    upgradeButtonTextDisplay = "Pay Mortgage"
+    upgradeCost = propertyPrice / 2;
+    cannotUpgrade = undefined;// cannot upgrade doesn't apply as it's mortgaging
+
+    if (!isCurrentTurn || currentTurnPhase !== TurnPhase.Standby)
+      cannotUpgrade = "You can only pay mortgages on the first phase of your turn"
+
+    // only check for money
+    if (owner !== null && owner.money < upgradeCost) {
+      cannotUpgrade = "Not enough money"
+    }
+
+  }
 
   var hideTooltip = cannotUpgrade !== undefined ? "" : "invisible";
+
+
 
   return (
     <BaseMiddleDisplayUI
@@ -138,7 +179,7 @@ export function PropertyDetailsOverlay(props: {
             }
           </p>
 
-          <p className="text-justify text-center text-primary">Base Cost: {propertyIDToPrice.get(props.propertyID)}
+          <p className="text-justify text-center text-primary">Base Cost: {propertyPrice}
             <MoneyImgTag />
           </p>
 
@@ -169,7 +210,7 @@ export function PropertyDetailsOverlay(props: {
         <>
           {
             owner?.name === userSocket.Username &&
-            <Col xs="3">
+            <Col xs="3" className="d-flex justify-content-center">
               <OverlayTrigger
                 placement="left"
                 trigger={["focus", "hover"]}
@@ -182,14 +223,43 @@ export function PropertyDetailsOverlay(props: {
                 }
               >
                 <span>
-                  <Button disabled={!props.enabled || cannotUpgrade !== undefined} onClick={purchaseHouseUpgrade}>Purchase Upgrade</Button>
+                  <Button disabled={!props.enabled || cannotUpgrade !== undefined || !consciusEnabled} onClick={purchaseHouseUpgrade}>
+                    <p>{upgradeButtonTextDisplay}</p>
+                    <span>
+                      {upgradeCost}<MoneyImgTag />
+                    </span>
+                  </Button>
                 </span>
               </OverlayTrigger>
             </Col>
           }
-          <Col xs="3">
+          <Col xs="3" className="d-flex justify-content-center">
             <Button disabled={!props.enabled} variant="secondary" onClick={props.onHide}>Close</Button>
           </Col>
+
+          {
+            owner?.name === userSocket.Username && thisOwned !== null && thisOwned.upgradeState > 0 && upgradeCost !== null &&
+            <Col xs="3" className="d-flex justify-content-center">
+              <Button disabled={!props.enabled || !consciusEnabled} variant="danger" onClick={downgradeHouse}>
+                <p>Sell House</p>
+                <span>
+                  +{Math.floor(upgradeCost / 2)} <MoneyImgTag />
+                </span>
+              </Button>
+            </Col>
+          }
+
+          {
+            owner?.name === userSocket.Username && thisOwned !== null && thisOwned.upgradeState === 0 &&
+            <Col xs="3">
+              <Button disabled={!props.enabled || !consciusEnabled} variant="danger" onClick={downgradeHouse}>
+                <p>Mortgage Property</p>
+                <span>
+                  +{Math.floor(propertyPrice / 2)} <MoneyImgTag />
+                </span>
+              </Button>
+            </Col>
+          }
         </>
       }
     />
