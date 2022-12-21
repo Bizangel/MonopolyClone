@@ -1,0 +1,20 @@
+{
+  "communityChestCards": [
+    {
+      "description": "Something wrong happened pay 50!",
+      "effect": {
+        "effectID": 1,
+        "sumAmount": -50
+      }
+    }
+  ],
+  "chanceCards": [
+    {
+      "description": "Error in your favor get 50",
+      "effect": {
+        "effectID": 1,
+        "sumAmount": 50
+      }
+    }
+  ]
+}

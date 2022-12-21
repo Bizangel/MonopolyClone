@@ -31,7 +31,6 @@ public class RollResult
 };
 
 
-
 /// <summary>
 /// Gameboard Class. Holds STATIC board information.
 /// This is generated on startup and it is intended to not be modified.
@@ -49,6 +48,10 @@ public class GameBoard
 
     private Logger _logger;
     private GameboardTileCollection _tileCollection;
+
+    private GameBoardCards _boardCards;
+
+    public GameBoardCards BoardCards => _boardCards;
 
     /// <summary>
     /// Performs verification that all tiles inside tile collection follow expected values.
@@ -96,12 +99,20 @@ public class GameBoard
         _logger = LogManager.GetCurrentClassLogger();
         // read from tiles.json
         var jsonstring = System.IO.File.ReadAllText("gamedata/tiles.jsonc");
-        var storedstate = MonopolySerializer.Deserialize<GameboardTileCollection>(jsonstring);
+        var tileCollection = MonopolySerializer.Deserialize<GameboardTileCollection>(jsonstring);
 
-        if (storedstate == null)
-            throw new ArgumentException("Could not parse json, stored state is None");
+        if (tileCollection == null)
+            throw new ArgumentException("Could Not Parse JSON for game tiles");
 
-        _tileCollection = storedstate;
+        // read from community cards
+        jsonstring = System.IO.File.ReadAllText("gamedata/cards.jsonc");
+        var boardCards = MonopolySerializer.Deserialize<GameBoardCards>(jsonstring);
+        if (boardCards == null)
+            throw new ArgumentException("Could Not Parse JSON for game tiles");
+
+        _tileCollection = tileCollection;
+        _boardCards = boardCards;
+
         VerifyTiles();
     }
 
