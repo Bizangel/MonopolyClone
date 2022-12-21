@@ -32,9 +32,11 @@
       }
     },
     {
-      // Communal Ark ----
+      // Community Chest ----
       "tileID": 2,
-      "effect": null // TODO
+      "effect": {
+        "effectID": 2 // community chest ID
+      }
     },
     {
       // Brown 2
@@ -58,7 +60,11 @@
     {
       // Special Deduct Money
       "tileID": 4,
-      "effect": null // TODO
+      "effect": {
+        "effectID": 1,
+        "description": "",
+        "sumAmount": -200
+      }
     },
     {
       // Transport 1
@@ -304,7 +310,7 @@
     {
       // Quite literally Standby
       "tileID": 20,
-      "effect": null // TODO (Or is it?)
+      "effect": null
     },
     {
       // Red 1

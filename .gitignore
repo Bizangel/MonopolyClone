@@ -1,6 +1,8 @@
 ### my gitignore
 .env
 Backend/gamedata/cards.jsonc
+Backend/gamedata/tiles.jsonc
+
 monopolyclone.db
 monopolyclone-log.db
 monopolystate.json
