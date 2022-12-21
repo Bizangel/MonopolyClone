@@ -9,6 +9,7 @@ import { AnimatedNumberDiv } from "components/helpers/AnimatedNumberDiv";
 import { MoneyImgTag } from "common/common";
 import { ContextMenu } from "./CustomContextMenu";
 import { useUserSocket } from "hooks/socketProvider";
+import DCIcon from "assets/icons/dc-icon.svg"
 
 export type UserBarProps = {
   username: string,
@@ -16,12 +17,13 @@ export type UserBarProps = {
   money: string,
   ownedProperties: PropertyDeed[],
   isPlayerTurn?: boolean,
+  isDced: boolean,
 };
 
 const MotionCard = motion(Card);
 
 export function UserBar(props: UserBarProps) {
-  const color = props.isPlayerTurn ? "#f1d397" : undefined
+  var color = props.isPlayerTurn ? "#f1d397" : undefined
   const outwardTurnClass = props.isPlayerTurn ? "20px" : "0px"
 
   const userSocket = useUserSocket();
@@ -32,6 +34,9 @@ export function UserBar(props: UserBarProps) {
     userSocket.emit("start-trade", props.username);
   };
 
+
+  if (props.isDced)
+    color = "#d61111"
 
   return (
     <ContextMenu elements={displayTrade ? [{ text: "Trade", onClick: startTrade }] : []}>
@@ -49,6 +54,16 @@ export function UserBar(props: UserBarProps) {
           <Row className="w-100 h-100 m-0 p-0">
             {/* Image display */}
             <Col className="h-100 me-0 pe-0" xs="3">
+              {
+                props.isDced &&
+                <img src={DCIcon}
+                  style={{
+                    left: -110, top: -5, position: "absolute", width: "100%", height: "100%",
+                    filter: "invert(62%) sepia(37%) saturate(1122%) hue-rotate(348deg) brightness(92%) contrast(89%)"
+                  }}
+                  alt="disconnected"></img>
+              }
+
               <img className="rounded float-left img-fluid h-100" src={characterToSprite.get(props.character)} alt=""></img>
             </Col>
             {/* User name and money display */}
@@ -80,8 +95,10 @@ export function UserBar(props: UserBarProps) {
 
 export function MultipleUserBars() {
 
+  const connectionUpkeep = useGameState(e => e.uiState.connectedUpkeep)
   const players = useGameState(e => e.players);
   const currentTurn = useGameState(e => e.currentTurn);
+
 
   return (
     <ListGroup>
@@ -89,6 +106,7 @@ export function MultipleUserBars() {
         players.map((player, i) =>
           <UserBar username={player.name} money={player.money.toString()}
             isPlayerTurn={i === currentTurn}
+            isDced={!connectionUpkeep[i]}
             character={player.character} ownedProperties={player.properties} key={player.name} />
         )
       }

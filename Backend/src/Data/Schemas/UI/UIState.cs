@@ -19,4 +19,11 @@ public class UIState
     public Auction? currentAuction { get; set; }
 
     public TradeState? currentTrade { get; set; }
+
+    /// <summary>
+    /// List of boolean that displays how whether the current player is connected or not.
+    /// This matches exactly to the indexes of the game turn
+    /// </summary>
+    /// <value></value>
+    public bool[] connectedUpkeep { get; set; } = new bool[0];
 };

@@ -17,7 +17,6 @@ public class ServerSocketHandler
 
     public void UnregisterSocket(UserSocket socket)
     {
-        //_sockets.TryRemove(socket.Username, out _);
         _sockets.Remove(socket.Username);
     }
 

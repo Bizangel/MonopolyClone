@@ -147,8 +147,11 @@ public class WebSocketController : ControllerBase
             _logger.Info($"----------- User {socket.Username} closed connection!");
         else
             _logger.Info($"----------- Closed Authenticated Websocket Connection of user: {socket.Username} ---- ");
-        SocketsEventHandler.NotifyOnConnectionLost(socket.Username, _socketHandler);
-        _socketHandler.UnregisterSocket(socket);
+
+        var dc_username = socket.Username;
+        _socketHandler.UnregisterSocket(socket); // unregister socket first, we don't want broadcast to dead socket in notify lost
+        SocketsEventHandler.NotifyOnConnectionLost(dc_username, _socketHandler);
+
     }
 
     private async Task SecureCloseWebsocket(WebSocket webSocket, string Reason, WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure)

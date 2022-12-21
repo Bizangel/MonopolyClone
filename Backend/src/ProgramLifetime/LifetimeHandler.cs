@@ -60,7 +60,7 @@ public class LifetimeHandlerService : IHostedService
 
     private void OnStopping()
     {
-        var jsonstate = MonopolySerializer.Serialize(MonopolyGame.Instance.GetStateUpdate());
+        var jsonstate = MonopolySerializer.Serialize(MonopolyGame.Instance.GameState);
         using (StreamWriter outputFile = new StreamWriter(MonopolyStatePath))
         {
             outputFile.WriteLine(jsonstate);

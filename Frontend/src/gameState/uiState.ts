@@ -5,6 +5,7 @@ export const initialUI: UIState = {
   displayDices: [3, 3],
   turnPhase: 0,
   hasPurchasedUpgrade: false,
+  connectedUpkeep: [],
 }
 
 export enum TurnPhase {
@@ -60,5 +61,6 @@ export type UIState = {
   currentAuction?: Auction | null,
   currentTrade?: TradeState | null,
 
+  connectedUpkeep: boolean[], // whether player is connected or not
   hasPurchasedUpgrade: boolean,
 };

@@ -11,9 +11,7 @@ public static class OnStateUpdateRequested
         var _logger = LogManager.GetCurrentClassLogger();
         _logger.Debug($"player {user.Username} requested state update.");
 
-        var state = MonopolyGame.Instance.GetStateUpdate();
-
-        await user.Emit("state-update", state);
+        await MonopolyGame.Instance.EmitStateUpdate(user, serversocket);
     }
 
 }

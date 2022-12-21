@@ -512,7 +512,7 @@ public class MonopolyGame
     /// <summary>
     /// Generates, updates and store a proper UIState, before broadcasting.
     /// </summary>
-    public void GenerateUIState()
+    public void GenerateUIState(MonopolyClone.Sockets.ServerSocketHandler handler)
     {
         UIPropertyToBuy? propertyToBuy = null;
         EffectToApply? awaitingEffect = null;
@@ -537,6 +537,15 @@ public class MonopolyGame
             }
         }
 
+        var connectedPlayerNames = new HashSet<string>(handler.GetConnectedUsers());
+
+        var connectedPlayers = new bool[_gameState.players.Count];
+
+        for (int i = 0; i < _gameState.players.Count; i++)
+        {
+            connectedPlayers[i] = connectedPlayerNames.Contains(_gameState.players[i].name);
+        }
+        // check for connected players
         _gameState.uiState = new UIState()
         {
             turnPhase = _currentTurnPhase,
@@ -546,17 +555,8 @@ public class MonopolyGame
             currentAuction = _runningAuction,
             currentTrade = _tradeHandler.GetCurrentTrade(),
             hasPurchasedUpgrade = _hasUpgradedPropertyThisTurn,
+            connectedUpkeep = connectedPlayers
         };
-    }
-
-    /// <summary>
-    /// Builds and returns the current state update.
-    /// </summary>
-    /// <returns>The current state updated</returns>
-    public GameState GetStateUpdate()
-    {
-        GenerateUIState();
-        return _gameState;
     }
 
     /// <summary>
@@ -572,9 +572,15 @@ public class MonopolyGame
 
     }
 
+    public async Task EmitStateUpdate(MonopolyClone.Sockets.UserSocket playerSocket, MonopolyClone.Sockets.ServerSocketHandler handler)
+    {
+        GenerateUIState(handler);
+        await playerSocket.Emit("state-update", _gameState);
+    }
+
     public async Task BroadcastStateUpdate(MonopolyClone.Sockets.ServerSocketHandler handler)
     {
-        GenerateUIState();
+        GenerateUIState(handler);
         await handler.Broadcast("state-update", _gameState);
     }
 
@@ -828,4 +834,5 @@ public class MonopolyGame
         return true;
     }
 
+    public GameState GameState => _gameState;
 }

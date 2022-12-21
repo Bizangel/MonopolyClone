@@ -13,10 +13,10 @@ public static class OnConnectStateUpdate
         if (MonopolyGame.Instance.ListeningEventLabel != EventLabel.Default)
             return;
 
-        var gameState = MonopolyGame.Instance.GetStateUpdate();
+
         Console.WriteLine($"User connected: {user.Username}, updating him with latest state");
 
-        await user.Emit("state-update", gameState);
+        await MonopolyGame.Instance.BroadcastStateUpdate(handler); // broadcast update so other knows he connected
     }
 
 }
