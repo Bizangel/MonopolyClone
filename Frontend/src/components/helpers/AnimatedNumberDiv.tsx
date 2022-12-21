@@ -1,7 +1,7 @@
-import { animate } from "framer-motion";
+import { Tween, animate } from "framer-motion";
 import React, { useEffect, useRef } from "react";
 
-export function AnimatedNumberDiv(props: { value: number, durationSeconds?: number }) {
+export function AnimatedNumberDiv(props: { value: number, durationSeconds?: number, ease?: Tween["ease"] }) {
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -14,7 +14,8 @@ export function AnimatedNumberDiv(props: { value: number, durationSeconds?: numb
     const decreasing = currentVal < props.value;
 
     const controls = animate(currentVal, props.value, {
-      ease: [0, .74, .3, 1], // very slow ending bezier
+
+      ease: props.ease,
       duration: props.durationSeconds ? props.durationSeconds : 3,
 
       onUpdate(val) {
@@ -31,7 +32,7 @@ export function AnimatedNumberDiv(props: { value: number, durationSeconds?: numb
       controls.stop();
       node.style.color = "";
     };
-  }, [props.value, props.durationSeconds]);
+  }, [props.value, props.durationSeconds, props.ease]);
 
   return <span ref={ref} />;
 }

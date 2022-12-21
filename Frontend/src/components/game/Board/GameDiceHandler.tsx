@@ -177,7 +177,8 @@ export function GameDiceHandler() {
 
       userSocket.emit("throw-dice-finish",
         {
-          diceLanded: diceCatches.diceCatchedNumbers,
+          // diceLanded: diceCatches.diceCatchedNumbers,
+          diceLanded: [2, 6],
           dicesStop: transforms,
         }
       )

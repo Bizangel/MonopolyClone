@@ -146,7 +146,7 @@ public class GameBoard
             // TODO Implement Passthrough Effects
             var passThroughEffect = _tileCollection.tiles[manualWalk].passThroughEffect;
             if (passThroughEffect != null)
-                passThroughEffect.ExecuteEffect(player, state.players, manualWalk, _tileCollection.tiles);
+                passThroughEffect.ExecuteEffect(player, state.players, manualWalk, this);
         };
 
         // Actually set location
@@ -171,7 +171,7 @@ public class GameBoard
         // Simply return effect to apply. However, input is indeed required.
         if (tileEffect.GetType() != typeof(PropertyEffect))
         {
-            string effectDescription = tileEffect.DescribeEffect(player, state.players, player.location, _tileCollection.tiles);
+            string effectDescription = tileEffect.DescribeEffect(player, state.players, player.location, this);
 
             return new RollResult()
             {
@@ -207,7 +207,7 @@ public class GameBoard
         }
 
         // if property IS purchased, just a normal effect. Require input for acknowledgement of pay.
-        string description = tileEffect.DescribeEffect(player, state.players, player.location, _tileCollection.tiles);
+        string description = tileEffect.DescribeEffect(player, state.players, player.location, this);
         return new RollResult()
         {
             possibleAuction = null,
@@ -224,7 +224,7 @@ public class GameBoard
     /// </summary>
     public void ApplyEffect(TileEffect effect, Player player, GameState state)
     {
-        effect.ExecuteEffect(player, state.players, player.location, _tileCollection.tiles);
+        effect.ExecuteEffect(player, state.players, player.location, this);
     }
 
     /// <summary>

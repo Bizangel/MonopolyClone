@@ -164,7 +164,7 @@ class PropertyEffect : TileEffect
         return rentCost[ownerDeeds.upgradeState];
     }
 
-    public override string DescribeEffect(Player player, List<Player> allPlayers, int currentTileIndex, List<GameTile> gameTiles)
+    public override string DescribeEffect(Player player, List<Player> allPlayers, int currentTileIndex, Game.GameBoard board)
     {
         var ownerAndDeed = FindOwnerAndDeed(allPlayers);
         if (player.name == ownerAndDeed.Item1.name)
@@ -175,19 +175,19 @@ class PropertyEffect : TileEffect
 
         if (colorGroup == 9)
         { // if service
-            var countOwned = countOwnedCategories(9, ownerAndDeed.Item1, gameTiles);
+            var countOwned = countOwnedCategories(9, ownerAndDeed.Item1, board.Tiles);
             return $"This is {ownerAndDeed.Item1.name} property's, {player.name} must pay diceRoll x{rentCost[countOwned - 1]}";
         }
 
-        int toPay = CalculateCost(player, allPlayers, gameTiles);
+        int toPay = CalculateCost(player, allPlayers, board.Tiles);
 
         return $"This is {ownerAndDeed.Item1.name} property's, {player.name} must pay {toPay}";
     }
 
     public override void ExecuteEffect(
-  Player landedPlayer, List<Player> allPlayers, int currentTileIndex, List<GameTile> gameTiles)
+  Player landedPlayer, List<Player> allPlayers, int currentTileIndex, Game.GameBoard gameBoard)
     {
-        var toDeduct = CalculateCost(landedPlayer, allPlayers, gameTiles);
+        var toDeduct = CalculateCost(landedPlayer, allPlayers, gameBoard.Tiles);
         var ownerAndDeed = FindOwnerAndDeed(allPlayers);
         if (landedPlayer.name == ownerAndDeed.Item1.name)
             return;

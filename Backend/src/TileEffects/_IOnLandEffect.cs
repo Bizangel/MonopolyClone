@@ -29,7 +29,7 @@ public abstract class TileEffect
     /// e.g. -> All players need to pay taxes, all players pay 50$.
     /// </summary>
     /// <returns>Human readable string describing what the effect will do when applied.</returns>
-    public abstract string DescribeEffect(Player player, List<Player> allPlayers, int currentTileIndex, List<GameTile> gameTiles);
+    public abstract string DescribeEffect(Player player, List<Player> allPlayers, int currentTileIndex, Game.GameBoard board);
 
     /// <summary>
     /// Executes the implemented effect associated with the given game tile,
@@ -41,5 +41,5 @@ public abstract class TileEffect
     /// In some very rare cases these might not be the same tile as the player position</param>
     /// <param name="gameTiles">The list of all 40 game tiles</param>
     public abstract void ExecuteEffect(
-      Player landedPlayer, List<Player> allPlayers, int currentTileIndex, List<GameTile> gameTiles);
+      Player landedPlayer, List<Player> allPlayers, int currentTileIndex, Game.GameBoard board);
 };

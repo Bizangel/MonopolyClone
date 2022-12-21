@@ -70,7 +70,8 @@ function PlayerResultEntry(props: { player: Player, netWorth: number, podiumNumb
       <Col className="d-flex align-items-center justify-content-start text-info">
         Net Worth:
         <span className="justify-content-center align-items-center d-flex" style={{ fontSize: "3.5vh" }}>
-          <AnimatedNumberDiv value={props.netWorth} durationSeconds={7} /> <MoneyImgTag scale={2} /></span>
+          <AnimatedNumberDiv value={props.netWorth} durationSeconds={7} ease={[0, .74, .3, 1]} // very slow ending bezier
+          /> <MoneyImgTag scale={2} /></span>
       </Col>
     </MotionRow>
   )

@@ -373,7 +373,7 @@ public class MonopolyGame
         {
             _roll_result = new RollResult() { requiredInput = false, diceResult = diceResult }; // for display purposes
             // this is third double, so rip
-            new MonopolyClone.TileEffects.GoToJailEffect().ExecuteEffect(player, _gameState.players, 10, _board.Tiles);
+            new MonopolyClone.TileEffects.GoToJailEffect().ExecuteEffect(player, _gameState.players, 10, _board);
 
             // Console.WriteLine($"Triple doubles detected, after effect: jailCount = {player.jailCount} doublesCounter = {_doublesCounter} jailRollsThisTurn = {_jailRollsThisTurn}");
             await handler.Broadcast("message-display",
