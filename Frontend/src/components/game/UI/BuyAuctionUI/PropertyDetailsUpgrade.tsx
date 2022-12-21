@@ -37,7 +37,7 @@ export function PropertyDetailsOverlay(props: {
   useEffect(() => {
     const timeoutID = setTimeout(() => {
       setConsciusDisable(true);
-    }, 2000); // after 3 seconds enable purchase and downgrade button to avoid misclicks
+    }, 1000); // after a seconds enable purchase and downgrade button to avoid misclicks
 
     return () => {
       clearTimeout(timeoutID);

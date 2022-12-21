@@ -64,6 +64,125 @@ public class MonopolyGame
         return null;
     }
 
+
+    private int HouseCost(int tileID)
+    {
+        if (tileID < 0)
+            throw new NotImplementedException();
+
+        if (tileID < 10)
+        {
+            return 50;
+        }
+        else if (tileID < 20)
+        {
+            return 100;
+        }
+        else if (tileID < 30)
+        {
+            return 150;
+        }
+        else if (tileID < 40)
+        {
+            return 200;
+        }
+        else
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Determines how much money is a player's properties worth
+    /// </summary>
+    /// <param name="player">The player to determine the properties</param>
+    /// <returns>How much the player is worth</returns>
+    private int CalculatePlayerPropertyWorth(Player player)
+    {
+        int worth = 0;
+
+        var propertyIDtoTileID = new Dictionary<int, int>();
+        var propertyIDtoCost = new Dictionary<int, int>();
+        foreach (var tile in _board.Tiles)
+        {
+            if (tile.effect != null && tile.effect.effectID == 0)
+            {
+                var property = (MonopolyClone.TileEffects.PropertyEffect)tile.effect;
+                propertyIDtoTileID.Add(property.propertyID, tile.tileID);
+                propertyIDtoCost.Add(property.propertyID, property.cost);
+            }
+        }
+
+        player.properties.ForEach(property =>
+        {
+            // he has the property
+            if (property.upgradeState == -1)
+            {
+                worth += propertyIDtoCost[property.propertyID] / 2; // half price only due to mortgage
+            }
+            else
+            {
+                worth += propertyIDtoCost[property.propertyID]; // full property price
+            }
+
+            // add the upgrade levels
+            if (property.upgradeState > 0)
+            {
+                worth += property.upgradeState * HouseCost(propertyIDtoTileID[property.propertyID]);
+            }
+        });
+
+        return worth;
+    }
+
+    // <summary>
+    /// Determines how much a player can mortage and sell
+    /// </summary>
+    /// <param name="player">The player to determine the mortgage values</param>
+    /// <returns>How much can he mortgage</returns>
+    private int HowMuchCanMortgage(Player player)
+    {
+        int worth = 0;
+
+        var propertyIDtoTileID = new Dictionary<int, int>();
+        var propertyIDtoCost = new Dictionary<int, int>();
+        foreach (var tile in _board.Tiles)
+        {
+            if (tile.effect != null && tile.effect.effectID == 0)
+            {
+                var property = (MonopolyClone.TileEffects.PropertyEffect)tile.effect;
+                propertyIDtoTileID.Add(property.propertyID, tile.tileID);
+                propertyIDtoCost.Add(property.propertyID, property.cost);
+            }
+        }
+
+        player.properties.ForEach(property =>
+        {
+            // he has the property
+            if (property.upgradeState == -1) // cannot remortgage, worthless
+                return;
+
+            worth += propertyIDtoCost[property.propertyID] / 2; // mortgage value
+
+            // add the upgrade levels
+            if (property.upgradeState > 0)
+            {
+                worth += (property.upgradeState * HouseCost(propertyIDtoTileID[property.propertyID])) / 2;
+            }
+        });
+
+        return worth;
+    }
+
+
+    /// <summary>
+    /// Finishes the monopoly Game.
+    /// /// </summary>
+    private void FinishGame()
+    {
+        Console.WriteLine("Game finished!");
+    }
+
     /// <summary>
     /// Performs necessary game checks for several things.
     /// Mainly to see players money going below negative and then ending the game properly.
@@ -72,15 +191,40 @@ public class MonopolyGame
     /// Do make it relatively stateless and do not rely on the fact on how many times it will be executed,
     /// as it can and WILL be executed multiple times in a same turn.
     /// </summary>
-    private void PerformGameChecks()
+    public bool PerformGameChecks()
     {
+
         foreach (var player in _gameState.players)
         {
+            Console.WriteLine($"Player {player.name} can sell ${HowMuchCanMortgage(player)}");
+
             if (player.money < 0)
             {
-                throw new Exception("Game finished! (Handle this properly of course)");
+                if ((player.money + HowMuchCanMortgage(player)) < 0)
+                {
+                    // rip
+                    FinishGame();
+                    return false;
+                }
+                else
+                {
+                    // await till this function is called again, but now player has more than 0 money
+                    // set to mortgage state
+                    _currentTurnPhase = TurnPhase.Mortgageby;
+                    return false;
+                }
             }
         }
+
+        if (_currentTurnPhase == TurnPhase.Mortgageby)
+        {
+            // no longer in mortgage
+            _currentTurnPhase = TurnPhase.Choiceby;
+            AttemptFinishTurn();
+            return true;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -175,7 +319,6 @@ public class MonopolyGame
 
         // Process Roll
         _roll_result = _board.HandlePlayerDiceRoll(player, diceResult, _gameState);
-        PerformGameChecks();
 
         if (!_roll_result.requiredInput) // no required input. just apply any necessary effect and finish turn
         {
@@ -257,8 +400,8 @@ public class MonopolyGame
         if (player.jailCount == 2 && _jailRollsThisTurn == 3)
         {  // two turns + this roll, so just escape him with fees, he'll then figure if he loses
             player.jailCount = -1;
-            MovePlayerPosition(player, diceResult); // just move with same throw
             player.money -= BoardConstants.JailFee;
+            MovePlayerPosition(player, diceResult); // just move with same throw
             await handler.Broadcast("message-display",
             $"{player.name} paid {BoardConstants.JailFee} to escape jail after three failed turns");
 
@@ -477,6 +620,9 @@ public class MonopolyGame
     /// </summary>
     public void AttemptFinishTurn()
     {
+        if (!PerformGameChecks())
+            return; // a player is in the negatives. Await for them to finish. Or well, the game's already over anyway.
+
         bool doublesPlayAgain = false;
         if (_roll_result != null)
             doublesPlayAgain = (

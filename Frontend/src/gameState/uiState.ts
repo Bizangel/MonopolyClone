@@ -11,7 +11,8 @@ export const initialUI: UIState = {
 export enum TurnPhase {
   Standby,
   Choiceby,
-  Auctionby
+  Auctionby,
+  Mortgageby,
 };
 
 type UIPropertyToBuy = {

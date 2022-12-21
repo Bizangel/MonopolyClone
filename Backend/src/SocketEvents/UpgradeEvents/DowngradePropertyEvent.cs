@@ -9,7 +9,7 @@ public static class DowngradePropertyEvent
     public static async Task Run(UserSocket user, ServerSocketHandler serversocket, int toUpgrade)
     {
         MonopolyGame.Instance.DowngradeProperty(user.Username, toUpgrade);
-
+        MonopolyGame.Instance.PerformGameChecks(); // perform game checks
         await MonopolyGame.Instance.BroadcastStateUpdate(serversocket); // broadcast the update after applying effect
     }
 

@@ -7,4 +7,5 @@ public enum TurnPhase
     Standby,
     Choiceby,
     Auctionby,
+    Mortgageby,
 };

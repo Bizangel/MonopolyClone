@@ -63,6 +63,7 @@ export function UI(props: {
   },
     [UIState, props])
 
+
   var topDisplayColor = "";
   var topDisplay: React.ReactNode = "";
   switch (UIState.turnPhase) {
@@ -85,6 +86,20 @@ export function UI(props: {
     case TurnPhase.Auctionby:
       topDisplayColor = "text-info";
       topDisplay = "Auction";
+      break;
+    case TurnPhase.Mortgageby:
+      var debtplayer = currentPlayers.find(e => e.money < 0);
+      if (debtplayer) {
+        topDisplayColor = "text-info";
+        topDisplay = (
+          <>
+            <i>{debtplayer.name} </i>
+            is in debt! Awaiting him to sell/mortgage...
+          </>
+        );
+      }
+
+
       break;
   }
 
