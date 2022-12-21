@@ -12,8 +12,8 @@ namespace MonopolyClone.TileEffects;
   typeof(SubJsonSerializer<TileEffectID>), // specify serializer discriminator
   typeof(TileEffect),// specify base type
   "effectID", // name of discriminator property, must be present in base class
-  new TileEffectID[] { TileEffectID.Property, TileEffectID.RawSumEffect, TileEffectID.GoToJailEffect, TileEffectID.CommunityChest, TileEffectID.Chance, TileEffectID.GoToTile }, // specify keys
-  new Type[] { typeof(PropertyEffect), typeof(RawSumEffect), typeof(GoToJailEffect), typeof(CommunityChestEffect), typeof(ChanceEffect), typeof(GoToTileEffect) } // specify keys mapping to json types
+  new TileEffectID[] { TileEffectID.Property, TileEffectID.RawSumEffect, TileEffectID.GoToJailEffect, TileEffectID.CommunityChest, TileEffectID.Chance, TileEffectID.GoToTile, TileEffectID.CollectEffect }, // specify keys
+  new Type[] { typeof(PropertyEffect), typeof(RawSumEffect), typeof(GoToJailEffect), typeof(CommunityChestEffect), typeof(ChanceEffect), typeof(GoToTileEffect), typeof(CollectEffect) } // specify keys mapping to json types
   )
 ]
 public abstract class TileEffect
