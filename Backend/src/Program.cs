@@ -6,15 +6,19 @@ using MonopolyClone.DotEnv;
 using NLog;
 using NLog.Web;
 
-
-bool useSwaggerAPIEndpoint = true;
-var DevelopmentOrigin = "_DevelopmentOrigin";
-string hostingPath = "../Frontend/build";
-
-
+// load env variables
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
 DotEnv.Load(dotenv);
+
+bool useSwaggerAPIEndpoint = true;
+var DevelopmentOrigin = "_DevelopmentOrigin";
+
+var staticPath = Environment.GetEnvironmentVariable("STATIC_PATH");
+if (staticPath == null)
+    throw new ArgumentNullException("STATIC_PATH environment variable specifying folder not found! cannot proceed.");
+
+
 
 /* Read and set Environment Variables */
 var config =
@@ -24,30 +28,25 @@ var config =
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
-    WebRootPath = hostingPath,
+    WebRootPath = staticPath,
     Args = args
 });
 
+var developmentCORS = Environment.GetEnvironmentVariable("DEVELOPMENT_CORS");
+
 // Add Development CORS for localhost
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: DevelopmentOrigin,
-                      policy =>
-                      {
-                          //policy.SetIsOriginAllowed(origin => {
-                          //    var hostName = new Uri(origin).Host;
-                          //    if (hostName == "localhost") { return true; }
-                          //    if (hostName.StartsWith("192.168.1.")) { return true; }
-                          //    return false;
-                          //    })
-                          //  .AllowAnyHeader()
-                          //  .AllowAnyMethod();
-                          policy.WithOrigins("https://192.168.0.69:3000", "https://192.168.0.69")
-                            .AllowAnyHeader()
-                            .AllowAnyMethod()
-                            .AllowCredentials();
-                      });
-});
+if (developmentCORS != null)
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(name: DevelopmentOrigin,
+                        policy =>
+                        {
+                            policy.WithOrigins(developmentCORS)
+                                .AllowAnyHeader()
+                                .AllowAnyMethod()
+                                .AllowCredentials();
+                        });
+    });
 
 
 // add cookie-based authentication
@@ -81,8 +80,16 @@ if (app.Environment.IsProduction()) { logger.Info("Running production environmen
 if (app.Environment.IsDevelopment())
 {
     // allow cors for specific dev origin
-    app.UseCors(DevelopmentOrigin);
-    logger.Warn("Enabling Development CORS for localhost origins");
+    if (developmentCORS != null)
+    {
+        app.UseCors(DevelopmentOrigin);
+        logger.Warn($"Enabling Development CORS for {developmentCORS}");
+    }
+    else
+        logger.Warn(
+            "NO DEVELOPMENT CORS IS PRESENT IN DEVELOPMENT! Login functionalities and similar will NOT work from external sources! (e.g. React development server)" +
+            "To set one set the environment variable DEVELOPMENT_CORS");
+
 }
 
 
@@ -122,7 +129,7 @@ provider.Mappings[".glb"] = "model/gltf-buffer";
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-           Path.Combine(builder.Environment.ContentRootPath, hostingPath)),
+           Path.Combine(builder.Environment.ContentRootPath, staticPath)),
     RequestPath = "",
     ContentTypeProvider = provider,
 });
