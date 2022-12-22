@@ -111,7 +111,7 @@ if (useSwaggerAPIEndpoint && app.Environment.IsDevelopment())
 app.UseAuthentication();
 
 // If Redirection is required
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 // If Authorization is required, authorization is done kind of manually and not using middlewares so not used ATM.
 //app.UseAuthorization();

@@ -1,1 +1,1 @@
-"%programfiles%\Git\bin\bash.exe" build.sh
+"%programfiles%\Git\bin\bash.exe" build.sh %1 %2

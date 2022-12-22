@@ -5,6 +5,9 @@ Backend/gamedata/tiles.jsonc
 Backend/gamedata/cards2.jsonc
 Backend/gamedata/tiles2.jsonc
 
+Backend/key.pem
+Backend/cert.pem
+
 monopolyclone.db
 monopolyclone-log.db
 monopolystate.json
