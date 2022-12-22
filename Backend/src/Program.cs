@@ -127,6 +127,7 @@ app.MapControllers();
 
 var pass = MonopolyClone.Lobby.LobbyHandler.Instance.GetLobbyPass();
 logger.Info("Generated Lobby password is: " + pass);
+logger.Info("Generated Registration password is: " + MonopolyClone.Controllers.AuthenticationController.RegistrationCode);
 
 // Initialize encryptor
 MonopolyClone.Auth.CryptTools.AesEncryptor.Initialize();

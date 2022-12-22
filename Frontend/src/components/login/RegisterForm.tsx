@@ -1,9 +1,10 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
-import { RegisterReply, RegisterReplySchema, AuthForm } from 'schemas';
+import { RegisterReply, RegisterReplySchema } from 'schemas';
 import { requestSchema } from 'remote';
 import PageCenteredGridContainer from 'components/helpers/PageCenteredGridContainer';
-import { UserPassForm } from './UserPassForm';
+import { UserpassWithRegistrationCode } from './UserPassWithRegistrationCodeForm';
+import { RegistrationForm } from 'schemas/auth';
 
 type RegisterFormProps = {
   onLoginClick: () => void,
@@ -16,8 +17,8 @@ export class RegisterFormPage extends React.Component<RegisterFormProps> {
   }
 
 
-  public onSubmit = async (form: AuthForm) => {
-    var registerreply = await requestSchema<AuthForm, RegisterReply>("/register-account", form, "POST", RegisterReplySchema, false);
+  public onSubmit = async (form: RegistrationForm) => {
+    var registerreply = await requestSchema<RegistrationForm, RegisterReply>("/register-account", form, "POST", RegisterReplySchema, false);
 
     if (registerreply === null) {
       this.setState({ messageDisp: "Connection Error!", username: "", password: "", messageDispColor: "red" });
@@ -32,13 +33,12 @@ export class RegisterFormPage extends React.Component<RegisterFormProps> {
 
   render() {
     return (
-      <PageCenteredGridContainer childWidth='30vw' childHeight='40vh'>
+      <PageCenteredGridContainer childWidth='30vw' childHeight='60vh'>
         <Card style={{ width: "100%", height: "100%" }}>
           <Card.Title style={{ padding: "20px 0px 0px 20px" }}>Register to MonopolyClone!</Card.Title>
           <Card.Body>
 
-
-            <UserPassForm
+            <UserpassWithRegistrationCode
               onSubmit={this.onSubmit} messageDisp={this.state.messageDisp}
               messageDispColor={this.state.messageDispColor}
               title="Register to MonopolyClone!"

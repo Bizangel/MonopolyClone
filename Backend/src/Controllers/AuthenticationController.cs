@@ -16,6 +16,9 @@ namespace MonopolyClone.Controllers;
 [Route("/")]
 public class AuthenticationController : ControllerBase
 {
+    private static readonly string _registrationCode = SecretGenerator.GetUniqueSecret(20);
+    public static string RegistrationCode => _registrationCode;
+
     private const double cookie_expiry_days = 2;
     private readonly Logger _logger;
     private readonly IWebHostEnvironment _environment;
@@ -26,7 +29,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("register-account")]
-    public RegisterReply RegisterAccount(AuthSchema auth)
+    public RegisterReply RegisterAccount(RegistrationSchema auth)
     {
         // Validate that they're not null
         if (auth.Username == null || auth.Password == null)
@@ -48,6 +51,10 @@ public class AuthenticationController : ControllerBase
         // Validate that password is at least 3 characters
         if (auth.Password.Length < 3)
             return new RegisterReply() { Success = false, Message = "Password is too short!" };
+
+        // validate that temporary password is valid
+        if (auth.RegistrationTemporaryPasssword != _registrationCode)
+            return new RegisterReply() { Success = false, Message = "Invalid Registration Code!" };
 
         // If passed all validations, then actually store
         try

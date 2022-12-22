@@ -8,6 +8,12 @@ export type AuthForm = {
   password: string,
 };
 
+export type RegistrationForm = {
+  username: string,
+  password: string,
+  registrationTemporaryPasssword: string,
+};
+
 /**
  * Reply Schemas
  */
