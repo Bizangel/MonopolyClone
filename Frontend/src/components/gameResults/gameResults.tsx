@@ -10,6 +10,7 @@ import { Physics } from "@react-three/cannon";
 import { GameBoard } from "components/game/Board/Gameboard";
 import { StaticRotatingCamera } from "components/game/Board/StaticRotatingCamera";
 import { Player } from "gameState/gameState";
+import { SkyboxHandler } from "components/game/Skybox/SkyboxHandler";
 
 const MotionRow = motion(Row);
 
@@ -118,6 +119,7 @@ export function GameResultPage(props: { results: GameResult }) {
         <ambientLight intensity={0.4} color="white" />
         <directionalLight color="white" position={[30, 30, 0]} intensity={0.2} />
 
+        <SkyboxHandler />
         <StaticRotatingCamera initialLookatLocation={[0, 0, 0]} initialPos={[0, 6, 8]} />
         <Physics>
           <GameBoard color="blue" onTileClicked={() => { }} position={[-1, -1, 0]} />

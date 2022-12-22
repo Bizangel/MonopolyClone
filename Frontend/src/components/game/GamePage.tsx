@@ -46,7 +46,7 @@ export function Gamepage() {
           <GameDiceHandler />
 
           <JailCage />
-          <SkyboxHandler bg={"forest"} />
+          <SkyboxHandler />
           <InvisiblePlane position={[0, boardYLocation, 0]} />
         </Physics>
       </Canvas>

@@ -37,7 +37,7 @@ function CardEntryWithHover(props: {
   var toDisplayUpgrade = color !== "black" && color !== "gray";
 
   var isMortgaged = props.upgradeState === -1;
-  var mortgageFilter = isMortgaged ? "brightness(50%)" : ""
+  var filter = isMortgaged ? "brightness(50%)" : ""
 
 
   var initialAnimationStart = {
@@ -82,7 +82,7 @@ function CardEntryWithHover(props: {
             <MoneyImgTag />
           </p>
           {isMortgaged && <i>This property is mortgaged</i>}
-          <img style={{ filter: mortgageFilter }}
+          <img style={{ filter: filter }}
             className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.propID)} alt="PaseoPoblado" />
         </Popover>
       }

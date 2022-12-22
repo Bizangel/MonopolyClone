@@ -43,13 +43,13 @@ export function BottomDisplayEvents() {
             style={{ zIndex: 1 }}
 
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: 0.8 }}
             exit={{ opacity: 0 }}
             transition={{ delay: 0.4 }}
             className="justify-content-center items-center d-flex"
           >
 
-            <Card className="m-2" style={{ maxWidth: "70%", backgroundColor: "rgba(255,255,255,0.5)" }}>
+            <Card className="m-2" style={{ maxWidth: "70%" }}>
               {currentDisplay}
             </Card>
           </motion.div>

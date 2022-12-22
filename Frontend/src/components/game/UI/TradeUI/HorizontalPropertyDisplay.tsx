@@ -40,7 +40,7 @@ const CardWithHover = forwardRef(
     }
 
     var isMortgaged = props.property.upgradeState === -1;
-    var mortgageFilter = isMortgaged ? "brightness(50%)" : ""
+    var filter = isMortgaged ? "brightness(50%)" : ""
 
     var color = propertyToColor(props.property.propertyID);
     var toDisplayUpgrade = color !== "black" && color !== "gray";
@@ -61,13 +61,13 @@ const CardWithHover = forwardRef(
             }
 
             {isMortgaged && <i>This property is mortgaged</i>}
-            <img style={{ filter: mortgageFilter }}
+            <img style={{ filter: filter }}
               className="rounded float-left img-fluid mw-100 mh-100" src={propertyIDToImgpath.get(props.property.propertyID)} alt="" />
 
           </Popover>
         </Overlay>
 
-        <img ref={internalOverlay} style={{ maxHeight: "100%", width: "auto", height: "auto", filter: mortgageFilter }}
+        <img ref={internalOverlay} style={{ maxHeight: "100%", width: "auto", height: "auto", filter: filter }}
           onClick={onClick} onContextMenu={onClick}
           src={propertyIDToImgpath.get(props.property.propertyID)} alt=""></img>
       </>
