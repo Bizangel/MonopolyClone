@@ -5,62 +5,64 @@ import { CubeTextureLoader } from "three";
 import * as THREE from "three"
 import create from 'zustand'
 
-const Skyboxes = ["forest", "desert", "space1"] as const;
+const Skyboxes = ["space", "sky", "bluespace", "lightbluespace", "mountain", "desert"] as const;
 type Skybox = typeof Skyboxes[number];
 
-const skyboxToPath = new Map<Skybox, string>(
+const skyBoxExtension = new Map<Skybox, string>(
   [
-    ["forest", "forest_skybox"],
-    ["desert", "desert_skybox"],
-    ["space1", "space1_skybox"]
+    ["sky", "jpg"],
+    ["mountain", "jpg"]
   ]
 )
 
 type SkyboxHook = {
   currentSkybox?: Skybox,
   setSkybox: (newSkybox?: Skybox) => void,
+  cycleSkybox: () => void,
 }
 
-const useSkybox = create<SkyboxHook>()(set => ({
-  currentSkybox: undefined,
+const useSkybox = create<SkyboxHook>()((set, get) => ({
+  currentSkybox: "space",
 
-  setSkybox: (newSkybox?: Skybox) => { set({ currentSkybox: newSkybox }) }
+  setSkybox: (newSkybox?: Skybox) => { set({ currentSkybox: newSkybox }) },
+  cycleSkybox: () => {
+    if (get().currentSkybox === undefined) {
+      set({ currentSkybox: Skyboxes[0] });
+      return;
+    }
+
+    var index = Skyboxes.findIndex((e) => e === get().currentSkybox);
+    if (index === Skyboxes.length - 1)
+      set({ currentSkybox: undefined });
+    else
+      set({ currentSkybox: Skyboxes[index + 1] });
+  }
 }))
 
 
 export function SkyboxHandler() {
 
-  const { currentSkybox, setSkybox } = useSkybox();
+  const { currentSkybox, cycleSkybox } = useSkybox();
   const { scene } = useThree();
 
-  useOnKeyDown("q", () => {
-    setSkybox(undefined);
-  })
-
-  useOnKeyDown("w", () => {
-    setSkybox("forest");
-  })
-
-  useOnKeyDown("e", () => {
-    setSkybox("desert");
-  })
-
   useOnKeyDown("r", () => {
-    setSkybox("space1");
-  })
+    cycleSkybox()
+  });
 
   useEffect(() => {
     if (currentSkybox === undefined) {
       scene.background = null;
+      scene.background = new THREE.Color(0x5e85c4);
       return
     }
 
-
+    var ext = skyBoxExtension.get(currentSkybox);
     const cubeTexture = new CubeTextureLoader().load(
       ["right", "left", "top", "bottom", "front", "back"].map(e =>
-        require(`assets/skyboxes/${skyboxToPath.get(currentSkybox)}/${e}.png`)
+        require(`assets/skyboxes/${currentSkybox}_skybox/${e}.${ext ? ext : "png"}`)
       )
     );
+
 
     cubeTexture.encoding = THREE.sRGBEncoding;
 
@@ -70,7 +72,7 @@ export function SkyboxHandler() {
       scene.background = null;
       cubeTexture.dispose();
     }
-  }, [scene, currentSkybox, setSkybox])
+  }, [scene, currentSkybox])
 
   return null;
 }

@@ -5,6 +5,7 @@ import { useUserSocket } from "hooks/socketProvider";
 import { Container, Col, Row, Card, Button, ListGroup, ListGroupItem } from "react-bootstrap";
 import { LobbyCharacterModelPreview } from "./LobbyCharacterModelPreview";
 import { useLobbyState, useTemporaryLocalLobby } from "./lobbyState";
+import { SkyboxHandler } from "components/game/Skybox/SkyboxHandler";
 
 function LobbyCharacterCard(props: {
   character: PlayerCharacter,
@@ -154,6 +155,7 @@ export function CharacterSelect() {
         <pointLight position={[10, 10, 10]} color="white" />
 
         <LobbyCharacterModelPreview character={preview} />
+        <SkyboxHandler />
       </Canvas>
       <LobbyUI />
     </>

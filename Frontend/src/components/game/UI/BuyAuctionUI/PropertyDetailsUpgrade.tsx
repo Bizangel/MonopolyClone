@@ -212,7 +212,7 @@ export function PropertyDetailsOverlay(props: {
           onClick={props.onHide}
           className="rounded" style={{
             filter: mortgageFilter,
-            width: "auto", height: "100%", maxWidth: "100%", maxHeight: "100%", margin: "auto"
+            width: "auto", height: "100%", maxWidth: "100%", maxHeight: "100%", margin: "auto",
           }}
           src={propertyIDToImgpath.get(props.propertyID)} alt=""></img>}
 
