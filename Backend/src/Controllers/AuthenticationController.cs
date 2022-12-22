@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using MonopolyClone.Auth;
 using MonopolyClone.Auth.CryptTools;
+using MonopolyClone.Auth.SecretGenerator;
 using MonopolyClone.Auth.Validator;
 using MonopolyClone.Database;
 using MonopolyClone.Json;
@@ -18,12 +19,10 @@ public class AuthenticationController : ControllerBase
     private const double cookie_expiry_days = 2;
     private readonly Logger _logger;
     private readonly IWebHostEnvironment _environment;
-    private readonly AesEncryptor _aesEncryptor;
     public AuthenticationController(IWebHostEnvironment environment)
     {
         _logger = LogManager.GetCurrentClassLogger();
         _environment = environment;
-        _aesEncryptor = new AesEncryptor();
     }
 
     [HttpPost("register-account")]
@@ -110,7 +109,7 @@ public class AuthenticationController : ControllerBase
         try
         {
 
-            cookiestring = _aesEncryptor.Encrypt(MonopolySerializer.Serialize(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
+            cookiestring = AesEncryptor.Instance.Encrypt(MonopolySerializer.Serialize(new CookieHolder() { AuthenticatedUser = auth.Username, ExpiryTimestamp = unixTime }));
         }
         catch (Exception e)
         {

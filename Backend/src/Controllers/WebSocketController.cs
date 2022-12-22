@@ -21,7 +21,6 @@ public class WebSocketController : ControllerBase
     private static ServerSocketHandler _socketHandler;
     private static ReaderWriterLockSlim _synclock;
     private readonly Logger _logger;
-    private readonly AesEncryptor _aesEncryptor;
 
     static WebSocketController()
     {
@@ -32,7 +31,6 @@ public class WebSocketController : ControllerBase
     public WebSocketController()
     {
         _logger = LogManager.GetCurrentClassLogger();
-        _aesEncryptor = new AesEncryptor();
     }
 
     [HttpGet("/ws")]
@@ -53,9 +51,9 @@ public class WebSocketController : ControllerBase
             CookieHolder? holder = null;
             try
             {
-                holder = MonopolySerializer.Deserialize<CookieHolder>(_aesEncryptor.Decrypt(authCookie));
+                holder = MonopolySerializer.Deserialize<CookieHolder>(AesEncryptor.Instance.Decrypt(authCookie));
             }
-            catch (Newtonsoft.Json.JsonException)
+            catch (Exception) // any exception. Due to encryption etc
             {
                 await SecureCloseWebsocket(webSocket, "Invalid Authentication Cookie Given", WebSocketCloseStatus.ProtocolError);
                 return;
@@ -88,9 +86,6 @@ public class WebSocketController : ControllerBase
                 await SecureCloseWebsocket(webSocket, "Duplicate Websocket Connection", WebSocketCloseStatus.ProtocolError);
                 return;
             }
-
-
-
 
             _logger.Info("----------- Accepted Websocket Connection from IP:" + HttpContext.Connection.RemoteIpAddress);
             var userSocket = new UserSocket(webSocket, holder.AuthenticatedUser);

@@ -1,5 +1,3 @@
-using System.Web;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using MonopolyClone.DotEnv;
@@ -49,12 +47,7 @@ if (developmentCORS != null)
                         });
     });
 
-
-// add cookie-based authentication
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 builder.Services.AddHostedService<LifetimeHandlerService>();
-
-
 
 // setup logging
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
@@ -106,24 +99,19 @@ if (useSwaggerAPIEndpoint && app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
-// Use authentication (for cookies!)
-app.UseAuthentication();
-
-// If Redirection is required
-//app.UseHttpsRedirection();
-
-// If Authorization is required, authorization is done kind of manually and not using middlewares so not used ATM.
-//app.UseAuthorization();
-
 // Configure WebSockets
 app.UseWebSockets();
+
+app.UseProtectFolder(new ProtectFolderOptions
+{
+    Path = "/static/media",
+    PolicyName = "Authenticated",
+});
 
 // make it so that it serves default files
 app.UseDefaultFiles();
 
 // Make it so it serves static files
-
 var provider = new FileExtensionContentTypeProvider();
 provider.Mappings[".glb"] = "model/gltf-buffer";
 
@@ -135,11 +123,13 @@ app.UseStaticFiles(new StaticFileOptions
     ContentTypeProvider = provider,
 });
 
-
 app.MapControllers();
 
 var pass = MonopolyClone.Lobby.LobbyHandler.Instance.GetLobbyPass();
 logger.Info("Generated Lobby password is: " + pass);
+
+// Initialize encryptor
+MonopolyClone.Auth.CryptTools.AesEncryptor.Initialize();
 
 // Register SocketEvents
 MonopolyClone.Events.SocketsEventHandler.RegisterAllEvents();

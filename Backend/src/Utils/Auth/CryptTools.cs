@@ -6,6 +6,28 @@ namespace MonopolyClone.Auth.CryptTools;
 
 public class AesEncryptor
 {
+    private static AesEncryptor? _instance;
+
+    /// <summary>
+    /// Initialize the AesEncryptor instance.
+    /// Expected to be called after loading the private key from the environment variables
+    /// </summary>
+    /// <returns></returns>
+    public static void Initialize()
+    {
+        _instance = new AesEncryptor();
+    }
+
+    public static AesEncryptor Instance
+    {
+        get
+        {
+            if (_instance == null)
+                throw new ArgumentException("Trying to AesEncryptor Instance without being initialized first!");
+
+            return _instance;
+        }
+    }
     private readonly byte[] _key;
 
     public byte[] StringToByteArray(string hex)
@@ -16,25 +38,30 @@ public class AesEncryptor
                          .ToArray();
     }
 
-    public AesEncryptor() {
+    public AesEncryptor()
+    {
         // Key must be given in hex format, and when decoded have exactly 32 bytes.
         var keystring = Environment.GetEnvironmentVariable("ENCRYPTIONKEY");
         if (keystring == null)
             throw new ArgumentNullException("No encryption key found in environment variables!, cannot proceed.");
 
         byte[] key;
-        try {
+        try
+        {
             key = StringToByteArray(keystring);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new ArgumentException("Error why trying to parse key hex bytes!" + e);
         }
 
-        if (key.Length != 32) {
+        if (key.Length != 32)
+        {
             throw new ArgumentException("Key length must be 32 bytes!");
         }
 
         _key = key;
-    }   
+    }
 
     public string Encrypt(string plainText)
     {
@@ -56,7 +83,7 @@ public class AesEncryptor
             aesAlg.GenerateIV();
 
             IV = aesAlg.IV;
-            
+
 
             // Create an encryptor to perform the stream transform.
             ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, IV);
@@ -78,11 +105,11 @@ public class AesEncryptor
 
         // Return the encrypted bytes as hexstring
         var prebytes = IV.Concat(encrypted).ToArray(); // send IV at start
-        return Convert.ToBase64String(prebytes); 
+        return Convert.ToBase64String(prebytes);
     }
 
     public string Decrypt(string hexcipher)
-    {   
+    {
         // Check arguments.
         if (hexcipher == null || hexcipher.Length <= 0)
             throw new ArgumentNullException(nameof(hexcipher));
