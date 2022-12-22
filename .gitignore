@@ -2,6 +2,8 @@
 .env
 Backend/gamedata/cards.jsonc
 Backend/gamedata/tiles.jsonc
+Backend/gamedata/cards2.jsonc
+Backend/gamedata/tiles2.jsonc
 
 monopolyclone.db
 monopolyclone-log.db

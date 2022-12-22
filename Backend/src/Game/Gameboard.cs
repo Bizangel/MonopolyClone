@@ -97,15 +97,24 @@ public class GameBoard
     public GameBoard()
     {
         _logger = LogManager.GetCurrentClassLogger();
+
+        var alternatecards = Environment.GetEnvironmentVariable("ALTERNATE_CARDS");
+        if (alternatecards == "true")
+            _logger.Info("Enabling Alternate Cards mode!");
+
+        var tilesPath = alternatecards == "true" ? "gamedata/tiles2.jsonc" : "gamedata/tiles.jsonc";
+        var cardsPath = alternatecards == "true" ? "gamedata/cards2.jsonc" : "gamedata/cards.jsonc";
+
+
         // read from tiles.json
-        var jsonstring = System.IO.File.ReadAllText("gamedata/tiles.jsonc");
+        var jsonstring = System.IO.File.ReadAllText(tilesPath);
         var tileCollection = MonopolySerializer.Deserialize<GameboardTileCollection>(jsonstring);
 
         if (tileCollection == null)
             throw new ArgumentException("Could Not Parse JSON for game tiles");
 
         // read from community cards
-        jsonstring = System.IO.File.ReadAllText("gamedata/cards.jsonc");
+        jsonstring = System.IO.File.ReadAllText(cardsPath);
         var boardCards = MonopolySerializer.Deserialize<GameBoardCards>(jsonstring);
         if (boardCards == null)
             throw new ArgumentException("Could Not Parse JSON for game tiles");
