@@ -11,6 +11,7 @@ import { boardYLocation } from "common/boardConstants";
 import { tileToPropertyID } from "common/propertiesMapping";
 import { GameHouseHandler } from "./Board/GameHouseHandler";
 import { JailCage } from "./Board/JailCage";
+import { SkyboxHandler } from "./Skybox/SkyboxHandler";
 
 /**
  * Main gamepage containing all game display 3d stuff.
@@ -45,7 +46,7 @@ export function Gamepage() {
           <GameDiceHandler />
 
           <JailCage />
-
+          <SkyboxHandler bg={"forest"} />
           <InvisiblePlane position={[0, boardYLocation, 0]} />
         </Physics>
       </Canvas>

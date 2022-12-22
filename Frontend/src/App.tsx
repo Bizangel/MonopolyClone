@@ -1,5 +1,6 @@
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootswatch/dist/cyborg/bootstrap.min.css";
+// import 'bootstrap/dist/css/bootstrap.min.css';
 import { GameEntryHandler } from 'components/GameEntryHandler';
 import { userSocketContext, useUserSocketProvider } from 'hooks/socketProvider';
 // In your application's entrypoint
