@@ -40,7 +40,11 @@ const CardWithHover = forwardRef(
     }
 
     var isMortgaged = props.property.upgradeState === -1;
-    var filter = isMortgaged ? "brightness(50%)" : ""
+
+    var filter = "brightness(0.9)";
+    // if mortgaging, less checks
+    if (isMortgaged)
+      filter = "brightness(0.3)"
 
     var color = propertyToColor(props.property.propertyID);
     var toDisplayUpgrade = color !== "black" && color !== "gray";

@@ -199,7 +199,7 @@ export function TradeOverlay(props: { state: UIState }) {
 
       {
         remainingProperties && remainingMoney !== undefined &&
-        <Card style={{ width: "100vw", height: "30vh", position: "absolute", bottom: "0px", left: "0px" }} onContextMenu={(e) => { e.preventDefault() }}>
+        <Card style={{ width: "100vw", height: "30vh", position: "absolute", bottom: "0px", left: "0px", zIndex: 3 }} onContextMenu={(e) => { e.preventDefault() }}>
           <TraderPickWindow
             onPropertyClick={offerProperty}
             properties={remainingProperties} remainingMoney={remainingMoney} onUpdateTradeMoney={changeTradeMoney} />

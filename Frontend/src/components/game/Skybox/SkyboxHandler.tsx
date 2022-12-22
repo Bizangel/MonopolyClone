@@ -1,17 +1,15 @@
 import { useThree } from "@react-three/fiber";
-import { useOnKeyDown } from "hooks/onKeydown";
 import { useEffect } from "react";
 import { CubeTextureLoader } from "three";
 import * as THREE from "three"
 import create from 'zustand'
 
-const Skyboxes = ["space", "sky", "bluespace", "lightbluespace", "mountain", "desert"] as const;
+const Skyboxes = ["space", "sky", "bluespace", "lightbluespace", "desert"] as const;
 type Skybox = typeof Skyboxes[number];
 
 const skyBoxExtension = new Map<Skybox, string>(
   [
     ["sky", "jpg"],
-    ["mountain", "jpg"]
   ]
 )
 
@@ -21,7 +19,7 @@ type SkyboxHook = {
   cycleSkybox: () => void,
 }
 
-const useSkybox = create<SkyboxHook>()((set, get) => ({
+export const useSkybox = create<SkyboxHook>()((set, get) => ({
   currentSkybox: "space",
 
   setSkybox: (newSkybox?: Skybox) => { set({ currentSkybox: newSkybox }) },
@@ -42,12 +40,8 @@ const useSkybox = create<SkyboxHook>()((set, get) => ({
 
 export function SkyboxHandler() {
 
-  const { currentSkybox, cycleSkybox } = useSkybox();
+  const { currentSkybox } = useSkybox();
   const { scene } = useThree();
-
-  useOnKeyDown("r", () => {
-    cycleSkybox()
-  });
 
   useEffect(() => {
     if (currentSkybox === undefined) {

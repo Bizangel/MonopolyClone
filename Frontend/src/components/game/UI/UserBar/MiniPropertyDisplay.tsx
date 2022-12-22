@@ -37,7 +37,11 @@ function CardEntryWithHover(props: {
   var toDisplayUpgrade = color !== "black" && color !== "gray";
 
   var isMortgaged = props.upgradeState === -1;
-  var filter = isMortgaged ? "brightness(50%)" : ""
+
+  var filter = "brightness(0.9)";
+  // if mortgaging, less checks
+  if (isMortgaged)
+    filter = "brightness(0.3)"
 
 
   var initialAnimationStart = {

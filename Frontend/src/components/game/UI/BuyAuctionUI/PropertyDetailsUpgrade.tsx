@@ -145,10 +145,10 @@ export function PropertyDetailsOverlay(props: {
 
   var isMortgaged = thisOwned?.upgradeState === -1;
 
-  var mortgageFilter = isMortgaged ? "brightness(50%)" : ""
+  var filter = "brightness(0.9)";
   // if mortgaging, less checks
   if (isMortgaged) {
-
+    filter = "brightness(0.3)"
 
     upgradeButtonTextDisplay = "Pay Mortgage"
     upgradeCost = propertyPrice / 2;
@@ -211,7 +211,7 @@ export function PropertyDetailsOverlay(props: {
         <img
           onClick={props.onHide}
           className="rounded" style={{
-            filter: mortgageFilter,
+            filter: filter,
             width: "auto", height: "100%", maxWidth: "100%", maxHeight: "100%", margin: "auto",
           }}
           src={propertyIDToImgpath.get(props.propertyID)} alt=""></img>}

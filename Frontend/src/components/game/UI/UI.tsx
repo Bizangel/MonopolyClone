@@ -16,7 +16,8 @@ import { TradeOverlay } from "./TradeUI/TradeOverlay";
 import { PropertyDetailsOverlay } from "./BuyAuctionUI/PropertyDetailsUpgrade";
 import { BottomDisplayEvents } from "./BottomEventsDisplay";
 import { useIsAnyDiceRolling } from "../Board/GameDiceHandler";
-
+import MountainIconSvg from "assets/icons/mountains.svg"
+import { useSkybox } from "../Skybox/SkyboxHandler";
 /**
  * The UI is one big div that effectively dispalys all user UI.
  *
@@ -43,6 +44,8 @@ export function UI(props: {
   const [diceFocused, setDiceFocus] = useState(false);
   const characterToStopped = useCharacterStoppedStore(e => e.characterToStopped);
   const isAnyDiceRolling = useIsAnyDiceRolling(e => e.isAnyDiceRolling);
+
+  const cycleSkybox = useSkybox(e => e.cycleSkybox);
 
   var isCurrentTurn = userSocket.Username === currentPlayers[currentTurn].name;
 
@@ -281,6 +284,13 @@ export function UI(props: {
           }
         </AnimatePresence>
       </div>
+
+      <div style={{ position: "absolute", width: "3vw", height: "3vh", left: "1vw", bottom: "4vh", cursor: "pointer" }}
+        onClick={cycleSkybox}>
+        <img src={MountainIconSvg} alt="Switch Environment" style={{ filter: "invert(0.5)" }} />
+      </div>
+
+
     </>
   )
 }
