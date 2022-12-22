@@ -1,0 +1,1 @@
+"%programfiles%\Git\bin\bash.exe" build.sh

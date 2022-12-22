@@ -11,7 +11,8 @@ var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
 DotEnv.Load(dotenv);
 
-bool useSwaggerAPIEndpoint = true;
+var enableSwagger = Environment.GetEnvironmentVariable("ENABLE_SWAGGER");
+bool useSwaggerAPIEndpoint = enableSwagger == "true"; // this way it defaults to false
 var DevelopmentOrigin = "_DevelopmentOrigin";
 
 var staticPath = Environment.GetEnvironmentVariable("STATIC_PATH");
@@ -110,7 +111,7 @@ if (useSwaggerAPIEndpoint && app.Environment.IsDevelopment())
 app.UseAuthentication();
 
 // If Redirection is required
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 // If Authorization is required, authorization is done kind of manually and not using middlewares so not used ATM.
 //app.UseAuthorization();
