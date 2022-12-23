@@ -20,12 +20,12 @@ function TradeDisplayWindowContainerless(props:
       <Row className="m-0 p-0" style={{ flexGrow: 1, position: "sticky", left: 0, top: 0 }}>
         <Card className="justify-center text-center">
           <Row className="justify-center text-center m-0">
-            <div>
+            <div className="text-primary">
               {props.topDisplay}
             </div>
           </Row>
           <Row className="justify-center text-center m-0">
-            <div>
+            <div className="text-primary">
               {props.offer.money} <MoneyImgTag /> +
             </div>
           </Row>
@@ -74,19 +74,19 @@ function TraderPickWindow(props: {
               <Col>
               </Col>
               <Col>
-                <div>
+                <div className="text-primary">
                   Your properties
                 </div>
               </Col>
               <Col className="m-0 p-0">
-                <p className="text-muted m-0 p-0" style={{ fontSize: "1.5vh" }}>
+                <p className="text-info m-0 p-0" style={{ fontSize: "1.5vh" }}>
                   Right Click a property for more details
                 </p>
               </Col>
 
             </Row>
             <Row className="justify-center text-center m-0">
-              <div>
+              <div className="text-primary">
                 Remaining after trade: {props.remainingMoney} <MoneyImgTag />
               </div>
             </Row>

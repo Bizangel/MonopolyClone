@@ -69,12 +69,12 @@ export function UserBar(props: UserBarProps) {
             </Col>
             {/* User name and money display */}
             <Col className="h-100 mw-100" xs="4">
-              <Row className="h-30 align-items-center"
+              <Row className="h-30 align-items-center text-primary"
                 style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
                 {props.username}
               </Row>
               <Row className="h-70">
-                <Col className="float-right m-0 p-0" align="right" xs="5"
+                <Col className="float-right m-0 p-0 text-primary" align="right" xs="5"
                   style={{ whiteSpace: "nowrap" }}>
                   <AnimatedNumberDiv value={parseInt(props.money)} />
                 </Col>

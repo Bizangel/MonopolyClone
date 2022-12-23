@@ -23,7 +23,7 @@ function PlayerBidDisplay(props:
   return (
     <MotionCard
       whileHover={{ opacity: 1 }}
-      style={{ width: "300px", height: "7vh", opacity: 0.8, overflowX: "visible", position: "relative" }}
+      style={{ width: "300px", height: "7vh", opacity: 1 }}
       animate={{
         backgroundColor: color,
         right: outwardTurn,
@@ -36,15 +36,15 @@ function PlayerBidDisplay(props:
               src={characterToSprite.get(props.character ? props.character : PlayerCharacter.Car)} alt=""></img>
           </Col>
           <Col className="h-100 mw-100" xs="9">
-            <Row className="h-30 align-items-center"
+            <Row className="h-30 align-items-center text-primary"
               style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
               {props.username}
             </Row>
             <Row className="h-70">
-              <Col xs="2" className="m-0 p-0" align="left">
+              <Col xs="2" className="m-0 p-0 text-primary" align="left">
                 Bid:
               </Col>
-              <Col className="p-0 m-0 align-items-center justify-content-center float-left" align="left" xs="4">
+              <Col className="p-0 m-0 align-items-center justify-content-center float-left text-primary" align="left" xs="4">
                 <AnimatedNumberDiv value={props.bidAmount} durationSeconds={0.1} />
                 <MoneyImgTag />
               </Col>
@@ -84,7 +84,7 @@ export function AuctionOverlay(props: { auction: Auction }) {
 
     return (
       <div style={{ width: "100%", height: "25%" }}>
-        <div>Selling to {highestAuctioner.name} in {props.seconds}:{props.milliseconds}</div>
+        <div className="text-info">Selling to {highestAuctioner.name} in {props.seconds}:{props.milliseconds}</div>
         <div style={{
           width: `${(remainingPercent * 100).toFixed(2)}%`, height: "25%",
           backgroundColor: `hsl(${midPoint}, 90%, 47%)`
@@ -117,7 +117,7 @@ export function AuctionOverlay(props: { auction: Auction }) {
           </Row>
           <Form onSubmit={placeBid}>
             <Row className="mt-3 w-100 justify-content-center">
-              <Col xs="3" className="d-flex w-100 justify-content-center">
+              <Col xs="3" className="d-flex flex-column w-100 align-items-center justify-content-center">
                 <Form.Control
                   onChange={
                     (e) => {
@@ -144,17 +144,17 @@ export function AuctionOverlay(props: { auction: Auction }) {
           </Row>
 
         </Col>
-        <Col className="d-flex h-100 m-0 p-0 align-items-center mw-100 mh-100" xs="4">
-
-          <Row className="m-0 p-0 mw-100 mh-100" >
-            <>
-              {props.auction.bids.map((e) => {
-                return <PlayerBidDisplay username={e.bidder} bidAmount={e.bidAmount}
+        <Col className="d-flex flex-column h-100 m-0 p-0 align-items-center justify-content-center mw-100 mh-100" xs="4">
+          <>
+            {props.auction.bids.map((e) => {
+              return (
+                <PlayerBidDisplay username={e.bidder} bidAmount={e.bidAmount}
                   key={e.bidder}
                   character={usernameToPlayer.get(e.bidder)} isHighest={e.bidder === highestAuctioner.name} />
-              })}
-            </>
-          </Row>
+              )
+            })}
+          </>
+
 
         </Col>
       </Row >

@@ -118,7 +118,7 @@ export function HorizontalPropertyWindow(props: {
   return (
     <div className="h-100 w-100" onWheel={onScroll}>
       <Card className="h-100 w-100">
-        <Row className={`d-flex ${reversedClass} flex-nowrap h-100`} style={{ overflowX: "auto" }} ref={internalScrollRef}>
+        <Row className={`d-flex flex-row ${reversedClass} flex-nowrap h-100`} style={{ overflowX: "auto" }} ref={internalScrollRef}>
           {
             props.properties.map((e) =>
               <CardWithHover placement={props.hoverPlacement} property={e} key={e.propertyID} ref={(node) => { getCardRef(node, e.propertyID) }}
