@@ -5,6 +5,7 @@ import { Card, Overlay, Popover, Row } from "react-bootstrap"
 import { HouseImgTag, MoneyImgTag } from "common/common";
 import { PropertyDeed } from "gameState/gameState";
 import { propertyToColor } from "common/propertyConstants";
+import { propertyIDToPrice } from "common/propertiesMapping";
 
 
 type CardWithHoverRef = {
@@ -120,10 +121,14 @@ export function HorizontalPropertyWindow(props: {
       <Card className="h-100 w-100">
         <Row className={`d-flex flex-row ${reversedClass} flex-nowrap h-100`} style={{ overflowX: "auto" }} ref={internalScrollRef}>
           {
-            props.properties.map((e) =>
-              <CardWithHover placement={props.hoverPlacement} property={e} key={e.propertyID} ref={(node) => { getCardRef(node, e.propertyID) }}
-                basePrice={200} onClick={props.onPropertyClick}
+            props.properties.map((e) => {
+              var price = propertyIDToPrice.get(e.propertyID);
+              return <CardWithHover placement={props.hoverPlacement} property={e} key={e.propertyID} ref={(node) => { getCardRef(node, e.propertyID) }}
+                basePrice={price ? price : 0}
+                onClick={props.onPropertyClick}
               />
+            }
+
             )
           }
         </Row>
