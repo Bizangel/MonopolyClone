@@ -3,21 +3,29 @@ import { Form, Button as Button2 } from 'react-bootstrap';
 import { AuthForm } from 'schemas'
 
 
-type UserPassFormProps = {
-  onSubmit: (form: AuthForm) => void,
+type UserLoginFormCardProps = {
+  onSubmit: (form: AuthForm) => Promise<boolean>,
   messageDisp: string,
   messageDispColor: string,
-  title: string,
-  passwordAutoComplete: string,
+  title: string
 }
 
 
-export function UserPassForm(props: UserPassFormProps) {
+export function UserLoginFormCard(props: UserLoginFormCardProps) {
   const [formState, setFormState] = useState<AuthForm>({ username: "", password: "" })
 
+  const onSubmit = async () => {
+    if (await props.onSubmit(formState)) {
+      setFormState({ username: "", password: "" })
+    }
+  }
+
   return (
-    <Form className="loginForm" onSubmit={(e) => { props.onSubmit(formState); e.preventDefault() }}>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
+    <Form onSubmit={(e) => {
+      onSubmit();
+      e.preventDefault();
+    }}>
+      <Form.Group className="mb-3" controlId="formBasicUsername">
         <Form.Label>Username</Form.Label>
         <Form.Control type="username" placeholder="Enter Username"
           name="username"
@@ -43,12 +51,9 @@ export function UserPassForm(props: UserPassFormProps) {
         {props.messageDisp}
       </p>
 
-      <Button2 variant="primary" onClick={() => props.onSubmit(formState)}>
+      <Button2 variant="primary" type="submit">
         Submit
       </Button2>
-
-
-
     </Form>
   )
 

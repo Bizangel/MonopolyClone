@@ -1,55 +1,59 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from 'react-bootstrap';
 import { RegisterReply, RegisterReplySchema } from 'schemas';
 import { requestSchema } from 'remote';
 import PageCenteredGridContainer from 'components/helpers/PageCenteredGridContainer';
-import { UserpassWithRegistrationCode } from './UserPassWithRegistrationCodeForm';
+import { RegistrationFormClientSide, UserpassWithRegistrationCode } from './UserPassWithRegistrationCodeForm';
 import { RegistrationForm } from 'schemas/auth';
 
 type RegisterFormProps = {
   onLoginClick: () => void,
 }
 
-export class RegisterFormPage extends React.Component<RegisterFormProps> {
-  state = {
-    messageDisp: "",
-    messageDispColor: "red",
-  }
+export function RegisterFormPage(props: RegisterFormProps) {
 
 
-  public onSubmit = async (form: RegistrationForm) => {
-    var registerreply = await requestSchema<RegistrationForm, RegisterReply>("/register-account", form, "POST", RegisterReplySchema, false);
+  const [subDisplay, setSubDisplay] = useState({ messageDispColor: "red", messageDisp: "" });
+
+  const onSubmit = async (form: RegistrationFormClientSide): Promise<boolean> => {
+    if (form.password !== form.confirmPassword) {
+      setSubDisplay({ messageDisp: "Passwords must match!", messageDispColor: "red" });
+      return false; // don't clear
+    }
+
+    var toSend = { username: form.username, password: form.password, registrationTemporaryPasssword: form.registrationCode };
+    var registerreply = await requestSchema<RegistrationForm, RegisterReply>("/register-account", toSend, "POST", RegisterReplySchema, false);
 
     if (registerreply === null) {
-      this.setState({ messageDisp: "Connection Error!", username: "", password: "", messageDispColor: "red" });
+      setSubDisplay({ messageDisp: "Connection Error!", messageDispColor: "red" });
+      return false; // don't clear
     } else {
       if (registerreply.success) {
-        this.setState({ messageDisp: "Successfully created account!", username: "", password: "", messageDispColor: "green" });
+        setSubDisplay({ messageDisp: "Successfully created account!", messageDispColor: "green" });
+        return true;
       } else {
-        this.setState({ messageDisp: registerreply.message, username: "", password: "", messageDispColor: "red" });
+        setSubDisplay({ messageDisp: registerreply.message, messageDispColor: "red" });
+        return false;// if something invalid, here, like existing, etc, don't clear
       }
     }
   }
 
-  render() {
-    return (
-      <PageCenteredGridContainer childWidth='30vw' childHeight='60vh'>
-        <Card style={{ width: "100%", height: "100%" }}>
-          <Card.Title style={{ padding: "20px 0px 0px 20px" }}>Register to MonopolyClone!</Card.Title>
-          <Card.Body>
+  return (
+    <PageCenteredGridContainer childWidth='30vw' childHeight='75vh'>
+      <Card style={{ width: "100%", height: "100%" }}>
+        <Card.Title style={{ padding: "20px 0px 0px 20px" }}>Register to MonopolyClone!</Card.Title>
+        <Card.Body>
 
-            <UserpassWithRegistrationCode
-              onSubmit={this.onSubmit} messageDisp={this.state.messageDisp}
-              messageDispColor={this.state.messageDispColor}
-              title="Register to MonopolyClone!"
-              passwordAutoComplete='new-password' />
+          <UserpassWithRegistrationCode
+            onSubmit={onSubmit} messageDisp={subDisplay.messageDisp}
+            messageDispColor={subDisplay.messageDispColor}
+            title="Register to MonopolyClone!"
+          />
 
-          </Card.Body>
+        </Card.Body>
 
-          <Card.Footer>Already have an account? <Card.Link onClick={this.props.onLoginClick} style={{ cursor: "pointer" }}>Login</Card.Link></Card.Footer>
-        </Card>
-      </PageCenteredGridContainer>
-    );
-  }
-
+        <Card.Footer>Already have an account? <Card.Link onClick={props.onLoginClick} style={{ cursor: "pointer" }}>Login</Card.Link></Card.Footer>
+      </Card>
+    </PageCenteredGridContainer>
+  );
 }

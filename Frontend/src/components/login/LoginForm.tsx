@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from 'react-bootstrap';
 import { LoginReply, LoginReplySchema, AuthForm } from 'schemas';
 import { requestSchema } from 'remote';
 import PageCenteredGridContainer from 'components/helpers/PageCenteredGridContainer';
-import { UserPassForm } from './UserPassForm';
+import { UserLoginFormCard } from './UserPassForm';
 
 
 type LoginFormProps = {
@@ -11,48 +11,46 @@ type LoginFormProps = {
   onRegisterClick: () => void,
 }
 
-export class LoginFormPage extends React.Component<LoginFormProps>{
+export function LoginFormPage(props: LoginFormProps) {
 
-  state = {
-    messageDispColor: "red",
-    messageDisp: "",
-  }
+  const [subDisplay, setSubDisplay] = useState({ messageDispColor: "red", messageDisp: "" });
 
-  onSubmit = async (form: AuthForm) => {
+  const onSubmit = async (form: AuthForm): Promise<boolean> => {
     var loginreply = await requestSchema<AuthForm, LoginReply>("/login", form, "POST", LoginReplySchema, true);
 
     if (loginreply == null) {
-      this.setState({ messageDisp: "Connection Error!", username: "", password: "", messageDispColor: "red" });
+      setSubDisplay({ messageDisp: "Connection Error!", messageDispColor: "red" });
+      return false;
     } else {
       if (loginreply.success) {
-        this.setState({ messageDisp: "Successful login!", username: "", password: "", messageDispColor: "green" });
-        this.props.onLoginSuccess();
+        setSubDisplay({ messageDisp: "Successful login!", messageDispColor: "green" });
+        return true; // clear
       } else {
-        this.setState({ messageDisp: "Invalid username or password", username: "", password: "", messageDispColor: "red" });
+        setSubDisplay({ messageDisp: "Invalid username or password", messageDispColor: "red" });
+        return true;  // clear
       }
     }
   }
 
-  render() {
-    return (
-      <PageCenteredGridContainer childWidth='30vw' childHeight='40vh'>
-        <Card style={{ width: "100%", height: "100%" }}>
-          <Card.Title style={{ padding: "20px 0px 0px 20px" }}>Login to MonopolyClone!</Card.Title>
-          <Card.Body>
 
-            <UserPassForm
-              onSubmit={this.onSubmit} messageDisp={this.state.messageDisp}
-              messageDispColor={this.state.messageDispColor}
-              title="Register to MonopolyClone!"
-              passwordAutoComplete='current-password' />
+  return (
+    <PageCenteredGridContainer childWidth='30vw' childHeight='40vh'>
+      <Card style={{ width: "100%", height: "100%" }}>
+        <Card.Title style={{ padding: "20px 0px 0px 20px" }}>Login to MonopolyClone!</Card.Title>
+        <Card.Body>
 
-          </Card.Body>
+          <UserLoginFormCard
+            onSubmit={onSubmit} messageDisp={subDisplay.messageDisp}
+            messageDispColor={subDisplay.messageDispColor}
+            title="Register to MonopolyClone!" />
 
-          <Card.Footer>Don't have an account? <Card.Link onClick={this.props.onRegisterClick} style={{ cursor: "pointer" }}>Register!</Card.Link></Card.Footer>
-        </Card>
-      </PageCenteredGridContainer>
-    );
+        </Card.Body>
 
-  }
+        <Card.Footer>Don't have an account? <Card.Link onClick={props.onRegisterClick} style={{ cursor: "pointer" }}>Register!</Card.Link></Card.Footer>
+      </Card>
+    </PageCenteredGridContainer>
+  );
+
+
 
 }
