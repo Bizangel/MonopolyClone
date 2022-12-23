@@ -180,8 +180,8 @@ export function GameResultPage(props: { results: GameResult }) {
       </AnimatePresence>
 
 
-      <Container className="d-flex justify-content-center align-items-center g-0 p-0 m-0" style={{ width: "100vw", height: "100vh" }}>
-        <Col>
+      <Container className="d-flex justify-content-center align-items-center g-0 p-0 m-0 h-100 w-100">
+        <Col className="d-flex justify-content-center align-items center flex-column">
           {currentlyDisplayed.map((e, i) =>
             <PlayerResultEntry key={e.player.name} player={e.player} netWorth={e.netWorth}
               podiumNumber={props.results.players.length - (currentlyDisplayed.length - i - 1)} />
